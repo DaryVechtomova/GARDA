@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic 3D Body Model</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        #viewer {
+            width: 70%;
+            height: 100vh;
+            background-color: #000;
+        }
+
+        #controls {
+            width: 30%;
+            height: 100vh;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        #controls label {
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #controls input {
+            margin-top: 5px;
+            padding: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        #controls span {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #555;
+        }
+
+        #controls h2 {
+            margin-bottom: 10px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        #controls .group {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="viewer"></div>
+    <div id="controls">
+        <h2>Body Measurements (cm)</h2>
+        <div class="group">
+            <label>
+                Arm Length:
+                <input type="number" id="armLengthInput" min="45" max="80" step="1" value="56">
+                <span>Current: <span id="armLengthValue">56</span> cm</span>
+            </label>
+        </div>
+        <div class="group">
+            <label>
+                Arm Width:
+                <input type="number" id="armWidthInput" min="20" max="50" step="1" value="26">
+                <span>Current: <span id="armWidthValue">26</span> cm</span>
+            </label>
+        </div>
+        <div class="group">
+            <label>
+                Neck Width:
+                <input type="number" id="neckWidthInput" min="25" max="45" step="1" value="34">
+                <span>Current: <span id="neckWidthValue">34</span> cm</span>
+            </label>
+        </div>
+        <div class="group">
+            <label>
+                Neck to Waist Length:
+                <input type="number" id="neckToWaistLengthInput" min="25" max="50" step="1" value="33">
+                <span>Current: <span id="neckToWaistLengthValue">33</span> cm</span>
+            </label>
+        </div>
+        <div class="group">
+            <label>
+                Waist Width:
+                <input type="number" id="waistWidthInput" min="50" max="110" step="1" value="74">
+                <span>Current: <span id="waistWidthValue">74</span> cm</span>
+            </label>
+        </div>
+        <div class="group">
+            <label>
+                Chest Width:
+                <input type="number" id="chestWidthInput" min="50" max="120" step="1" value="85">
+                <span>Current: <span id="chestWidthValue">85</span> cm</span>
+            </label>
+        </div>
+        <div class="group">
+            <label>
+                Hips Width:
+                <input type="number" id="hipsWidthInput" min="70" max="140" step="1" value="100">
+                <span>Current: <span id="hipsWidthValue">104</span> cm</span>
+            </label>
+        </div>
+        <div class="group">
+            <label>
+                Thigh Width:
+                <input type="number" id="thighWidthInput" min="40" max="90" step="1" value="59">
+                <span>Current: <span id="thighWidthValue">59</span> cm</span>
+            </label>
+        </div>
+        <div class="group">
+            <label>
+                Calf Width:
+                <input type="number" id="calfWidthInput" min="20" max="50" step="1" value="37">
+                <span>Current: <span id="calfWidthValue">37</span> cm</span>
+            </label>
+        </div>
+        <div class="group">
+            <label>
+                Waist to Crotch Length:
+                <input type="number" id="waistToCrotchLengthInput" min="25" max="40" step="1" value="33">
+                <span>Current: <span id="waistToCrotchLengthValue">33</span> cm</span>
+            </label>
+        </div>
+        <div class="group">
+            <label>
+                Thigh Length:
+                <input type="number" id="thighLengthInput" min="20" max="60" step="1" value="27">
+                <span>Current: <span id="thighLengthValue">27</span> cm</span>
+            </label>
+        </div>
+        <div class="group">
+            <label>
+                Calf Length:
+                <input type="number" id="calfLengthInput" min="30" max="70" step="1" value="45">
+                <span>Current: <span id="calfLengthValue">45</span> cm</span>
+            </label>
+        </div>
+        <div class="group">
+            <label>
+                Cheeks Width:
+                <input type="range" id="cheeksWidthInput" min="0" max="1" step="0.01" value="0.5">
+                <span>Current: <span id="cheeksWidthValue">0.5</span></span>
+            </label>
+        </div>
+        <div class="group">
+            <button id="dressButton">Одягнути вишиванку</button>
+        </div>
+    </div>
+
+    <script type="module" src="./main.js"></script>
+</body>
+
+</html>

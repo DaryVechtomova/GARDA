@@ -1,0 +1,136 @@
+import React, { useState, useEffect } from 'react';
+import axios from "axios";
+import { toast } from 'react-toastify';
+import { useParams } from 'react-router-dom';
+
+const ProductDetails = () => {
+    const url = "http://localhost:4000";
+    const { id } = useParams();
+    const [data, setData] = useState({
+        name: "",
+        description: "",
+        price: "",
+        category: "Для жінок",
+        threads: "",
+        cut: "",
+        technique: "",
+        fabric: "",
+        colors: "",
+    });
+
+    const [sizes, setSizes] = useState([]);
+
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const response = await axios.get(`${url}/api/product/edit/${id}`);
+                if (response.data.success) {
+                    setData(response.data.data);
+                } else {
+                    toast.error("Помилка завантаження товару");
+                }
+            } catch (error) {
+                toast.error("Не вдалося отримати дані");
+                console.error("Помилка:", error);
+            }
+        };
+        fetchProduct();
+    }, [id]);
+
+    return (
+        <section className="p-4 sm:p-10 w-full bg-primary/20">
+            <div className="flex flex-col gap-y-5 max-w-{555px}">
+                <h4 className="bold-22 pb-2 uppercase">Деталі товару</h4>
+                <div className="flex flex-col gap-y-2 h-24">
+                    <p className='text-base'>Зображення</p>
+                    <img src={data.image ? `${url}/images/${data.image}` : "https://via.placeholder.com/150"} alt="product" className="h-20 w-20 object-cover shadow-sm" />
+                </div>
+
+                <div className="flex flex-col gap-y-2">
+                    <p className='text-base'>Назва</p>
+                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                        {data.name}
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-y-2">
+                    <p className='text-base'>Про товар</p>
+                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                        {data.description}
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-y-2">
+                    <p className='text-base'>Категорія</p>
+                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                        {data.category}
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-y-2">
+                    <p className='text-base'>Ціна</p>
+                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                        {data.price} грн
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-y-2">
+                    <p className='text-base'>Нитки</p>
+                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                        {data.threads}
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-y-2">
+                    <p className='text-base'>Крій</p>
+                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                        {data.cut}
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-y-2">
+                    <p className='text-base'>Техніка виконання</p>
+                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                        {data.technique}
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-y-2">
+                    <p className='text-base'>Тканина</p>
+                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                        {data.fabric}
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-y-2">
+                    <p className='text-base'>Колір</p>
+                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                        {data.colors}
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-y-2">
+                    <p className='text-base'>Розміри та кількість</p>
+                    {sizes.map((size, index) => (
+                        <div key={index} className="flex gap-2 items-center">
+                            <input
+                                type="text"
+                                value={size.size}
+                                readOnly
+                                className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100"
+                            />
+                            <input
+                                type="number"
+                                value={size.quantity}
+                                readOnly
+                                className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100"
+                            />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+};
+
+export default ProductDetails;
