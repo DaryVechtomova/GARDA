@@ -73,10 +73,18 @@ const Edit = () => {
         Object.keys(data).forEach(key => formData.append(key, data[key]));
 
         // Додаємо нові зображення
-        images.forEach((image) => formData.append("images", image));
+        images.forEach((image) => {
+            formData.append("images", image); // Передаємо файли
+            console.log("Додано файл до FormData:", image.name); // Логування
+        });
 
         // Передаємо список залишених існуючих зображень
         formData.append("existingImages", JSON.stringify(existingImages));
+
+        // Логування вмісту FormData
+        for (let [key, value] of formData.entries()) {
+            console.log(key, value);
+        }
 
         try {
             const response = await axios.post(`${url}/api/product/edit`, formData, {
@@ -93,6 +101,7 @@ const Edit = () => {
             console.error("Помилка:", error.response ? error.response.data : error.message);
         }
     };
+
 
     return (
         <section className="p-4 sm:p-10 w-full bg-primary/20">

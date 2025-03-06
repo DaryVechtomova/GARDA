@@ -14,12 +14,18 @@ const storage = multer.diskStorage({
     }
 })
 
-const upload = multer({ storage: storage })
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB
+});
 
 productRouter.post("/add", upload.array("images", 10), addProduct)
 productRouter.get("/list", listProduct)
 productRouter.post("/remove", removeProduct)
-productRouter.post("/edit", upload.array("images", 10), editProduct);
+productRouter.post("/edit", upload.array("images", 10), (req, res, next) => {
+    console.log("Отримані файли:", req.files); // Логування файлів
+    next();
+}, editProduct);
 productRouter.get("/edit/:id", async (req, res) => {
     try {
         const product = await productModel.findById(req.params.id);

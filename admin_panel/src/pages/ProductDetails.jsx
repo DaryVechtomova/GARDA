@@ -16,9 +16,12 @@ const ProductDetails = () => {
         technique: "",
         fabric: "",
         colors: "",
+        images: [], // Додано масив зображень
+        sizes: [], // Додано масив розмірів
     });
 
-    const [sizes, setSizes] = useState([]);
+    const [selectedImage, setSelectedImage] = useState(null); // Для відкриття зображення у великому розмірі
+    const [currentImageIndex, setCurrentImageIndex] = useState(0); // Для листання зображень
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -37,15 +40,86 @@ const ProductDetails = () => {
         fetchProduct();
     }, [id]);
 
+    // Відкриття зображення у великому розмірі
+    const openImageModal = (index) => {
+        setSelectedImage(data.images[index]);
+        setCurrentImageIndex(index);
+    };
+
+    // Закриття модального вікна
+    const closeImageModal = () => {
+        setSelectedImage(null);
+    };
+
+    // Листання зображень
+    const navigateImages = (direction) => {
+        let newIndex;
+        if (direction === 'prev') {
+            newIndex = currentImageIndex === 0 ? data.images.length - 1 : currentImageIndex - 1;
+        } else {
+            newIndex = currentImageIndex === data.images.length - 1 ? 0 : currentImageIndex + 1;
+        }
+        setSelectedImage(data.images[newIndex]);
+        setCurrentImageIndex(newIndex);
+    };
+
     return (
         <section className="p-4 sm:p-10 w-full bg-primary/20">
             <div className="flex flex-col gap-y-5 max-w-{555px}">
                 <h4 className="bold-22 pb-2 uppercase">Деталі товару</h4>
-                <div className="flex flex-col gap-y-2 h-24">
+
+                {/* Відображення всіх зображень */}
+                <div className="flex flex-col gap-y-2">
                     <p className='text-base'>Зображення</p>
-                    <img src={data.image ? `${url}/images/${data.image}` : "https://via.placeholder.com/150"} alt="product" className="h-20 w-20 object-cover shadow-sm" />
+                    <div className="flex gap-2 flex-wrap">
+                        {data.images && data.images.length > 0 ? (
+                            data.images.map((image, index) => (
+                                <img
+                                    key={index}
+                                    src={`${url}/images/${image}`}
+                                    alt={`product-${index}`}
+                                    className="h-20 w-20 object-cover shadow-sm cursor-pointer"
+                                    onClick={() => openImageModal(index)}
+                                />
+                            ))
+                        ) : (
+                            <span>Немає зображень</span>
+                        )}
+                    </div>
                 </div>
 
+                {/* Модальне вікно для перегляду зображень */}
+                {selectedImage && (
+                    <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
+                        <div className="relative">
+                            <img
+                                src={`${url}/images/${selectedImage}`}
+                                alt="product-large"
+                                className="max-w-full max-h-[90vh]"
+                            />
+                            <button
+                                onClick={() => navigateImages('prev')}
+                                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
+                            >
+                                &lt;
+                            </button>
+                            <button
+                                onClick={() => navigateImages('next')}
+                                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
+                            >
+                                &gt;
+                            </button>
+                            <button
+                                onClick={closeImageModal}
+                                className="absolute top-0 right-0 bg-white p-2 rounded-full shadow-md"
+                            >
+                                &times;
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Інформація про товар */}
                 <div className="flex flex-col gap-y-2">
                     <p className='text-base'>Назва</p>
                     <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
@@ -109,24 +183,23 @@ const ProductDetails = () => {
                     </div>
                 </div>
 
+                {/* Відображення розмірів та кількості */}
                 <div className="flex flex-col gap-y-2">
                     <p className='text-base'>Розміри та кількість</p>
-                    {sizes.map((size, index) => (
-                        <div key={index} className="flex gap-2 items-center">
-                            <input
-                                type="text"
-                                value={size.size}
-                                readOnly
-                                className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100"
-                            />
-                            <input
-                                type="number"
-                                value={size.quantity}
-                                readOnly
-                                className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100"
-                            />
-                        </div>
-                    ))}
+                    {data.sizes && data.sizes.length > 0 ? (
+                        data.sizes.map((size, index) => (
+                            <div key={index} className="flex gap-2 items-center">
+                                <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                                    {size.size}
+                                </div>
+                                <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                                    {size.quantity}
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <span>Немає розмірів</span>
+                    )}
                 </div>
             </div>
         </section>

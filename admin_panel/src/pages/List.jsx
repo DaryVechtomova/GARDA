@@ -1,11 +1,9 @@
-import React from 'react'
-import { useState, useEffect } from 'react';
-import axios from 'axios'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { toast } from 'react-toastify';
 import { TbTrash, TbEdit } from "react-icons/tb";
 import { NavLink } from 'react-router-dom';
 import { FaPlus } from 'react-icons/fa6';
-
 
 function List() {
     const url = "http://localhost:4000";
@@ -28,12 +26,12 @@ function List() {
     };
 
     const removeProduct = async (productId) => {
-        const response = await axios.post(`${url}/api/product/remove`, { id: productId })
-        await fetchList()
+        const response = await axios.post(`${url}/api/product/remove`, { id: productId });
+        await fetchList();
         if (response.data.success) {
-            toast.success(response.data.message)
+            toast.success(response.data.message);
         } else {
-            toast.error("Помилка")
+            toast.error("Помилка");
         }
     };
 
@@ -68,7 +66,7 @@ function List() {
     return (
         <section className="p-4 w-full bg-primary/20">
             <div className="px-4">
-                <h4 className="bold-22 pb-2 uppercase mt-4">Список товарів</h4> {/* Надпис нижче */}
+                <h4 className="bold-22 pb-2 uppercase mt-4">Список товарів</h4>
                 <div className="flex gap-4 mb-4">
                     <button onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
                         Сортувати за ціною {sortOrder === 'asc' ? '↑' : '↓'}
@@ -106,13 +104,35 @@ function List() {
                     <tbody>
                         {sortedAndFilteredProducts.map((product) => (
                             <tr key={product._id}>
+                                {/* Відображення першого зображення */}
                                 <td className="p-3 border flex justify-center items-center">
-                                    <img src={`${url}/images/${product.image}`} alt="product" className="h-20 w-20 object-cover shadow-sm" />
+                                    {product.images && product.images.length > 0 ? (
+                                        <img
+                                            src={`${url}/images/${product.images[0]}`}
+                                            alt="product"
+                                            className="h-20 w-20 object-cover shadow-sm"
+                                        />
+                                    ) : (
+                                        <span>Немає зображення</span>
+                                    )}
                                 </td>
                                 <td className="p-3 border">{product.name}</td>
                                 <td className="p-3 border text-center">{product.price} грн</td>
                                 <td className="p-3 border text-center">{product.category}</td>
-                                <td className="p-3 border text-center">{product.quantity_in_stock}</td>
+                                {/* Відображення розмірів та кількості */}
+                                <td className="p-3 border text-center">
+                                    {product.sizes && product.sizes.length > 0 ? (
+                                        <ul>
+                                            {product.sizes.map((size, index) => (
+                                                <li key={index}>
+                                                    {size.size}: {size.quantity}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <span>Немає розмірів</span>
+                                    )}
+                                </td>
                                 <td className="p-3 border text-center items-center">
                                     <NavLink to={`/product/details/${product._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
                                         <FaPlus />
@@ -125,7 +145,11 @@ function List() {
                                 </td>
                                 <td className="p-3 border text-center">
                                     <div className="flex justify-center">
-                                        <TbTrash onClick={() => removeProduct(product._id)} className="text-red-500 hover:text-red-700 cursor-pointer" size={20} />
+                                        <TbTrash
+                                            onClick={() => removeProduct(product._id)}
+                                            className="text-red-500 hover:text-red-700 cursor-pointer"
+                                            size={20}
+                                        />
                                     </div>
                                 </td>
                             </tr>
@@ -134,7 +158,7 @@ function List() {
                 </table>
             </div>
         </section>
-    )
+    );
 }
 
-export default List
+export default List;
