@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import upload_area from "../assets/upload_area1.svg";
 import { FaPlus } from 'react-icons/fa6';
 import axios from "axios";
@@ -11,16 +11,17 @@ const Add = () => {
         name: "",
         description: "",
         price: "",
-        category: "Для жінок",
+        category: "Оберіть категорію",
         threads: "",
         cut: "",
         technique: "",
         fabric: "",
         colors: "",
     });
-    const [sizes, setSizes] = useState([{ size: "", quantity: "" }]); // Стан для зберігання розмірів та кількості
+    const [sizes, setSizes] = useState([{ size: "", quantity: "0" }]); // Стан для зберігання розмірів та кількості
 
-    const sizesList = ["XXS", "XS", "S", "M", "L", "XL", "XXL"];
+    const sizesList = ["One size", "XXS", "XS", "S", "M", "L", "XL", "XXL"];
+    const fileInputRef = useRef(null); // Реф для поля вибору файлів
 
     // Обробник зміни полів форми
     const onChangeHandler = (event) => {
@@ -47,7 +48,7 @@ const Add = () => {
 
     // Додавання нового поля для розміру
     const addSizeField = () => {
-        setSizes([...sizes, { size: "", quantity: "" }]);
+        setSizes([...sizes, { size: "", quantity: "0" }]);
     };
 
     // Видалення поля для розміру
@@ -65,10 +66,58 @@ const Add = () => {
     // Видалення зображення зі списку
     const removeImage = (index) => {
         setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+        // Скидаємо значення поля для вибору файлів
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    };
+
+    // Перевірка на дублікати розмірів
+    const hasDuplicateSizes = () => {
+        const sizeValues = sizes.map((size) => size.size); // Отримуємо масив розмірів
+        const uniqueSizes = new Set(sizeValues); // Створюємо Set для унікальних значень
+        return sizeValues.length !== uniqueSizes.size; // Порівнюємо довжину масиву з розміром Set
     };
 
     const onSubmitHandler = async (event) => {
         event.preventDefault();
+
+        // Перевірка на дублікати розмірів
+        if (hasDuplicateSizes()) {
+            toast.error("Дублікати розмірів не допускаються. Виправте, будь ласка.");
+            return;
+        }
+
+        // Перевірка обов'язкових полів
+        if (data.name == "") {
+            toast.error("Будь ласка, введіть назву товару");
+            return;
+        }
+        if (data.description === "") {
+            toast.error("Будь ласка, введіть опис товару");
+            return;
+        }
+        if (data.price === "") {
+            toast.error("Будь ласка, введіть ціну товару");
+            return;
+        }
+        if (data.price === "0") {
+            toast.error("Ціна має бути більше 0");
+            return;
+        }
+        if (data.category === "Оберіть категорію") {
+            toast.error("Будь ласка, оберіть категорію товару");
+            return;
+        }
+        if (data.colors === "") {
+            toast.error("Будь ласка, введіть колір товару");
+            return;
+        }
+        if (images.length === 0) {
+            toast.error("Будь ласка, завантажте хоча б одне зображення товару");
+            return;
+        }
+
         const formData = new FormData();
 
         // Додаємо текстові дані до FormData
@@ -104,7 +153,7 @@ const Add = () => {
                     name: "",
                     description: "",
                     price: "",
-                    category: "Для жінок",
+                    category: "Оберіть категорію",
                     threads: "",
                     cut: "",
                     technique: "",
@@ -162,6 +211,7 @@ const Add = () => {
                         id="images"
                         multiple
                         hidden
+                        ref={fileInputRef} // Додаємо реф
                     />
 
                     {/* Кнопка для відкриття вибору файлів */}
@@ -183,7 +233,6 @@ const Add = () => {
                         name="name"
                         type="text"
                         placeholder='Введіть назву..'
-                        required
                         className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
                     />
                 </div>
@@ -196,7 +245,6 @@ const Add = () => {
                         name="description"
                         placeholder='Введіть опис..'
                         rows={6}
-                        required
                         className="ring-1 ring-slate-900/10 py-1 px-3 outline-none resize-none"
                     ></textarea>
                 </div>
@@ -226,7 +274,6 @@ const Add = () => {
                         type="number"
                         name="price"
                         placeholder='Ввведіть ціну..'
-                        required
                         className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
                     />
                 </div>
@@ -239,7 +286,6 @@ const Add = () => {
                         type="text"
                         name="threads"
                         placeholder='Введіть нитки..'
-                        required
                         className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
                     />
                 </div>
@@ -276,7 +322,6 @@ const Add = () => {
                         type="text"
                         name="fabric"
                         placeholder='Ввведіть тканину..'
-                        required
                         className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
                     />
                 </div>
@@ -289,7 +334,6 @@ const Add = () => {
                         type="text"
                         name="colors"
                         placeholder='Введіть колір..'
-                        required
                         className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
                     />
                 </div>
@@ -317,6 +361,7 @@ const Add = () => {
                                     name="quantity"
                                     placeholder="Кількість"
                                     value={size.quantity}
+                                    readOnly
                                     onChange={(e) => handleSizeChange(index, e)}
                                     className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
                                 />

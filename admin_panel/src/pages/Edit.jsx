@@ -68,6 +68,31 @@ const Edit = () => {
     // Відправка форми
     const onSubmitHandler = async (event) => {
         event.preventDefault();
+        // Перевірка обов'язкових полів
+        if (data.name == "") {
+            toast.error("Будь ласка, введіть назву товару");
+            return;
+        }
+        if (data.description === "") {
+            toast.error("Будь ласка, введіть опис товару");
+            return;
+        }
+        if (data.price === "") {
+            toast.error("Будь ласка, введіть ціну товару");
+            return;
+        }
+        if (data.category === "Оберіть категорію") {
+            toast.error("Будь ласка, оберіть категорію товару");
+            return;
+        }
+        if (data.colors === "") {
+            toast.error("Будь ласка, введіть колір товару");
+            return;
+        }
+        if (images.length === 0) {
+            toast.error("Будь ласка, завантажте хоча б одне зображення товару");
+            return;
+        }
         const formData = new FormData();
         formData.append("id", id);
         Object.keys(data).forEach(key => formData.append(key, data[key]));
@@ -167,22 +192,23 @@ const Edit = () => {
                 {/* Поля форми */}
                 <div className="flex flex-col gap-y-2">
                     <p className='text-base'>Назва</p>
-                    <input onChange={onChangeHandler} value={data.name} name="name" type="text" required className="ring-1 ring-slate-900/10 py-1 px-3 outline-none" />
+                    <input onChange={onChangeHandler} value={data.name} name="name" type="text" className="ring-1 ring-slate-900/10 py-1 px-3 outline-none" />
                 </div>
 
                 <div className="flex flex-col gap-y-2">
                     <p className='text-base'>Опис</p>
-                    <textarea onChange={onChangeHandler} value={data.description} name="description" rows={4} required className="ring-1 ring-slate-900/10 py-1 px-3 outline-none resize-none"></textarea>
+                    <textarea onChange={onChangeHandler} value={data.description} name="description" rows={4} className="ring-1 ring-slate-900/10 py-1 px-3 outline-none resize-none"></textarea>
                 </div>
 
                 <div className="flex flex-col gap-y-2">
                     <p className='text-base'>Ціна</p>
-                    <input onChange={onChangeHandler} value={data.price} type="number" name="price" required className="ring-1 ring-slate-900/10 py-1 px-3 outline-none" />
+                    <input onChange={onChangeHandler} value={data.price} type="number" name="price" className="ring-1 ring-slate-900/10 py-1 px-3 outline-none" />
                 </div>
 
                 <div className="flex flex-col gap-y-2">
                     <p className='text-base'>Категорія</p>
                     <select onChange={onChangeHandler} value={data.category} name="category" className="outline-none ring-1 ring-slate-900/10 py-1">
+                        <option value="Оберіть категорію">Оберіть категорію</option>
                         <option value="Для жінок">Для жінок</option>
                         <option value="Для чоловіків">Для чоловіків</option>
                         <option value="Аксесуари">Аксесуари</option>
@@ -197,7 +223,6 @@ const Edit = () => {
                         type="text"
                         name="threads"
                         placeholder='Введіть нитки..'
-                        required
                         className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
                     />
                 </div>
@@ -234,7 +259,6 @@ const Edit = () => {
                         type="text"
                         name="fabric"
                         placeholder='Ввведіть тканину..'
-                        required
                         className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
                     />
                 </div>
@@ -247,7 +271,6 @@ const Edit = () => {
                         type="text"
                         name="colors"
                         placeholder='Введіть колір..'
-                        required
                         className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
                     />
                 </div>
