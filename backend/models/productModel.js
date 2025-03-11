@@ -7,14 +7,14 @@ const productSchema = new mongoose.Schema({
     price: { type: Number, required: true },
     images: [{ type: String, required: true }],
     category: { type: String, required: true },
-    threads: { type: String },
-    cut: { type: String },
-    technique: { type: String },
-    fabric: { type: String },
+    threads: { type: String, required: false },
+    cut: { type: String, required: false },
+    technique: { type: String, required: false },
+    fabric: { type: String, required: false },
     colors: { type: String, required: true },
     sizes: [{
-        size: { type: String },
-        quantity: { type: Number, min: 0 }
+        size: { type: String, required: false },
+        quantity: { type: Number, required: false, min: 0 }
     }]
 })
 
