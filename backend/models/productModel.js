@@ -13,8 +13,8 @@ const productSchema = new mongoose.Schema({
     fabric: { type: String },
     colors: { type: String, required: true },
     sizes: [{
-        size: { type: String, required: true },
-        quantity: { type: Number, required: true, min: 0 }
+        size: { type: String },
+        quantity: { type: Number, min: 0 }
     }]
 })
 
