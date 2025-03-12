@@ -27,6 +27,18 @@ const ShopContextProvider = (props) => {
     };
 }
 
+// get total cart amount
+const getTotalCartAmount = () => {
+    let totalItems = 0;
+    for (const item in cartItems) {
+        if (cartItems[item] > 0) {
+            let itemInfo = all_products.find((product) => product._id === item);
+            totalAmount += itemInfo.price * cartItems[item];
+        }
+    }
+    return totalAmount;
+}
+
 // get total cart items
 const getTotalCartItems = () => {
     let totalItems = 0;
@@ -40,8 +52,23 @@ const getTotalCartItems = () => {
 //     console.log(cartItems);
 // }, [cartItems])
 
+const fetchProductList = async () => {
+    const response = await axios.get(url + "/api/product/list");
+    setAll_products(response.data.data);
+};
+
+const loadCartData = async (token) => {
+    const response = await axios.post(url + "/api/cart/get", {}, { headers: { token } });
+    setCartItems(response.data.cartData);
+}
+
 useEffect(() => {
-    if (localStorage.getItem("token")) {
-        setToken(localStorage.getItem("token"));
+    async function loadData() {
+        await fetchProductList();
+        if (localStorage.getItem("token")) {
+            setToken(localStorage.getItem("token"));
+            await loadCartData(localStorage.getItem("token"))
+        }
     }
+    loadData();
 }, []);
