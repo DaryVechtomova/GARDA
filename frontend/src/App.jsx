@@ -6,6 +6,8 @@ import Cart from "./pages/Cart";
 import Order from "./pages/Order";
 import Verify from "./pages/Verify";
 import MyOrders from "./pages/MyOrders";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 export default function App() {
@@ -23,6 +25,6 @@ export default function App() {
         <Route path="/myorders" element={<MyOrders />} />
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
