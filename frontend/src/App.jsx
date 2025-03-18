@@ -3,10 +3,9 @@ import Header from "./components/Header";
 import Home from "./pages/Home";
 import Product from "./pages/Product";
 import Cart from "./pages/Cart";
-import Order from "./pages/Order";
-import Verify from "./pages/Verify";
-import MyOrders from "./pages/MyOrders";
-
+import Favorites from "./pages/Favorites";
+import Profile from "./pages/Profile";
+import Footer from "./components/Footer";
 
 export default function App() {
   return (
@@ -18,11 +17,10 @@ export default function App() {
           <Route path=":productId" element={<Product />} />
         </Route>
         <Route path="/cart" element={<Cart />} />
-        <Route path="/order" element={<Order />} />
-        <Route path="/verify" element={<Verify />} />
-        <Route path="/myorders" element={<MyOrders />} />
+        <Route path="/favorites" element={<Favorites />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
+      <Footer />
     </BrowserRouter>
-  )
+  );
 }
-
