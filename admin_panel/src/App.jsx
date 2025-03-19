@@ -11,6 +11,7 @@ import SupplierList from "./pages/SuppliersList";
 import AddSupplier from "./pages/AddSupplier";
 import EditSupplier from "./pages/EditSupplier";
 import SupplierDetails from "./pages/SupplierDetails";
+import InvoiceList from "./pages/InvoiceList";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/add-supplier" element={<AddSupplier />} />
           <Route path="/edit-supplier/:id" element={<EditSupplier />} />
           <Route path="/suppliers/details/:id" element={<SupplierDetails />} />
+          <Route path="/list-invoice" element={<InvoiceList />} />
         </Routes>
       </div>
     </BrowserRouter>

@@ -6,7 +6,7 @@ const supplierRouter = express.Router();
 
 supplierRouter.post("/add-supplier", addSupplier)
 supplierRouter.get("/list-supplier", fetchSuppliers)
-supplierRouter.post("/remove-supplier", removeSupplier)
+supplierRouter.post("/remove", removeSupplier)
 supplierRouter.post("/edit-supplier", editSupplier)
 supplierRouter.get("/edit-supplier/:id", async (req, res) => {
     try {
@@ -17,7 +17,7 @@ supplierRouter.get("/edit-supplier/:id", async (req, res) => {
         res.json({ success: true, data: supplier });
     } catch (error) {
         console.log(error);
-        res.json({ success: false, message: "Помилка при отриманні товару" });
+        res.json({ success: false, message: "Помилка при отриманні даних постачальника" });
     }
 });
 supplierRouter.get("/details/:id", async (req, res) => {
@@ -29,7 +29,7 @@ supplierRouter.get("/details/:id", async (req, res) => {
         res.json({ success: true, data: supplier });
     } catch (error) {
         console.log(error);
-        res.json({ success: false, message: "Помилка при отриманні товару" });
+        res.json({ success: false, message: "Помилка при даних постачальника" });
     }
 });
 

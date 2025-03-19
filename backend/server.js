@@ -7,6 +7,7 @@ import userRouter from "./routes/userRoute.js";
 import cartRouter from './routes/cartRoute.js';
 import orderRouter from './routes/orderRoute.js';
 import supplierRouter from './routes/supplierRoute.js';
+import invoiceRouter from './routes/invoiceRoute.js';
 
 
 //app config
@@ -27,6 +28,7 @@ app.use("/api/user", userRouter)
 app.use("/api/cart", cartRouter)
 app.use("/api/order", orderRouter)
 app.use("/api/suppliers", supplierRouter)
+app.use("/api/invoices", invoiceRouter)
 
 app.get("/", (req, res) => {
     res.send("API Working")

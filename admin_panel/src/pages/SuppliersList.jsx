@@ -11,9 +11,11 @@ function SupplierList() {
     const [sortOrder, setSortOrder] = useState('asc');
     const [filterStatus, setFilterStatus] = useState('All');
     const [filterProductType, setFilterProductType] = useState('All');
-    const [filterCity, setFilterCity] = useState('All'); // Новий стан для фільтрації за містом
+    const [filterCity, setFilterCity] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
-    const [cities, setCities] = useState([]); // Список міст
+    const [cities, setCities] = useState([]);
+    const [showConfirmation, setShowConfirmation] = useState(false); // Стан для відображення модального вікна
+    const [supplierToDelete, setSupplierToDelete] = useState(null); // Постачальник, якого користувач намагається видалити
 
     const fetchSuppliers = async () => {
         try {
@@ -24,7 +26,6 @@ function SupplierList() {
                     setSuppliers([]);
                 } else {
                     setSuppliers(response.data.data);
-                    // Отримуємо унікальні міста з бази даних
                     const uniqueCities = [...new Set(response.data.data.map(supplier => supplier.city))];
                     setCities(uniqueCities);
                 }
@@ -38,7 +39,7 @@ function SupplierList() {
 
     const removeSupplier = async (supplierId) => {
         try {
-            const response = await axios.post(`${url}/api/supplier/remove`, { id: supplierId });
+            const response = await axios.post(`${url}/api/suppliers/remove`, { id: supplierId });
             if (response.data.success) {
                 toast.success(response.data.message);
                 fetchSuppliers();
@@ -47,23 +48,22 @@ function SupplierList() {
             }
         } catch (error) {
             toast.error("Не вдалося видалити постачальника");
+        } finally {
+            setShowConfirmation(false); // Закриваємо модальне вікно після видалення
         }
     };
 
     const filterSuppliers = (suppliers) => {
         let filteredSuppliers = suppliers;
 
-        // Фільтрація за статусом
         if (filterStatus !== 'All') {
             filteredSuppliers = filteredSuppliers.filter(supplier => supplier.status === filterStatus);
         }
 
-        // Фільтрація за типом продукції
         if (filterProductType !== 'All') {
             filteredSuppliers = filteredSuppliers.filter(supplier => supplier.productType === filterProductType);
         }
 
-        // Фільтрація за містом
         if (filterCity !== 'All') {
             filteredSuppliers = filteredSuppliers.filter(supplier => supplier.city === filterCity);
         }
@@ -80,9 +80,28 @@ function SupplierList() {
 
     useEffect(() => {
         fetchSuppliers();
-    }, [filterStatus, filterProductType, filterCity]); // Оновлюємо список при зміні фільтрів
+    }, [filterStatus, filterProductType, filterCity]);
 
     const sortedAndFilteredSuppliers = searchSuppliers(filterSuppliers(suppliers));
+
+    // Функція для відкриття модального вікна підтвердження
+    const handleDeleteClick = (supplierId) => {
+        setSupplierToDelete(supplierId);
+        setShowConfirmation(true);
+    };
+
+    // Функція для підтвердження видалення
+    const confirmDelete = () => {
+        if (supplierToDelete) {
+            removeSupplier(supplierToDelete);
+        }
+    };
+
+    // Функція для скасування видалення
+    const cancelDelete = () => {
+        setSupplierToDelete(null);
+        setShowConfirmation(false);
+    };
 
     return (
         <section className="p-4 w-full bg-primary/20 pl-[16%]">
@@ -166,18 +185,43 @@ function SupplierList() {
                                     </NavLink>
                                 </td>
                                 <td className="p-3 border text-center">
-                                    <button
-                                        onClick={() => removeSupplier(supplier._id)}
-                                        className="text-red-500 hover:text-red-700"
-                                    >
-                                        <TbTrash size={20} />
-                                    </button>
+                                    <div className="flex justify-center">
+                                        <TbTrash
+                                            onClick={() => handleDeleteClick(supplier._id)}
+                                            className="text-red-500 hover:text-red-700 cursor-pointer flex justify-center"
+                                            size={20}
+                                        />
+                                    </div>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
+
+            {/* Модальне вікно підтвердження видалення */}
+            {showConfirmation && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-6 rounded-lg shadow-lg">
+                        <h2 className="text-lg font-bold mb-4">Підтвердження видалення</h2>
+                        <p>Ви впевнені, що хочете видалити цього постачальника?</p>
+                        <div className="flex justify-end gap-4 mt-4">
+                            <button
+                                onClick={cancelDelete}
+                                className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+                            >
+                                Скасувати
+                            </button>
+                            <button
+                                onClick={confirmDelete}
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                            >
+                                Видалити
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 }

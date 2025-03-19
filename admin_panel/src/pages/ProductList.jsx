@@ -13,6 +13,8 @@ function List() {
     const [searchQuery, setSearchQuery] = useState('');
     const [editingDiscount, setEditingDiscount] = useState(null);
     const [discountValue, setDiscountValue] = useState('');
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false); // Стан для відображення модального вікна
+    const [productToDelete, setProductToDelete] = useState(null); // Стан для зберігання ID товару, який користувач намагається видалити
 
     const fetchList = async () => {
         try {
@@ -33,12 +35,18 @@ function List() {
     };
 
     const removeProduct = async (productId) => {
-        const response = await axios.post(`${url}/api/product/remove-product`, { id: productId });
-        await fetchList();
-        if (response.data.success) {
-            toast.success(response.data.message);
-        } else {
-            toast.error("Помилка");
+        try {
+            const response = await axios.post(`${url}/api/product/remove-product`, { id: productId });
+            if (response.data.success) {
+                toast.success(response.data.message);
+                fetchList();
+            } else {
+                toast.error("Помилка при видаленні товару");
+            }
+        } catch (error) {
+            toast.error("Не вдалося видалити товар");
+        } finally {
+            setShowDeleteConfirmation(false); // Закриваємо модальне вікно після видалення
         }
     };
 
@@ -116,6 +124,25 @@ function List() {
     }, [filterCategory]);
 
     const sortedAndFilteredProducts = searchProducts(filterProducts(sortProducts(list)));
+
+    // Функція для відкриття модального вікна підтвердження видалення
+    const handleDeleteClick = (productId) => {
+        setProductToDelete(productId);
+        setShowDeleteConfirmation(true);
+    };
+
+    // Функція для підтвердження видалення
+    const confirmDelete = () => {
+        if (productToDelete) {
+            removeProduct(productToDelete);
+        }
+    };
+
+    // Функція для скасування видалення
+    const cancelDelete = () => {
+        setProductToDelete(null);
+        setShowDeleteConfirmation(false);
+    };
 
     return (
         <section className="p-4 w-full bg-primary/20 pl-[16%]">
@@ -230,7 +257,7 @@ function List() {
                                 <td className="p-3 border text-center">
                                     <div className="flex justify-center">
                                         <TbTrash
-                                            onClick={() => removeProduct(product._id)}
+                                            onClick={() => handleDeleteClick(product._id)}
                                             className="text-red-500 hover:text-red-700 cursor-pointer"
                                             size={20}
                                         />
@@ -242,6 +269,7 @@ function List() {
                 </table>
             </div>
 
+            {/* Модальне вікно для редагування знижки */}
             {editingDiscount && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
                     <div className="bg-white p-6 rounded-lg">
@@ -265,6 +293,30 @@ function List() {
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg"
                             >
                                 Скасувати
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Модальне вікно підтвердження видалення */}
+            {showDeleteConfirmation && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-6 rounded-lg">
+                        <h2 className="text-lg font-bold mb-4">Підтвердження видалення</h2>
+                        <p>Ви впевнені, що хочете видалити цей товар?</p>
+                        <div className="flex justify-end gap-4 mt-4">
+                            <button
+                                onClick={cancelDelete}
+                                className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+                            >
+                                Скасувати
+                            </button>
+                            <button
+                                onClick={confirmDelete}
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                            >
+                                Видалити
                             </button>
                         </div>
                     </div>

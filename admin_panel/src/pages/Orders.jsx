@@ -11,6 +11,8 @@ function Orders() {
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [sortOrder, setSortOrder] = useState("asc");
+    const [dateFrom, setDateFrom] = useState(""); // Початкова дата для фільтрації
+    const [dateTo, setDateTo] = useState(""); // Кінцева дата для фільтрації
 
     const fetchAllOrders = async () => {
         try {
@@ -48,7 +50,7 @@ function Orders() {
         });
     };
 
-    // Функція для фільтрації замовлень за статусом
+    // Функція для фільтрації замовлень
     useEffect(() => {
         let filtered = orders;
 
@@ -64,6 +66,16 @@ function Orders() {
             );
         }
 
+        // Фільтрація за діапазоном дат
+        if (dateFrom) {
+            const fromDate = new Date(dateFrom);
+            filtered = filtered.filter(order => new Date(order.date) >= fromDate);
+        }
+        if (dateTo) {
+            const toDate = new Date(dateTo);
+            filtered = filtered.filter(order => new Date(order.date) <= toDate);
+        }
+
         // Сортування за датою
         filtered = [...filtered].sort((a, b) => {
             const dateA = new Date(a.date);
@@ -72,7 +84,7 @@ function Orders() {
         });
 
         setFilteredOrders(filtered);
-    }, [orders, statusFilter, searchQuery, sortOrder]);
+    }, [orders, statusFilter, searchQuery, sortOrder, dateFrom, dateTo]);
 
     // Функція для оновлення статусу замовлення
     const updateOrderStatus = async (orderId) => {
@@ -164,7 +176,7 @@ function Orders() {
                 <h4 className="bold-22 pb-2 uppercase mt-4">Список замовлень</h4>
 
                 {/* Елементи управління: пошук, фільтр, сортування */}
-                <div className="flex gap-4 mb-4">
+                <div className="flex gap-4 mb-4 flex-wrap">
                     <button
                         onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
                         className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fbb42c]"
@@ -186,12 +198,27 @@ function Orders() {
                         <option value="Повернення">Повернення</option>
                     </select>
                     <input
+                        type="date"
+                        placeholder="Дата від"
+                        value={dateFrom}
+                        onChange={(e) => setDateFrom(e.target.value)}
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fbb42c]"
+                    />
+                    <input
+                        type="date"
+                        placeholder="Дата до"
+                        value={dateTo}
+                        onChange={(e) => setDateTo(e.target.value)}
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fbb42c]"
+                    />
+                    <input
                         type="text"
                         placeholder="Пошук за номером замовлення"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fbb42c]"
                     />
+
                 </div>
 
                 <table className="w-full border-collapse border border-gray-200">
