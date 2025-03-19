@@ -1,0 +1,6 @@
+title: "GARDA"
+description: "Інтернет-магазин українського національного одягу та аксесуарів"
+baseurl: ""
+url: "http://localhost:5174/"
+exclude:
+  - node_modules
