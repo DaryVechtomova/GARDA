@@ -3,7 +3,7 @@ import profile from "../assets/profile.png";
 
 const Navbar = () => {
     return (
-        <div className="w-full bg-[#FCFAF4] py-2 fixed top-0 left-0 z-50 shadow-md">
+        <div className="max-padd-container bg-[#FCFAF4] py-2">
             <div className="max-w-screen-xl mx-auto flex justify-between items-center px-4">
                 <h1 className="text-[30px] font-bold text-center w-full" style={{ fontFamily: "'Labrada', serif" }}>
                     GARDA
@@ -13,5 +13,5 @@ const Navbar = () => {
         </div>
     );
 };
-
+// max-padd-container flexBetween py-2
 export default Navbar;

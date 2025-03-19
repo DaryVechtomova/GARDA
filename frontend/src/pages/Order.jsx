@@ -13,6 +13,7 @@ const Order = () => {
         lastName: "",
         email: "",
         phone: "",
+        comment: "",
         deliveryMethod: "", // Спосіб доставки
         region: "", // Область
         city: "", // Місто
@@ -25,10 +26,10 @@ const Order = () => {
 
     const [errors, setErrors] = useState({});
 
-    const onChangeHandler = () => {
-        const name = e.target.name;
-        const value = e.targer.value;
-        setData(data => ({ ...data, [name]: value }))
+    const onChangeHandler = (e) => {
+        const { name, value } = e.target; // Виправлено тут
+        setData((prevData) => ({ ...prevData, [name]: value }));
+
         // Якщо змінюється спосіб доставки, скидаємо відповідні поля
         if (name === "deliveryMethod") {
             setData((prevData) => ({
@@ -54,28 +55,54 @@ const Order = () => {
             toast.error("Будь ласка, заповніть всі обов'язкові поля.");
             return;
         }
-        let orderItems = []
-        all_products.map((item) => {
+
+        let orderItems = [];
+        all_products.forEach((item) => {
             if (cartItems[item._id] > 0) {
-                let itemInfo = item;
-                itemInfo["quantity"] = cartItems[item._id];
+                let itemInfo = {
+                    _id: item._id, // Додаємо ID товару
+                    name: item.name,
+                    price: item.price,
+                    quantity: cartItems[item._id],
+                    image: item.image // Додаємо зображення товару
+                };
                 orderItems.push(itemInfo);
             }
-        })
-        //console.log(orderItems)
+        });
+
         let orderData = {
-            adress: data,
+            userId: token, // Використовуємо токен як ID користувача
             items: orderItems,
             amount: getTotalCartAmount(),
+            deliveryMethod: data.deliveryMethod,
+            deliveryDetails: {
+                firstName: data.firstName,
+                lastName: data.lastName,
+                email: data.email,
+                phone: data.phone,
+                region: data.region,
+                city: data.city,
+                postalCode: data.postalCode,
+                street: data.street,
+                houseNumber: data.houseNumber,
+                departmentNumber: data.departmentNumber
+            }
+        };
+
+        try {
+            let response = await axios.post(url + "/api/order/place", orderData, { headers: { token } });
+            if (response.data.success) {
+                const { session_url } = response.data;
+                toast.success(`Ваше замовлення №${orderNumber} успішно оформлено!`);
+                window.location.replace(session_url);
+            } else {
+                toast.error("Помилка при оформленні замовлення");
+            }
+        } catch (error) {
+            toast.error("Сталася помилка при відправці даних");
+            console.error("Помилка:", error);
         }
-        let response = await axios.post(url + "/api/order/place", orderData, { headers: { token } });
-        if (response.data.success) {
-            const { session_url } = response.data;
-            window.location.replace(session_url);
-        } else {
-            alert("Помилка")
-        }
-    }
+    };
 
     const validateForm = () => {
         const newErrors = {};
@@ -126,7 +153,7 @@ const Order = () => {
                     <div className='flex gap-3'>
                         <input
                             onChange={onChangeHandler}
-                            data={data.firstName}
+                            value={data.firstName}
                             type="text"
                             name="firstname"
                             placeholder='First name'
@@ -134,7 +161,7 @@ const Order = () => {
                         />
                         <input
                             onChange={onChangeHandler}
-                            data={data.lastName}
+                            value={data.lastName}
                             type="text"
                             name="lastname"
                             placeholder='Last name'
@@ -143,7 +170,7 @@ const Order = () => {
                     </div>
                     <input
                         onChange={onChangeHandler}
-                        data={data.email}
+                        value={data.email}
                         type="email"
                         name="email"
                         placeholder='Email'
@@ -151,11 +178,19 @@ const Order = () => {
                     />
                     <input
                         onChange={onChangeHandler}
-                        data={data.phone}
+                        value={data.phone}
                         type="text"
                         name="phone"
                         placeholder='Phone number'
                         className='ring-1 ring-slate-900/15 p-1 pl-3 rounded-sm outline-none w-1/2'
+                    />
+                    <textarea
+                        onChange={onChangeHandler}
+                        value={data.comment}
+                        name="comment"
+                        placeholder="Коментар до замовлення (необов'язково)"
+                        className='ring-1 ring-slate-900/15 p-1 pl-3 rounded-sm outline-none w-full mb-3'
+                        rows="4"
                     />
                     {/* Спосіб доставки */}
                     <select

@@ -20,14 +20,13 @@ const Add = () => {
     });
     const [sizes, setSizes] = useState([{ size: "", quantity: "0" }]); // Стан для зберігання розмірів та кількості
 
-    const sizesList = ["One size", "XXS", "XS", "S", "M", "L", "XL", "XXL"];
+    const sizesList = ["One size", "XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL"];
     const fileInputRef = useRef(null); // Реф для поля вибору файлів
 
     // Обробник зміни полів форми
     const onChangeHandler = (event) => {
-        const name = event.target.name;
-        const value = event.target.value;
-        setData(data => ({ ...data, [name]: value }));
+        const { name, value } = event.target;
+        setData((prevData) => ({ ...prevData, [name]: value }));
     };
 
     // Обробник зміни розмірів та кількості
@@ -59,68 +58,23 @@ const Add = () => {
 
     // Обробник завантаження зображень
     const handleImageChange = (event) => {
-        const files = Array.from(event.target.files); // Перетворюємо FileList у масив
-        setImages((prevImages) => [...prevImages, ...files]); // Додаємо нові зображення до існуючих
+        const files = Array.from(event.target.files);
+        setImages((prevImages) => [...prevImages, ...files]);
     };
 
     // Видалення зображення зі списку
     const removeImage = (index) => {
         setImages((prevImages) => prevImages.filter((_, i) => i !== index));
-        // Скидаємо значення поля для вибору файлів
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
         }
     };
 
-    // Перевірка на дублікати розмірів
-    const hasDuplicateSizes = () => {
-        const sizeValues = sizes.map((size) => size.size); // Отримуємо масив розмірів
-        const uniqueSizes = new Set(sizeValues); // Створюємо Set для унікальних значень
-        return sizeValues.length !== uniqueSizes.size; // Порівнюємо довжину масиву з розміром Set
-    };
-
+    // Відправка форми
     const onSubmitHandler = async (event) => {
         event.preventDefault();
 
-        // Перевірка на дублікати розмірів
-        if (hasDuplicateSizes()) {
-            toast.error("Дублікати розмірів не допускаються. Виправте, будь ласка.");
-            return;
-        }
-
-        // Перевірка обов'язкових полів
-        if (data.name == "") {
-            toast.error("Будь ласка, введіть назву товару");
-            return;
-        }
-        if (data.description === "") {
-            toast.error("Будь ласка, введіть опис товару");
-            return;
-        }
-        if (data.price === "") {
-            toast.error("Будь ласка, введіть ціну товару");
-            return;
-        }
-        if (data.price === "0") {
-            toast.error("Ціна має бути більше 0");
-            return;
-        }
-        if (data.category === "Оберіть категорію") {
-            toast.error("Будь ласка, оберіть категорію товару");
-            return;
-        }
-        if (data.colors === "") {
-            toast.error("Будь ласка, введіть колір товару");
-            return;
-        }
-        if (images.length === 0) {
-            toast.error("Будь ласка, завантажте хоча б одне зображення товару");
-            return;
-        }
-
         const formData = new FormData();
-
-        // Додаємо текстові дані до FormData
         formData.append("name", data.name);
         formData.append("description", data.description);
         formData.append("price", Number(data.price));
@@ -131,24 +85,24 @@ const Add = () => {
         formData.append("fabric", data.fabric);
         formData.append("colors", data.colors);
 
-        // Додаємо розміри та кількість
         sizes.forEach((size, index) => {
             formData.append(`sizes[${index}][size]`, size.size);
             formData.append(`sizes[${index}][quantity]`, size.quantity);
         });
 
-        // Додаємо кожне зображення до FormData
         images.forEach((image) => {
-            formData.append("images", image); // "images" - ключ для масиву зображень
+            formData.append("images", image);
         });
 
         try {
-            const response = await axios.post(`${url}/api/product/add`, formData, {
+            const response = await axios.post(`${url}/api/product/add-product`, formData, {
                 headers: {
-                    "Content-Type": "multipart/form-data"
-                }
+                    "Content-Type": "multipart/form-data",
+                },
             });
+
             if (response.data.success) {
+                toast.success(response.data.message);
                 setData({
                     name: "",
                     description: "",
@@ -160,20 +114,19 @@ const Add = () => {
                     fabric: "",
                     colors: "",
                 });
-                setSizes([{ size: "", quantity: "" }]); // Очищаємо розміри
-                setImages([]); // Очищаємо масив зображень
-                toast.success(response.data.message);
+                setSizes([{ size: "", quantity: "0" }]);
+                setImages([]);
             } else {
                 toast.error(response.data.message);
             }
         } catch (error) {
-            toast.error("Не вдалося додати товар");
+            toast.error(error.response?.data?.message || "Не вдалося додати товар");
             console.error("Помилка:", error);
         }
     };
 
     return (
-        <section className="p-4 sm:p-10 w-full bg-primary/20 ">
+        <section className="p-4 w-full bg-primary/20 pl-[16%]">
             <form onSubmit={onSubmitHandler} className="flex flex-col gap-y-5">
                 <h4 className="bold-22 pb-2 uppercase">Додавання товару</h4>
 
@@ -249,7 +202,7 @@ const Add = () => {
                     ></textarea>
                 </div>
 
-                <div className="flex items-center gap-x-6 text-gray-900/70 medium-15">
+                <div className="flex items-center gap-x-6 text-black medium-15">
                     <div className="flex flex-col gap-y-2">
                         <p className='text-base'>Категорія</p>
                         <select

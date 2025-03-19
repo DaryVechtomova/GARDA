@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import { toast } from 'react-toastify';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const ProductDetails = () => {
     const url = "http://localhost:4000";
     const { id } = useParams();
+    const navigate = useNavigate();
     const [data, setData] = useState({
         name: "",
         description: "",
@@ -16,8 +17,8 @@ const ProductDetails = () => {
         technique: "",
         fabric: "",
         colors: "",
-        images: [], // Додано масив зображень
-        sizes: [], // Додано масив розмірів
+        images: [],
+        sizes: [],
     });
 
     const [selectedImage, setSelectedImage] = useState(null); // Для відкриття зображення у великому розмірі
@@ -26,7 +27,7 @@ const ProductDetails = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const response = await axios.get(`${url}/api/product/edit/${id}`);
+                const response = await axios.get(`${url}/api/product/details/${id}`);
                 if (response.data.success) {
                     setData(response.data.data);
                 } else {
@@ -63,8 +64,13 @@ const ProductDetails = () => {
         setCurrentImageIndex(newIndex);
     };
 
+    // Функція для перевірки, чи поле має значення
+    const hasValue = (value) => {
+        return value !== null && value !== undefined && value !== "";
+    };
+
     return (
-        <section className="p-4 sm:p-10 w-full bg-primary/20">
+        <section className="p-4 w-full bg-primary/20 pl-[16%]">
             <div className="flex flex-col gap-y-5 max-w-{555px}">
                 <h4 className="bold-22 pb-2 uppercase">Деталі товару</h4>
 
@@ -148,33 +154,41 @@ const ProductDetails = () => {
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Нитки</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.threads}
+                {hasValue(data.threads) && (
+                    <div className="flex flex-col gap-y-2">
+                        <p className='text-base'>Нитки</p>
+                        <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                            {data.threads}
+                        </div>
                     </div>
-                </div>
+                )}
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Крій</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.cut}
+                {hasValue(data.cut) && (
+                    <div className="flex flex-col gap-y-2">
+                        <p className='text-base'>Крій</p>
+                        <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                            {data.cut}
+                        </div>
                     </div>
-                </div>
+                )}
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Техніка виконання</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.technique}
+                {hasValue(data.technique) && (
+                    <div className="flex flex-col gap-y-2">
+                        <p className='text-base'>Техніка виконання</p>
+                        <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                            {data.technique}
+                        </div>
                     </div>
-                </div>
+                )}
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Тканина</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.fabric}
+                {hasValue(data.fabric) && (
+                    <div className="flex flex-col gap-y-2">
+                        <p className='text-base'>Тканина</p>
+                        <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                            {data.fabric}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 <div className="flex flex-col gap-y-2">
                     <p className='text-base'>Колір</p>
@@ -201,6 +215,13 @@ const ProductDetails = () => {
                         <span>Немає розмірів</span>
                     )}
                 </div>
+                {/* Кнопка "Назад" */}
+                <button
+                    onClick={() => navigate(-1)}
+                    className="px-4 py-2 bg-[#fbb42c] text-black font-bold rounded-lg shadow-md hover:bg-[#d0882a] transition"
+                >
+                    Назад
+                </button>
             </div>
         </section>
     );

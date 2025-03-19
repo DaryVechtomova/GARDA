@@ -11,12 +11,19 @@ function List() {
     const [sortOrder, setSortOrder] = useState('asc');
     const [filterCategory, setFilterCategory] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
+    const [editingDiscount, setEditingDiscount] = useState(null);
+    const [discountValue, setDiscountValue] = useState('');
 
     const fetchList = async () => {
         try {
-            const response = await axios.get(`${url}/api/product/list`);
+            const response = await axios.get(`${url}/api/product/list-product`);
             if (response.data.success) {
-                setList(response.data.data);
+                if (response.data.data.length === 0) {
+                    toast.info("Товарів ще немає");
+                    setList([]);
+                } else {
+                    setList(response.data.data);
+                }
             } else {
                 toast.error("Помилка завантаження списку товарів");
             }
@@ -26,13 +33,60 @@ function List() {
     };
 
     const removeProduct = async (productId) => {
-        const response = await axios.post(`${url}/api/product/remove`, { id: productId });
+        const response = await axios.post(`${url}/api/product/remove-product`, { id: productId });
         await fetchList();
         if (response.data.success) {
             toast.success(response.data.message);
         } else {
             toast.error("Помилка");
         }
+    };
+
+    const removeDiscount = async (productId) => {
+        try {
+            const response = await axios.delete(`${url}/api/product/discount/remove/${productId}`);
+            if (response.data.success) {
+                toast.success(response.data.message);
+                fetchList();
+            } else {
+                toast.error("Помилка при видаленні знижки");
+            }
+        } catch (error) {
+            toast.error("Не вдалося видалити знижку");
+        }
+    };
+
+    const editDiscount = async (productId, discount) => {
+        try {
+            const response = await axios.put(`${url}/api/product/discount/edit/${productId}`, { discount });
+            if (response.data.success) {
+                toast.success(response.data.message);
+                fetchList();
+            } else {
+                toast.error("Помилка при редагуванні знижки");
+            }
+        } catch (error) {
+            toast.error("Не вдалося оновити знижку");
+        }
+    };
+
+    const openEditDiscountModal = (productId, currentDiscount) => {
+        setEditingDiscount(productId);
+        setDiscountValue(currentDiscount || '');
+    };
+
+    const closeEditDiscountModal = () => {
+        setEditingDiscount(null);
+        setDiscountValue('');
+    };
+
+    const saveDiscount = async (productId) => {
+        if (discountValue === '' || discountValue < 0 || discountValue > 100) {
+            toast.error("Знижка повинна бути від 0 до 100%");
+            return;
+        }
+        await editDiscount(productId, discountValue);
+        closeEditDiscountModal();
     };
 
     const sortProducts = (products) => {
@@ -64,14 +118,14 @@ function List() {
     const sortedAndFilteredProducts = searchProducts(filterProducts(sortProducts(list)));
 
     return (
-        <section className="p-4 w-full bg-primary/20">
+        <section className="p-4 w-full bg-primary/20 pl-[16%]">
             <div className="px-4">
                 <h4 className="bold-22 pb-2 uppercase mt-4">Список товарів</h4>
                 <div className="flex gap-4 mb-4">
-                    <button onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
+                    <button onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')} className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fbb42c]">
                         Сортувати за ціною {sortOrder === 'asc' ? '↑' : '↓'}
                     </button>
-                    <select onChange={(e) => setFilterCategory(e.target.value)}>
+                    <select onChange={(e) => setFilterCategory(e.target.value)} className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fbb42c]">
                         <option value="All">Всі категорії</option>
                         <option value="Для жінок">Для жінок</option>
                         <option value="Для чоловіків">Для чоловіків</option>
@@ -84,7 +138,7 @@ function List() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fbb42c]"
                     />
-                    <NavLink to="/add">
+                    <NavLink to="/add-product">
                         <button className="px-4 py-2 bg-[#fbb42c] text-black font-bold rounded-lg shadow-md hover:bg-[#d0882a] transition">Додати товар</button>
                     </NavLink>
                 </div>
@@ -96,6 +150,7 @@ function List() {
                             <th className='p-3 border'>Ціна</th>
                             <th className='p-3 border'>Категорія</th>
                             <th className='p-3 border'>Кількість</th>
+                            <th className='p-3 border'>Знижка</th>
                             <th className='p-3 border'>Деталі</th>
                             <th className='p-3 border w-20'>Редагувати</th>
                             <th className='p-3 border w-20'>Видалити</th>
@@ -104,22 +159,30 @@ function List() {
                     <tbody>
                         {sortedAndFilteredProducts.map((product) => (
                             <tr key={product._id}>
-                                {/* Відображення першого зображення */}
                                 <td className="p-3 border flex justify-center items-center">
                                     {product.images && product.images.length > 0 ? (
                                         <img
                                             src={`${url}/images/${product.images[0]}`}
                                             alt="product"
-                                            className="h-20 w-20 object-cover shadow-sm"
+                                            className="height: 100% w-24 object-cover shadow-sm"
                                         />
                                     ) : (
                                         <span>Немає зображення</span>
                                     )}
                                 </td>
                                 <td className="p-3 border">{product.name}</td>
-                                <td className="p-3 border text-center">{product.price} грн</td>
+                                <td className="p-3 border text-center">
+                                    {product.discount ? (
+                                        <>
+                                            <span className="line-through text-gray-500">{product.price} грн</span>
+                                            <br />
+                                            <span className="text-red-600 font-bold">{product.discountedPrice.toFixed(2)} грн</span>
+                                        </>
+                                    ) : (
+                                        <span>{product.price} грн</span>
+                                    )}
+                                </td>
                                 <td className="p-3 border text-center">{product.category}</td>
-                                {/* Відображення розмірів та кількості */}
                                 <td className="p-3 border text-center">
                                     {product.sizes && product.sizes.length > 0 ? (
                                         <ul>
@@ -133,13 +196,34 @@ function List() {
                                         <span>Немає розмірів</span>
                                     )}
                                 </td>
+                                <td className="p-3 border text-center">
+                                    {product.discount ? (
+                                        <span>{product.discount}%</span>
+                                    ) : (
+                                        <span>Немає знижки</span>
+                                    )}
+                                    <div className="flex gap-2 justify-center mt-2">
+                                        <button
+                                            onClick={() => openEditDiscountModal(product._id, product.discount)}
+                                            className="text-blue-500 hover:text-blue-700"
+                                        >
+                                            <TbEdit size={16} />
+                                        </button>
+                                        <button
+                                            onClick={() => removeDiscount(product._id)}
+                                            className="text-red-500 hover:text-red-700"
+                                        >
+                                            <TbTrash size={16} />
+                                        </button>
+                                    </div>
+                                </td>
                                 <td className="p-3 border text-center items-center">
                                     <NavLink to={`/product/details/${product._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
                                         <FaPlus />
                                     </NavLink>
                                 </td>
                                 <td className="p-3 border justify-center items-center">
-                                    <NavLink to={`/edit/${product._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
+                                    <NavLink to={`/edit-product/${product._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
                                         <TbEdit size={20} />
                                     </NavLink>
                                 </td>
@@ -157,6 +241,35 @@ function List() {
                     </tbody>
                 </table>
             </div>
+
+            {editingDiscount && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-6 rounded-lg">
+                        <h3 className="text-lg font-bold mb-4">Редагувати знижку</h3>
+                        <input
+                            type="number"
+                            value={discountValue}
+                            onChange={(e) => setDiscountValue(e.target.value)}
+                            placeholder="Введіть знижку (0-100%)"
+                            className="w-full p-2 border border-gray-300 rounded-lg mb-4"
+                        />
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => saveDiscount(editingDiscount)}
+                                className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+                            >
+                                Зберегти
+                            </button>
+                            <button
+                                onClick={closeEditDiscountModal}
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg"
+                            >
+                                Скасувати
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 }

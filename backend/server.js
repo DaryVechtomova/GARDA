@@ -6,6 +6,7 @@ import productRouter from "./routes/productRoute.js";
 import userRouter from "./routes/userRoute.js";
 import cartRouter from './routes/cartRoute.js';
 import orderRouter from './routes/orderRoute.js';
+import supplierRouter from './routes/supplierRoute.js';
 
 
 //app config
@@ -25,6 +26,7 @@ app.use("/images", express.static('uploads'))
 app.use("/api/user", userRouter)
 app.use("/api/cart", cartRouter)
 app.use("/api/order", orderRouter)
+app.use("/api/suppliers", supplierRouter)
 
 app.get("/", (req, res) => {
     res.send("API Working")

@@ -27,11 +27,11 @@ const Edit = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const response = await axios.get(`${url}/api/product/edit/${id}`);
+                const response = await axios.get(`${url}/api/product/edit-product/${id}`);
                 if (response.data.success) {
                     setData(response.data.data);
                     setExistingImages(response.data.data.images || []);
-                    setSizes(response.data.data.sizes || []); // Ініціалізація sizes (тільки для перегляду)
+                    setSizes(response.data.data.sizes || []);
                 } else {
                     toast.error("Помилка завантаження товару");
                 }
@@ -68,68 +68,39 @@ const Edit = () => {
     // Відправка форми
     const onSubmitHandler = async (event) => {
         event.preventDefault();
-        // Перевірка обов'язкових полів
-        if (data.name == "") {
-            toast.error("Будь ласка, введіть назву товару");
-            return;
-        }
-        if (data.description === "") {
-            toast.error("Будь ласка, введіть опис товару");
-            return;
-        }
-        if (data.price === "") {
-            toast.error("Будь ласка, введіть ціну товару");
-            return;
-        }
-        if (data.category === "Оберіть категорію") {
-            toast.error("Будь ласка, оберіть категорію товару");
-            return;
-        }
-        if (data.colors === "") {
-            toast.error("Будь ласка, введіть колір товару");
-            return;
-        }
-        if (images.length === 0) {
-            toast.error("Будь ласка, завантажте хоча б одне зображення товару");
-            return;
-        }
+
         const formData = new FormData();
         formData.append("id", id);
         Object.keys(data).forEach(key => formData.append(key, data[key]));
 
         // Додаємо нові зображення
         images.forEach((image) => {
-            formData.append("images", image); // Передаємо файли
-            console.log("Додано файл до FormData:", image.name); // Логування
+            formData.append("images", image);
         });
 
         // Передаємо список залишених існуючих зображень
         formData.append("existingImages", JSON.stringify(existingImages));
 
-        // Логування вмісту FormData
-        for (let [key, value] of formData.entries()) {
-            console.log(key, value);
-        }
-
         try {
-            const response = await axios.post(`${url}/api/product/edit`, formData, {
+            const response = await axios.post(`${url}/api/product/edit-product`, formData, {
                 headers: { "Content-Type": "multipart/form-data" }
             });
+
             if (response.data.success) {
                 toast.success(response.data.message);
-                navigate("/list");
+                navigate("/list-product");
             } else {
                 toast.error(response.data.message);
             }
         } catch (error) {
-            toast.error("Не вдалося оновити товар");
+            toast.error(error.response?.data?.message || "Не вдалося оновити товар");
             console.error("Помилка:", error.response ? error.response.data : error.message);
         }
     };
 
 
     return (
-        <section className="p-4 sm:p-10 w-full bg-primary/20">
+        <section className="p-4 w-full bg-primary/20 pl-[16%]">
             <form onSubmit={onSubmitHandler} className="flex flex-col gap-y-5">
                 <h4 className="bold-22 pb-2 uppercase">Редагування товару</h4>
 
@@ -148,9 +119,9 @@ const Edit = () => {
                                 <button
                                     type="button"
                                     onClick={() => removeExistingImage(image)}
-                                    className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full"
+                                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
                                 >
-                                    <FaTrash size={12} />
+                                    &times;
                                 </button>
                             </div>
                         ))}
