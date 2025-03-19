@@ -5,6 +5,15 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  background-color: #FFFFFD;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
+
 * {
   margin: 0;
   padding: 0;
@@ -60,8 +69,8 @@ html {
     @apply text-secondary relative flex-1 after:w-full after:h-[1px] after:bg-secondary after:absolute after:-bottom-3 after:right-0;
   } */
   .active-link {
-    @apply relative flex-1 after:w-1.5 after:h-1.5 after:rounded-full after:bg-secondary after:absolute after:-top-0 after:-right-1;
-  }
+    @apply text-[#54A5D9] relative flex-1 after:w-1.5 after:h-1.5 after:rounded-full after:bg-[#54A5D9] after:absolute after:-top-0 after:-right-1;
+}
 
   .active-ctg {
     @apply border-8 border-solid border-black p-1;
@@ -108,7 +117,7 @@ html {
   }
 
   .max-padd-container {
-    @apply mx-auto max-w-[1440px] px-6 lg:px-12;
+    @apply mx-auto max-w-[1530px] px-6 lg:px-12;
   }
 
   .flexCenter {
@@ -295,4 +304,70 @@ html {
   .bold-15 {
     @apply text-[15px] font-[700];
   }
+  .active-link {
+    @apply text-secondary font-medium;
+  }
+
+
+
+
+
+
+  /* Базові стилі для мобільної версії (до 600px) */
+.woman {
+  position: absolute;
+  width: 140px;
+  height: 198px;
+  left: 186px;
+  top: 133px;
+  background: url(woman.png);
+  background-size: cover;
+  background-position: center;
+}
+
+.bg-design {
+  position: absolute;
+  width: 600px;
+  height: 426.55px;
+  left: 0px;
+  top: 97.45px;
+  background: url(bg-design.png);
+  background-size: cover;
+  background-position: center;
+}
+
+.house {
+  position: absolute;
+  width: 387px;
+  height: 258px;
+  left: 211px;
+  top: 82px;
+  background: url(house.png);
+  background-size: cover;
+  background-position: center;
+}
+
+/* Медіа-запит для екранів шириною понад 600px */
+@media (min-width: 600px) {
+  .woman {
+      width: 288px;
+      height: 407px;
+      left: 580px;
+      top: 130px;
+  }
+
+  .bg-design {
+      width: 1415.52px;
+      height: 762.59px;
+      left: 107.2px;
+      top: 80px;
+  }
+
+  .house {
+      width: 795px;
+      height: 530px;
+      left: 684px;
+      top: 80px;
+  }
+}
 }
