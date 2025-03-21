@@ -369,5 +369,15 @@ html {
       left: 684px;
       top: 80px;
   }
+
+  .labrada-style {
+    font-family: 'Labrada', serif; /* Використовуйте шрифт Labrada або схожий */
+    font-size: 2.5rem; /* Розмір тексту */
+    font-weight: 700; /* Жирний текст */
+    color: #000; /* Колір тексту */
+    text-transform: uppercase; /* Великі літери */
+    letter-spacing: 2px; /* Відстань між літерами */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Тінь для тексту */
+}
 }
 }

@@ -1,0 +1,31 @@
+/* src/fonts/fonts.css */
+
+@font-face {
+    font-family: 'NyghtSerif';
+    src: url('./NyghtSerif-Regular.woff') format('woff');
+    font-weight: 400; /* Regular */
+    font-style: normal;
+  }
+  
+  @font-face {
+    font-family: 'NyghtSerif';
+    src: url('./NyghtSerif-Bold.woff') format('woff');
+    font-weight: 1000; /* Bold */
+    font-style: normal;
+  }
+  
+  @font-face {
+    font-family: 'NyghtSerif';
+    src: url('./NyghtSerif-Italic.woff') format('woff');
+    font-weight: 400; /* Regular */
+    font-style: italic;
+  }
+  
+  @font-face {
+    font-family: 'NyghtSerif';
+    src: url('./NyghtSerif-BoldItalic.woff') format('woff');
+    font-weight: 700; /* Bold */
+    font-style: italic;
+  }
+  
+ 

@@ -39,8 +39,8 @@ const Hero = () => {
 
     // Стилі для десктопної версії (1530px)
     const desktopStyles = {
-        woman: { width: 288, height: 407, left: 580, top: 130 },
-        bgDesign: { width: 1415.52, height: 762.59, left: 105, top: 80 },
+        woman: { width: 288, height: 407, left: 621, top: 186 },
+        bgDesign: { width: 1393.59, height: 830.77, left: 95, top: 80 },
         house: { width: 795, height: 530, left: 684, top: 80 },
     };
 
