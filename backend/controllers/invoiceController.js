@@ -28,15 +28,22 @@ const addInvoice = async (req, res) => {
         return res.status(404).json({ success: false, message: "Постачальника не знайдено" });
     }
 
-    // Перевірка, чи існують товари
+    // Перевірка, чи існують товари та оновлення кількості
     for (const item of products) {
         const existingProduct = await productModel.findById(item.product);
         if (!existingProduct) {
             return res.status(404).json({ success: false, message: `Товар з ID ${item.product} не знайдено` });
         }
-    }
 
-    // Створення нової накладної
+        // Оновлення кількості товару для вибраного розміру
+        const sizeIndex = existingProduct.sizes.findIndex((size) => size.size === item.size);
+        if (sizeIndex === -1) {
+            return res.status(400).json({ success: false, message: `Розмір ${item.size} не знайдено для товару ${existingProduct.name}` });
+        }
+
+        existingProduct.sizes[sizeIndex].quantity += item.quantity;
+        await existingProduct.save();
+    }
     const invoice = new invoiceModel({
         supplier,
         products,

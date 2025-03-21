@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom'
 import { BsPlusSquare, BsCardList, BsCardChecklist } from "react-icons/bs"
 import { FiUsers } from "react-icons/fi";
 import { PiInvoice } from "react-icons/pi";
+import { GrUserManager } from "react-icons/gr";
 const Sidebar = () => {
     return (
         <div className="w-1/6 min-h-screen border-r  border-r-slate-900/10 fixed left-0 top-16 bg-white">
@@ -29,6 +30,11 @@ const Sidebar = () => {
                 <NavLink to={"/list-invoice"} className={({ isActive }) => isActive ? "active-link" : "flexCenter gap-x-2 cursor-pointer h-10 max-w-60 border border-slate-900/15 !bg-transparent"}>
                     <PiInvoice />
                     <p className="hidden lg:flex">Прибуткові накладні</p>
+                </NavLink>
+
+                <NavLink to={"/list-employees"} className={({ isActive }) => isActive ? "active-link" : "flexCenter gap-x-2 cursor-pointer h-10 max-w-60 border border-slate-900/15 !bg-transparent"}>
+                    <GrUserManager />
+                    <p className="hidden lg:flex">Співробітники</p>
                 </NavLink>
             </div>
         </div >

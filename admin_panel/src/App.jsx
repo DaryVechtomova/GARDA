@@ -12,6 +12,9 @@ import AddSupplier from "./pages/AddSupplier";
 import EditSupplier from "./pages/EditSupplier";
 import SupplierDetails from "./pages/SupplierDetails";
 import InvoiceList from "./pages/InvoiceList";
+import AddInvoice from "./pages/AddInvoice";
+import EmployeesList from "./pages/EmployeesList";
+import AddEmployee from "./pages/AddEmployee";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -21,7 +24,7 @@ export default function App() {
       <ToastContainer />
       <Navbar />
       <hr />
-      <div className="flex max-padd-container pt-2">
+      <div className="flex max-padd-container pt-14">
         <Sidebar />
         <Routes>
           <Route path="/add-product" element={<AddProduct />} />
@@ -35,6 +38,9 @@ export default function App() {
           <Route path="/edit-supplier/:id" element={<EditSupplier />} />
           <Route path="/suppliers/details/:id" element={<SupplierDetails />} />
           <Route path="/list-invoice" element={<InvoiceList />} />
+          <Route path="/add-invoice" element={<AddInvoice />} />
+          <Route path="/list-employees" element={<EmployeesList />} />
+          <Route path="/add-employee" element={<AddEmployee />} />
         </Routes>
       </div>
     </BrowserRouter>

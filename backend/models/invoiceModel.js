@@ -34,8 +34,8 @@ const invoiceSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["active", "canceled"],
-        default: "active",
+        enum: ["активна", "скасована"],
+        default: "активна",
     },
     notes: {
         type: String,
