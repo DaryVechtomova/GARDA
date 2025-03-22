@@ -8,6 +8,7 @@ export default defineConfig({
   server: {
     allowedHosts: [
       '.ngrok-free.app', // Дозволяє всі хости, що закінчуються на .ngrok-free.app
+      '.vercel.app',
     ],
   },
 })
