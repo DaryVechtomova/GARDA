@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { FaPlus } from 'react-icons/fa6';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaSave, FaTrash } from 'react-icons/fa';
+import { IMaskInput } from 'react-imask';
 
 const EditSupplier = () => {
     const url = "http://localhost:4000";
@@ -83,7 +84,7 @@ const EditSupplier = () => {
     const isDisabled = data.status === "завершений";
 
     return (
-        <section className="p-4 w-full bg-primary/20 pl-[16%]">
+        <section className="p-10 w-full bg-primary/20 pl-[16%]">
             <form onSubmit={onSubmitHandler} className="flex flex-col gap-y-5">
                 <h4 className="bold-22 pb-2 uppercase">Редагування постачальника</h4>
 
@@ -129,14 +130,14 @@ const EditSupplier = () => {
 
                 <div className="flex flex-col gap-y-2">
                     <p className='text-base'>Телефон</p>
-                    <input
-                        onChange={onChangeHandler}
+                    <IMaskInput
+                        mask="+38 (000) 000-0000"
                         value={data.phone}
-                        name="phone"
-                        type="text"
-                        placeholder='Введіть телефон..'
+                        onAccept={(value) => {
+                            setData((prevData) => ({ ...prevData, phone: value }));
+                        }}
+                        placeholder="+38 (0XX) XXX-XXXX"
                         className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
-                        disabled={isDisabled}
                     />
                 </div>
 

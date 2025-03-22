@@ -102,9 +102,9 @@ const OrderDetails = () => {
     };
 
     return (
-        <section className="p-4 w-full bg-primary/20 pl-[16%]">
+        <section className="p-10 w-full bg-primary/20 pl-[16%]">
             <div className="px-4">
-                <h4 className="bold-22 pb-2 uppercase mt-4">Деталі замовлення</h4>
+                <h4 className="bold-22 pb-2 uppercase">Деталі замовлення</h4>
 
                 {/* Основна інформація про замовлення */}
                 <div className="mb-6">

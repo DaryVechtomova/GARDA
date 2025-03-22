@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import bgDesign from '../assets/design/bg-design.png';
+import woman from '../assets/design/woman.png';
+import house from '../assets/design/house.png';
+
 
 const Hero = () => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -56,7 +60,7 @@ const Hero = () => {
                 style={{
                     position: 'absolute',
                     ...bgDesignStyles,
-                    background: 'url("/src/assets/design/bg-design.png")',
+                    background: `url(${bgDesign})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                 }}
@@ -67,7 +71,7 @@ const Hero = () => {
                 style={{
                     position: 'absolute',
                     ...womanStyles,
-                    background: 'url("/src/assets/design/woman.png")',
+                    background: `url(${woman})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                 }}
@@ -78,7 +82,7 @@ const Hero = () => {
                 style={{
                     position: 'absolute',
                     ...houseStyles,
-                    background: 'url("/src/assets/design/house.png")',
+                    background: `url(${house})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                 }}

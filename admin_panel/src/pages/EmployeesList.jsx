@@ -3,12 +3,16 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { TbTrash, TbEdit } from "react-icons/tb";
 import { NavLink } from 'react-router-dom';
+import { FaPlus } from 'react-icons/fa6';
 
 function EmployeesList() {
     const url = "http://localhost:4000";
     const [employees, setEmployees] = useState([]);
-    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-    const [employeeToDelete, setEmployeeToDelete] = useState(null);
+    const [showFireConfirmation, setShowFireConfirmation] = useState(false);
+    const [employeeToFire, setEmployeeToFire] = useState(null);
+    const [filterRole, setFilterRole] = useState('All');
+    const [filterStatus, setFilterStatus] = useState('All');
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Отримання списку співробітників
     const fetchEmployees = async () => {
@@ -17,7 +21,7 @@ function EmployeesList() {
             if (response.data.success) {
                 if (response.data.data.length === 0) {
                     toast.info("Працівників ще немає");
-                    setSuppliers([]);
+                    setEmployees([]);
                 } else {
                     setEmployees(response.data.data);
                 }
@@ -29,56 +33,113 @@ function EmployeesList() {
         }
     };
 
-    // Видалення співробітника
-    const removeEmployee = async (employeeId) => {
+    // Звільнення співробітника
+    const fireEmployee = async (employeeId) => {
         try {
-            const response = await axios.post(`${url}/api/user/remove-employee`, { id: employeeId });
+            const response = await axios.post(`${url}/api/user/fire-employee`, { id: employeeId });
             if (response.data.success) {
                 toast.success(response.data.message);
                 fetchEmployees();
             } else {
-                toast.error("Помилка при видаленні співробітника");
+                toast.error("Помилка при звільненні співробітника");
             }
         } catch (error) {
-            toast.error("Не вдалося видалити співробітника");
+            toast.error("Не вдалося звільнити співробітника");
         } finally {
-            setShowDeleteConfirmation(false);
+            setShowFireConfirmation(false);
         }
     };
 
-    // Відкриття модального вікна для підтвердження видалення
-    const handleDeleteClick = (employeeId) => {
-        setEmployeeToDelete(employeeId);
-        setShowDeleteConfirmation(true);
+    // Відкриття модального вікна для підтвердження звільнення
+    const handleFireClick = (employeeId) => {
+        setEmployeeToFire(employeeId);
+        setShowFireConfirmation(true);
     };
 
-    // Підтвердження видалення
-    const confirmDelete = () => {
-        if (employeeToDelete) {
-            removeEmployee(employeeToDelete);
+    // Підтвердження звільнення
+    const confirmFire = () => {
+        if (employeeToFire) {
+            fireEmployee(employeeToFire);
         }
     };
 
-    // Скасування видалення
-    const cancelDelete = () => {
-        setEmployeeToDelete(null);
-        setShowDeleteConfirmation(false);
+    // Скасування звільнення
+    const cancelFire = () => {
+        setEmployeeToFire(null);
+        setShowFireConfirmation(false);
+    };
+
+    // Фільтрація співробітників за роллю та статусом
+    const filterEmployees = (employees) => {
+        let filteredEmployees = employees;
+
+        if (filterRole !== 'All') {
+            filteredEmployees = filteredEmployees.filter(employee => employee.role === filterRole);
+        }
+
+        if (filterStatus !== 'All') {
+            filteredEmployees = filteredEmployees.filter(employee =>
+                filterStatus === 'Активний' ? employee.isActive : !employee.isActive
+            );
+        }
+
+        return filteredEmployees;
+    };
+
+    // Пошук співробітників за прізвищем
+    const searchEmployees = (employees) => {
+        if (!searchQuery) return employees;
+        return employees.filter(employee =>
+            employee.secondName.toLowerCase().includes(searchQuery.toLowerCase())
+        );
     };
 
     useEffect(() => {
         fetchEmployees();
     }, []);
 
+    // Сортування: спочатку активні, потім звільнені
+    const sortedAndFilteredEmployees = searchEmployees(filterEmployees(employees)).sort((a, b) => {
+        return b.isActive - a.isActive;
+    });
+
     return (
-        <section className="p-4 w-full bg-primary/20 pl-[16%]">
+        <section className="p-10 w-full bg-primary/20 pl-[16%]">
             <div className="px-4">
-                <h4 className="bold-22 pb-2 uppercase mt-4">Список співробітників</h4>
-                {/* Кнопка для додавання нового співробітника */}
-                <NavLink to="/add-employee">
-                    <button className="px-4 py-2 bg-[#fbb42c] text-black font-bold rounded-lg shadow-md hover:bg-[#d0882a] transition mb-4">
-                        Додати співробітника
-                    </button>
-                </NavLink>
+                <h4 className="bold-22 pb-2 uppercase">Список співробітників</h4>
+
+                <div className="flex gap-4 mb-4 flex-wrap">
+                    <select
+                        onChange={(e) => setFilterRole(e.target.value)}
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fbb42c]"
+                    >
+                        <option value="All">Всі ролі</option>
+                        <option value="адміністратор">Адміністратор</option>
+                        <option value="комірник">Комірник</option>
+                    </select>
+                    <select
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fbb42c]"
+                    >
+                        <option value="All">Всі статуси</option>
+                        <option value="Активний">Активний</option>
+                        <option value="Неактивний">Неактивний</option>
+                    </select>
+                    <input
+                        type="text"
+                        placeholder="Пошук за прізвищем"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fbb42c]"
+                    />
+                    {/* Кнопка для додавання нового співробітника */}
+                    <NavLink to="/add-employee">
+                        <button className="px-4 py-2 bg-[#fbb42c] text-black font-bold rounded-lg shadow-md hover:bg-[#d0882a] transition">
+                            Додати співробітника
+                        </button>
+                    </NavLink>
+                </div>
+
                 <table className="w-full border-collapse border border-gray-200">
                     <thead className="bg-gray-100">
                         <tr>
@@ -87,31 +148,45 @@ function EmployeesList() {
                             <th className='p-3 border'>Пошта</th>
                             <th className='p-3 border'>Телефон</th>
                             <th className='p-3 border'>Роль</th>
+                            <th className='p-3 border'>Статус</th>
+                            <th className='p-3 border w-20'>Деталі</th>
                             <th className='p-3 border w-20'>Редагувати</th>
-                            <th className='p-3 border w-20'>Видалити</th>
+                            <th className='p-3 border w-20'>Звільнити</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {employees.map((employee) => (
+                        {sortedAndFilteredEmployees.map((employee) => (
                             <tr key={employee._id}>
                                 <td className="p-3 border">{employee.firstName}</td>
                                 <td className="p-3 border">{employee.secondName}</td>
                                 <td className="p-3 border">{employee.email}</td>
                                 <td className="p-3 border">{employee.phoneNumber}</td>
                                 <td className="p-3 border">{employee.role}</td>
+                                <td className="p-3 border">{employee.isActive ? 'активний' : 'звільнений'}</td>
+                                <td className="p-3 border text-center">
+                                    <NavLink to={`/user/details/${employee._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
+                                        <FaPlus size={20} />
+                                    </NavLink>
+                                </td>
                                 <td className="p-3 border justify-center items-center">
                                     <NavLink to={`/edit-employee/${employee._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
                                         <TbEdit size={20} />
                                     </NavLink>
                                 </td>
                                 <td className="p-3 border text-center">
-                                    <div className="flex justify-center">
-                                        <TbTrash
-                                            onClick={() => handleDeleteClick(employee._id)}
-                                            className="text-red-500 hover:text-red-700 cursor-pointer"
-                                            size={20}
-                                        />
-                                    </div>
+                                    {employee.isActive ? ( // Умовний рендеринг кнопки "Звільнити"
+                                        <div className="flex justify-center">
+                                            <button
+                                                onClick={() => handleFireClick(employee._id)}
+                                                className="px-2 py-1 bg-[#fbb42c] text-black font-bold rounded-lg shadow-md hover:bg-[#d0882a] transition text-sm"
+                                                size={20}
+                                            >
+                                                Звільнити
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <span className="text-gray-400">Звільнений</span>
+                                    )}
                                 </td>
                             </tr>
                         ))}
@@ -119,24 +194,24 @@ function EmployeesList() {
                 </table>
             </div>
 
-            {/* Модальне вікно підтвердження видалення */}
-            {showDeleteConfirmation && (
+            {/* Модальне вікно підтвердження звільнення */}
+            {showFireConfirmation && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                    <div className="bg-white p-6 rounded-lg">
-                        <h2 className="text-lg font-bold mb-4">Підтвердження видалення</h2>
-                        <p>Ви впевнені, що хочете видалити цього співробітника?</p>
+                    <div className="bg-white p-6 rounded-lg shadow-lg">
+                        <h2 className="text-lg font-bold mb-4">Підтвердження звільнення</h2>
+                        <p>Ви впевнені, що хочете звільнити цього співробітника?</p>
                         <div className="flex justify-end gap-4 mt-4">
                             <button
-                                onClick={cancelDelete}
+                                onClick={cancelFire}
                                 className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
                             >
                                 Скасувати
                             </button>
                             <button
-                                onClick={confirmDelete}
+                                onClick={confirmFire}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
                             >
-                                Видалити
+                                Звільнити
                             </button>
                         </div>
                     </div>

@@ -8,6 +8,7 @@ import cartRouter from './routes/cartRoute.js';
 import orderRouter from './routes/orderRoute.js';
 import supplierRouter from './routes/supplierRoute.js';
 import invoiceRouter from './routes/invoiceRoute.js';
+import { authMiddleware, adminMiddleware } from "./middleware/auth.js"; // Імпорт middleware
 
 
 //app config
@@ -22,6 +23,7 @@ app.use(cors())
 connectDB();
 
 // api endpoints
+
 app.use("/api/product", productRouter)
 app.use("/images", express.static('uploads'))
 app.use("/api/user", userRouter)
@@ -29,6 +31,11 @@ app.use("/api/cart", cartRouter)
 app.use("/api/order", orderRouter)
 app.use("/api/suppliers", supplierRouter)
 app.use("/api/invoices", invoiceRouter)
+
+// Маршрут для адмін-панелі
+// app.get("/admin/dashboard", authMiddleware, adminMiddleware, (req, res) => {
+//     res.json({ success: true, message: "Ласкаво просимо в адмін-панель!" });
+// });
 
 app.get("/", (req, res) => {
     res.send("API Working")

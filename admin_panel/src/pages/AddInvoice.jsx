@@ -155,7 +155,7 @@ const AddInvoice = () => {
     }, [data.selectedProduct, products]);
 
     return (
-        <section className="p-4 w-full bg-primary/20 pl-[16%]">
+        <section className="p-10 w-full bg-primary/20 pl-[16%]">
             <form onSubmit={onSubmitHandler} className="flex flex-col gap-y-5">
                 <h4 className="bold-22 pb-2 uppercase">Додавання прибуткової накладної</h4>
 

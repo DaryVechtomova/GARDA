@@ -171,9 +171,9 @@ function Orders() {
     };
 
     return (
-        <section className="p-4 w-full bg-primary/20 pl-[16%]">
+        <section className="p-10 w-full bg-primary/20 pl-[16%]">
             <div className="px-4">
-                <h4 className="bold-22 pb-2 uppercase mt-4">Список замовлень</h4>
+                <h4 className="bold-22 pb-2 uppercase">Список замовлень</h4>
 
                 {/* Елементи управління: пошук, фільтр, сортування */}
                 <div className="flex gap-4 mb-4 flex-wrap">
@@ -229,7 +229,6 @@ function Orders() {
                             <th className='p-3 border'>Замовник</th>
                             <th className='p-3 border'>Адреса доставки</th>
                             <th className='p-3 border'>Сума</th>
-                            <th className='p-3 border'>Статус оплати</th>
                             <th className='p-3 border'>Дата</th>
                             <th className='p-3 border'>Статус замовлення</th>
                             <th className='p-3 border'>Деталі</th>
@@ -268,11 +267,6 @@ function Orders() {
                                 </td>
                                 <td className="p-3 border text-center">
                                     <span className="medium-16">{order.amount} грн</span>
-                                </td>
-                                <td className="p-3 border text-center">
-                                    <span className="medium-16">
-                                        {order.payment ? "Оплачено" : "Не оплачено"}
-                                    </span>
                                 </td>
                                 <td className="p-3 border text-center">
                                     <span className="medium-16">

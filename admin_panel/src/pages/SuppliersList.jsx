@@ -104,9 +104,9 @@ function SupplierList() {
     };
 
     return (
-        <section className="p-4 w-full bg-primary/20 pl-[16%]">
+        <section className="p-10 w-full bg-primary/20 pl-[16%]">
             <div className="px-4">
-                <h4 className="bold-22 pb-2 uppercase mt-4">Список постачальників</h4>
+                <h4 className="bold-22 pb-2 uppercase">Список постачальників</h4>
                 <div className="flex gap-4 mb-4 flex-wrap">
                     <select
                         onChange={(e) => setFilterStatus(e.target.value)}

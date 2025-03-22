@@ -17,7 +17,11 @@ const userSchema = new mongoose.Schema({
     postalCode: { type: String, required: false },
     registrationDate: { type: Date, default: Date.now },
     cartData: { type: Object, default: {} },
-    role: { type: String, enum: ["користувач", "адміністратор", "комірник"], default: "користувач" }
+    // for employess
+    role: { type: String, enum: ["користувач", "адміністратор", "комірник"], default: "користувач" },
+    hireDate: { type: Date, default: Date.now }, // Дата прийому на роботу
+    fireDate: { type: Date }, // Дата звільнення (null, якщо ще працює)
+    isActive: { type: Boolean, default: true } // Визначає, чи співробітник ще працює
 }, { minimize: false })
 
 const userModel = mongoose.models.user || mongoose.model("user", userSchema);

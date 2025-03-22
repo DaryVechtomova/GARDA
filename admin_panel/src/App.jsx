@@ -15,6 +15,8 @@ import InvoiceList from "./pages/InvoiceList";
 import AddInvoice from "./pages/AddInvoice";
 import EmployeesList from "./pages/EmployeesList";
 import AddEmployee from "./pages/AddEmployee";
+import EditEmployee from "./pages/EditEmployee";
+import EmployeeDetails from "./pages/EmployeeDetails";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -41,6 +43,8 @@ export default function App() {
           <Route path="/add-invoice" element={<AddInvoice />} />
           <Route path="/list-employees" element={<EmployeesList />} />
           <Route path="/add-employee" element={<AddEmployee />} />
+          <Route path="/edit-employee/:id" element={<EditEmployee />} />
+          <Route path="/user/details/:id" element={<EmployeeDetails />} />
         </Routes>
       </div>
     </BrowserRouter>

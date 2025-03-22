@@ -66,7 +66,7 @@ const SupplierDetails = () => {
     };
 
     return (
-        <section className="p-4 w-full bg-primary/20 pl-[16%]">
+        <section className="p-10 w-full bg-primary/20 pl-[16%]">
             <div className="flex flex-col gap-y-5 max-w-{555px}">
                 <h4 className="bold-22 pb-2 uppercase">Деталі постачальника</h4>
 

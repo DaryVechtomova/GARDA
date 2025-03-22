@@ -145,9 +145,9 @@ function List() {
     };
 
     return (
-        <section className="p-4 w-full bg-primary/20 pl-[16%]">
+        <section className="p-10 w-full bg-primary/20 pl-[16%]">
             <div className="px-4">
-                <h4 className="bold-22 pb-2 uppercase mt-4">Список товарів</h4>
+                <h4 className="bold-22 pb-2 uppercase">Список товарів</h4>
                 <div className="flex gap-4 mb-4">
                     <button onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')} className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fbb42c]">
                         Сортувати за ціною {sortOrder === 'asc' ? '↑' : '↓'}
