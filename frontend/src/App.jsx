@@ -9,13 +9,11 @@ import Footer from "./components/Footer";
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/GARDA">
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/product" element={<Product />}>
-          <Route path=":productId" element={<Product />} />
-        </Route>
+        <Route path="/product/:productId" element={<Product />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/favorites" element={<Favorites />} />
         <Route path="/profile" element={<Profile />} />

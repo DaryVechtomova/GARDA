@@ -379,5 +379,16 @@ html {
     letter-spacing: 2px; /* Відстань між літерами */
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Тінь для тексту */
 }
+
+.item-container {
+  width: 350px; /* Фіксована ширина контейнера */
+  height: auto; /* Висота автоматично підлаштовується під контент */
+  background: #FCFAF4;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 30px;
+  padding: 20px; /* Відступи всередині контейнера */
+  margin-bottom: 20px; /* Відступ між елементами */
+}
+
 }
 }

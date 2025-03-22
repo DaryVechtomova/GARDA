@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
+<<<<<<< Updated upstream
 import bgDesign from '../assets/design/bg-design.png';
 import woman from '../assets/design/woman.png';
 import house from '../assets/design/house.png';
 
+=======
+import bgDesign from '../assets/design/bg-design.png'; // Імпорт зображень
+import woman from '../assets/design/woman.png';
+import house from '../assets/design/house.png';
+>>>>>>> Stashed changes
 
 const Hero = () => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -27,16 +33,16 @@ const Hero = () => {
     // Розрахунок розмірів для кожного елемента
     const calculateStyles = (minWidth, maxWidth, minStyle, maxStyle) => {
         return {
-            width: `${interpolate(windowWidth, 600, minStyle.width, 1530, maxStyle.width)}px`,
-            height: `${interpolate(windowWidth, 600, minStyle.height, 1530, maxStyle.height)}px`,
-            left: `${interpolate(windowWidth, 600, minStyle.left, 1530, maxStyle.left)}px`,
-            top: `${interpolate(windowWidth, 600, minStyle.top, 1530, maxStyle.top)}px`,
+            width: `${interpolate(windowWidth, 600, minStyle.width, 1540, maxStyle.width)}px`,
+            height: `${interpolate(windowWidth, 600, minStyle.height, 1540, maxStyle.height)}px`,
+            left: `${interpolate(windowWidth, 600, minStyle.left, 1540, maxStyle.left)}px`,
+            top: `${interpolate(windowWidth, 600, minStyle.top, 1540, maxStyle.top)}px`,
         };
     };
 
     // Стилі для мобільної версії (600px)
     const mobileStyles = {
-        woman: { width: 140, height: 198, left: 186, top: 133 },
+        woman: { width: 140, height: 198, left: 200, top: 160 },
         bgDesign: { width: 600, height: 426.55, left: 0, top: 97.45 },
         house: { width: 387, height: 258, left: 211, top: 82 },
     };
@@ -49,12 +55,12 @@ const Hero = () => {
     };
 
     // Розрахунок поточних стилів
-    const womanStyles = calculateStyles(600, 1530, mobileStyles.woman, desktopStyles.woman);
-    const bgDesignStyles = calculateStyles(600, 1530, mobileStyles.bgDesign, desktopStyles.bgDesign);
-    const houseStyles = calculateStyles(600, 1530, mobileStyles.house, desktopStyles.house);
+    const womanStyles = calculateStyles(600, 1540, mobileStyles.woman, desktopStyles.woman);
+    const bgDesignStyles = calculateStyles(600, 1540, mobileStyles.bgDesign, desktopStyles.bgDesign);
+    const houseStyles = calculateStyles(600, 1540, mobileStyles.house, desktopStyles.house);
 
     return (
-        <section style={{ position: 'relative', width: '100%', height: '100vh' }}>
+        <section id="home" style={{ position: 'relative', width: '100%', height: '100vh' }}>
             {/* Background Design */}
             <div
                 style={{
