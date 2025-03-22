@@ -1,14 +1,8 @@
 import React, { useState, useEffect } from 'react';
-<<<<<<< Updated upstream
 import bgDesign from '../assets/design/bg-design.png';
 import woman from '../assets/design/woman.png';
 import house from '../assets/design/house.png';
 
-=======
-import bgDesign from '../assets/design/bg-design.png'; // Імпорт зображень
-import woman from '../assets/design/woman.png';
-import house from '../assets/design/house.png';
->>>>>>> Stashed changes
 
 const Hero = () => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);

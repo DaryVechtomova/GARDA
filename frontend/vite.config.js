@@ -5,4 +5,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: "/GARDA",
+  server: {
+    allowedHosts: [
+      '.ngrok-free.app', // Дозволяє всі хости, що закінчуються на .ngrok-free.app
+    ],
+  },
 })
