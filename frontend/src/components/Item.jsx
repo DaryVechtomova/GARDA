@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
+import { FaMinus, FaPlus } from 'react-icons/fa6';
+import { ShopContext } from '../context/ShopContext';
+
 
 const Item = ({ product }) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -19,6 +22,9 @@ const Item = ({ product }) => {
     const toggleFavorite = () => {
         setIsFavorited(!isFavorited);
     };
+
+    const { cartItems, addToCart, removeFromCart } = useContext(ShopContext);
+
 
     return (
         <div
@@ -83,6 +89,25 @@ const Item = ({ product }) => {
                     <path d="M20.8 4.6a5.4 5.4 0 0 0-7.6 0L12 5.8l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6l1.2 1.2L12 21l7.6-7.6 1.2-1.2a5.4 5.4 0 0 0 0-7.6z"></path>
                 </svg>
             </button>
+
+            <div className="absolute bottom-4 left-4">
+                {!cartItems[product._id] ? (
+                    <FaPlus onClick={() => addToCart(product._id)}
+
+                        className='bg-white h-8 w-8 p-2 rounded-full shadow-inner cursor-pointer' />
+                ) : (
+                    <div className='bg-white rounded-full flexCenter gap-2 h-8'>
+                        <FaMinus onClick={() => removeFromCart(product._id)}
+
+                            className='bg-primary h-6 w-6 p-1 ml-1 cursor-pointer rounded-full' />
+                        <p>{cartItems[product._id]}</p>
+                        <FaPlus onClick={() => addToCart(product._id)}
+
+                            className='bg-primary h-6 w-6 p-1 mr-1 cursor-pointer rounded-full' />
+                    </div>
+                )}
+            </div>
+
 
         </div>
     );

@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { all_products } from "../assets/data";
+import React, { useState, useEffect, useContext } from "react";
 import Item from "./Item";
+import { ShopContext } from "../context/ShopContext";
 
-const ProductDisplay = () => {
+const ProductDisplay = ({ category }) => { // Додано category як пропс
+    const { all_products } = useContext(ShopContext);
+
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
     useEffect(() => {
@@ -35,9 +37,11 @@ const ProductDisplay = () => {
             {/* container */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-20">
                 {all_products.map((product) => (
-                    <div key={product._id} className="flex justify-center">
-                        <Item product={product} />
-                    </div>
+                    (category === "All" || product.category === category) && ( // Умовний рендеринг
+                        <div key={product._id} className="flex justify-center">
+                            <Item product={product} />
+                        </div>
+                    )
                 ))}
             </div>
         </section>

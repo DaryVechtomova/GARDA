@@ -3,7 +3,7 @@ import { categories } from '../assets/data';
 import '../assets/fonts/fonts.css';
 import flower from "../assets/design/flower-categories.png"; // Імпорт зображення
 
-const Categories = () => {
+const Categories = ({ category, setCategory }) => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
     useEffect(() => {
@@ -82,8 +82,8 @@ const Categories = () => {
                 {/* Контейнер категорій, вирівняний по центру */}
                 <div className="flex justify-center gap-12 flex-wrap w-full" style={{ maxWidth: '1200px', marginTop: '80px' }}>
                     {categories.map((item) => (
-                        <div id={item.name} key={item.name} className="flex flex-col items-center">
-                            <div>
+                        <div onClick={() => setCategory((prev) => (prev === item.name ? "All" : item.name))} id={item.name} key={item.name} className="flex flex-col items-center">
+                            <div >
                                 <img
                                     src={item.image}
                                     alt="categoryImg"
@@ -92,7 +92,7 @@ const Categories = () => {
                                     className="rounded-lg"
                                 />
                             </div>
-                            <h4 className="mt-4 text-xl font-regular">{item.name}</h4>
+                            <h4 className={`mt-6 regular-18 ${category === item.name ? "border-b-2 border-secondary" : "border-b-4 border-white"}`}>{item.name}</h4>
                         </div>
                     ))}
                 </div>
