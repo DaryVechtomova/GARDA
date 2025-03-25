@@ -3,7 +3,6 @@ import bgDesign from '../assets/design/bg-design.png';
 import woman from '../assets/design/woman.png';
 import house from '../assets/design/house.png';
 
-
 const Hero = () => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
@@ -54,7 +53,12 @@ const Hero = () => {
     const houseStyles = calculateStyles(600, 1540, mobileStyles.house, desktopStyles.house);
 
     return (
-        <section id="home" style={{ position: 'relative', width: '100%', height: '100vh' }}>
+        <section id="home" style={{
+            position: 'relative',
+            width: '100%',
+            height: '100vh',
+            overflow: 'hidden' // Додано, щоб обрізати зайві частини
+        }}>
             {/* Background Design */}
             <div
                 style={{
