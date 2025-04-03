@@ -28,7 +28,10 @@ const loginUser = async (req, res) => {
         res.json({
             success: true,
             token,
-            role: user.role
+            role: user.role,
+            firstName: user.firstName,
+            secondName: user.secondName,
+            middleName: user.middleName
         });
 
 

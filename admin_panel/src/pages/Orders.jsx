@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import { toast } from 'react-toastify';
-import { FaPlus } from 'react-icons/fa6';
+import { FaPlus, FaTimes, FaEdit } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
+
 
 function Orders() {
     const url = "http://localhost:4000";
@@ -13,6 +14,25 @@ function Orders() {
     const [sortOrder, setSortOrder] = useState("asc");
     const [dateFrom, setDateFrom] = useState(""); // Початкова дата для фільтрації
     const [dateTo, setDateTo] = useState(""); // Кінцева дата для фільтрації
+
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+    const [selectedOrderId, setSelectedOrderId] = useState(null);
+    const [cancelReason, setCancelReason] = useState("");
+    const [isCanceling, setIsCanceling] = useState(false);
+    const [cancelComment, setCancelComment] = useState("");
+
+    const cancellationReasons = [
+        "Відсутність товару на складі.",
+        "Дефект або пошкодження товару.",
+        "Проблеми з оплатою.",
+        "Некоректні контактні дані.",
+        "Покупець не виходить на зв'язок.",
+        "Підозра на шахрайство.",
+        "Відмова служби доставки.",
+        "Зміна цін або умов акції.",
+        "Дублювання замовлення.",
+        "Інша причина (вказати у коментарі)"
+    ];
 
     const fetchAllOrders = async () => {
         try {
@@ -169,6 +189,40 @@ function Orders() {
                 return <p className="medium-16 text-black">Невідомий спосіб доставки</p>;
         }
     };
+    const cancelOrder = async () => {
+        let reasonToSend = cancelReason;
+
+        if (cancelReason.includes("Інша причина") && cancelComment) {
+            reasonToSend = cancelComment; // Відправляємо тільки коментар, без префікса
+        }
+
+        if (!reasonToSend.trim()) {
+            toast.error("Будь ласка, оберіть причину скасування");
+            return;
+        }
+
+        setIsCanceling(true);
+        try {
+            const response = await axios.put(`${url}/api/order/cancel/${selectedOrderId}`, {
+                reason: reasonToSend
+            });
+
+            if (response.data.success) {
+                toast.success("Замовлення успішно скасовано");
+                fetchAllOrders();
+                setIsCancelModalOpen(false);
+                setCancelReason("");
+                setCancelComment("");
+            } else {
+                toast.error(response.data.message);
+            }
+        } catch (error) {
+            toast.error("Не вдалося скасувати замовлення");
+            console.error("Помилка:", error);
+        } finally {
+            setIsCanceling(false);
+        }
+    };
 
     return (
         <section className="p-10 w-full bg-primary/20 pl-[16%]">
@@ -220,82 +274,180 @@ function Orders() {
                     />
 
                 </div>
-
-                <table className="w-full border-collapse border border-gray-200">
-                    <thead className="bg-gray-100">
-                        <tr>
-                            <th className='p-3 border'>Замовлення</th>
-                            <th className='p-3 border'>Товари</th>
-                            <th className='p-3 border'>Замовник</th>
-                            <th className='p-3 border'>Адреса доставки</th>
-                            <th className='p-3 border'>Сума</th>
-                            <th className='p-3 border'>Дата</th>
-                            <th className='p-3 border'>Статус замовлення</th>
-                            <th className='p-3 border'>Деталі</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredOrders.map((order, i) => (
-                            <tr key={i} className="border-b border-gray-200">
-                                <td className="p-3 border">
-                                    <div className="flex items-center gap-2">
-                                        <span className="medium-16">№{order.orderNumber}</span>
-                                    </div>
-                                </td>
-                                <td className="p-3 border">
-                                    <ul>
-                                        {order.items.map((item, index) => (
-                                            <li key={index} className="medium-16">
-                                                {item.name} (Розмір: {item.size}) x {item.quantity}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </td>
-                                <td className="p-3 border">
-                                    <p className="medium-16 text-black">
-                                        {order.deliveryDetails.secondName} {order.deliveryDetails.firstName} {order.deliveryDetails.middleName}
-                                    </p>
-                                    <p className="medium-16 text-black">
-                                        {order.deliveryDetails.phone}
-                                    </p>
-                                    <p className="medium-16 text-black">
-                                        {order.deliveryDetails.email}
-                                    </p>
-                                </td>
-                                <td className="p-3 border">
-                                    {renderDeliveryAddress(order)}
-                                </td>
-                                <td className="p-3 border text-center">
-                                    <span className="medium-16">{order.amount} грн</span>
-                                </td>
-                                <td className="p-3 border text-center">
-                                    <span className="medium-16">
-                                        {formatDate(order.date)}
-                                    </span>
-                                </td>
-                                <td className="p-3 border text-center">
-                                    <span className="flexCenter gap-x-2">
-                                        <b className="medium-16">{order.status}</b>
-                                    </span>
-                                    {order.status !== "Скасовано" && order.status !== "Повернення" && (
-                                        <button
-                                            onClick={() => updateOrderStatus(order._id)}
-                                            className="px-2 py-1 bg-[#fbb42c] text-black font-bold rounded-lg shadow-md hover:bg-[#d0882a] transition text-sm"
-                                        >
-                                            Оновити
-                                        </button>
-                                    )}
-                                </td>
-                                <td className="p-3 border text-center items-center">
-                                    <NavLink to={`/order/details/${order._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
-                                        <FaPlus />
-                                    </NavLink>
-                                </td>
+                <div className="overflow-auto max-h-[calc(100vh-238px)]">
+                    <table className="w-full border-collapse border border-gray-200">
+                        <thead className="bg-gray-100 sticky top-0">
+                            <tr>
+                                <th className='p-3 border'>Замовлення</th>
+                                <th className='p-3 border'>Товари</th>
+                                <th className='p-3 border'>Замовник</th>
+                                <th className='p-3 border'>Адреса доставки</th>
+                                <th className='p-3 border'>Сума</th>
+                                <th className='p-3 border'>Дата</th>
+                                <th className='p-3 border'>Статус замовлення</th>
+                                <th className='p-3 border'>Деталі</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {filteredOrders.map((order, i) => (
+                                <tr key={i} className="border-b border-gray-200">
+                                    <td className="p-3 border">
+                                        <div className="flex items-center gap-2">
+                                            <span className="medium-16">№{order.orderNumber}</span>
+                                        </div>
+                                    </td>
+                                    <td className="p-3 border">
+                                        <ul>
+                                            {order.items
+                                                .filter(item => !item.removed) // Фільтруємо тільки невидалені товари
+                                                .map((item, index) => (
+                                                    <li key={index} className="medium-16">
+                                                        {item.name} (Розмір: {item.size}) x {item.quantity}
+                                                    </li>
+                                                ))}
+                                        </ul>
+                                    </td>
+                                    <td className="p-3 border">
+                                        <p className="medium-16 text-black">
+                                            {order.deliveryDetails.secondName} {order.deliveryDetails.firstName} {order.deliveryDetails.middleName}
+                                        </p>
+                                        <p className="medium-16 text-black">
+                                            {order.deliveryDetails.phone}
+                                        </p>
+                                        <p className="medium-16 text-black">
+                                            {order.deliveryDetails.email}
+                                        </p>
+                                    </td>
+                                    <td className="p-3 border">
+                                        {renderDeliveryAddress(order)}
+                                    </td>
+                                    <td className="p-3 border text-center">
+                                        <span className="medium-16">{order.amount} грн</span>
+                                    </td>
+                                    <td className="p-3 border text-center">
+                                        <span className="medium-16">
+                                            {formatDate(order.date)}
+                                        </span>
+                                    </td>
+                                    <td className="p-3 border text-center">
+                                        <span className="flexCenter gap-x-2">
+                                            <b className="medium-16">{order.status}</b>
+                                        </span>
+                                        <div className="flex gap-2 justify-center mt-2">
+                                            {(order.status === "Нове замовлення" || order.status === "В обробці") && (
+                                                <button
+                                                    onClick={() => {
+                                                        setSelectedOrderId(order._id);
+                                                        setIsCancelModalOpen(true);
+                                                    }}
+                                                    className="px-2 py-1 bg-red-500 text-white font-bold rounded-lg shadow-md hover:bg-red-600 transition text-sm"
+                                                    title="Скасувати замовлення"
+                                                >
+                                                    <FaTimes />
+                                                </button>
+                                            )}
+                                            {order.status !== "Скасовано" && order.status !== "Повернення" && order.status !== "Доставлено" && (
+                                                <button
+                                                    onClick={() => updateOrderStatus(order._id)}
+                                                    className="px-2 py-1 bg-[#fbb42c] text-black font-bold rounded-lg shadow-md hover:bg-[#d0882a] transition text-sm"
+                                                    title="Оновити статус"
+                                                >
+                                                    Оновити
+                                                </button>
+                                            )}
+                                        </div>
+                                    </td>
+                                    <td className="p-3 border text-center">
+                                        <div className="flex flex-col items-center space-y-2">
+                                            <NavLink
+                                                to={`/order/details/${order._id}`}
+                                                className="text-blue-500 hover:text-blue-700"
+                                                title="Деталі"
+                                            >
+                                                <FaPlus />
+                                            </NavLink>
+                                            {order.status === "В обробці" ? (
+                                                <NavLink
+                                                    to={`/edit-order/${order._id}`}
+                                                    className="text-green-500 hover:text-green-700"
+                                                    title="Редагувати"
+                                                >
+                                                    <FaEdit />
+                                                </NavLink>
+                                            ) : (
+                                                <button
+                                                    className="text-gray-400 cursor-not-allowed"
+                                                    title="Редагування доступне тільки для замовлень у статусі 'В обробці'"
+                                                    disabled
+                                                >
+                                                    <FaEdit />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
+            {isCancelModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="bg-white p-6 rounded-lg w-full max-w-md">
+                        <h3 className="text-lg font-bold mb-4">Скасування замовлення</h3>
+                        <p className="mb-2">Оберіть причину скасування:</p>
+
+                        <select
+                            value={cancelReason}
+                            onChange={(e) => {
+                                setCancelReason(e.target.value);
+                                if (!e.target.value.includes("Інша причина")) {
+                                    setCancelComment("");
+                                }
+                            }}
+                            className="w-full p-3 border border-gray-300 rounded-lg mb-4"
+                        >
+                            <option value="">-- Оберіть причину --</option>
+                            {cancellationReasons.map((reason, index) => (
+                                <option key={index} value={reason}>
+                                    {reason}
+                                </option>
+                            ))}
+                        </select>
+
+                        {cancelReason.includes("Інша причина") && (
+                            <textarea
+                                value={cancelComment}
+                                onChange={(e) => setCancelComment(e.target.value)}
+                                placeholder="Вкажіть детальну причину..."
+                                className="w-full p-3 border border-gray-300 rounded-lg mb-4 h-32"
+                                required
+                            />
+                        )}
+
+                        <div className="flex justify-end gap-4">
+                            <button
+                                onClick={() => {
+                                    setIsCancelModalOpen(false);
+                                    setCancelReason("");
+                                    setCancelComment("");
+                                }}
+                                className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+                                disabled={isCanceling}
+                            >
+                                Скасувати
+                            </button>
+                            <button
+                                onClick={cancelOrder}
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                                disabled={isCanceling || !cancelReason || (cancelReason.includes("Інша причина") && !cancelComment)}
+                            >
+                                {isCanceling ? "Скасування..." : "Підтвердити"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 }

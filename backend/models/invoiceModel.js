@@ -12,6 +12,10 @@ const invoiceSchema = new mongoose.Schema({
             ref: "product",
             required: true,
         },
+        size: {
+            type: String,
+            required: true,
+        },
         quantity: {
             type: Number,
             required: true,
@@ -34,7 +38,7 @@ const invoiceSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["активна", "скасована"],
+        enum: ["активна", "скасована", "виконана"],
         default: "активна",
     },
     notes: {

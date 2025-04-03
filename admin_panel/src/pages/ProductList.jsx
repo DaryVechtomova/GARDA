@@ -157,6 +157,7 @@ function List() {
                         <option value="Для жінок">Для жінок</option>
                         <option value="Для чоловіків">Для чоловіків</option>
                         <option value="Аксесуари">Аксесуари</option>
+                        <option value="Інше">Інше</option>
                     </select>
                     <input
                         type="text"
@@ -169,107 +170,111 @@ function List() {
                         <button className="px-4 py-2 bg-[#fbb42c] text-black font-bold rounded-lg shadow-md hover:bg-[#d0882a] transition">Додати товар</button>
                     </NavLink>
                 </div>
-                <table className="w-full border-collapse border border-gray-200">
-                    <thead className="bg-gray-100">
-                        <tr>
-                            <th className='p-3 border'>Товари</th>
-                            <th className='p-3 border w-60 break-words'>Назва</th>
-                            <th className='p-3 border'>Ціна</th>
-                            <th className='p-3 border'>Категорія</th>
-                            <th className='p-3 border'>Кількість</th>
-                            <th className='p-3 border'>Знижка</th>
-                            <th className='p-3 border'>Деталі</th>
-                            <th className='p-3 border w-20'>Редагувати</th>
-                            <th className='p-3 border w-20'>Видалити</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {sortedAndFilteredProducts.map((product) => (
-                            <tr key={product._id}>
-                                <td className="p-3 border flex justify-center items-center">
-                                    {product.images && product.images.length > 0 ? (
-                                        <img
-                                            src={`${url}/images/${product.images[0]}`}
-                                            alt="product"
-                                            className="height: 100% w-24 object-cover shadow-sm"
-                                        />
-                                    ) : (
-                                        <span>Немає зображення</span>
-                                    )}
-                                </td>
-                                <td className="p-3 border">{product.name}</td>
-                                <td className="p-3 border text-center">
-                                    {product.discount ? (
-                                        <>
-                                            <span className="line-through text-gray-500">{product.price} грн</span>
-                                            <br />
-                                            <span className="text-red-600 font-bold">{product.discountedPrice.toFixed(2)} грн</span>
-                                        </>
-                                    ) : (
-                                        <span>{product.price} грн</span>
-                                    )}
-                                </td>
-                                <td className="p-3 border text-center">{product.category}</td>
-                                <td className="p-3 border text-center">
-                                    {product.sizes && product.sizes.length > 0 ? (
-                                        <ul>
-                                            {product.sizes.map((size, index) => (
-                                                <li key={index}>
-                                                    {size.size}: {size.quantity}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <span>Немає розмірів</span>
-                                    )}
-                                </td>
-                                <td className="p-3 border text-center">
-                                    {product.discount ? (
-                                        <span>{product.discount}%</span>
-                                    ) : (
-                                        <span>Немає знижки</span>
-                                    )}
-                                    <div className="flex gap-2 justify-center mt-2">
-                                        <button
-                                            onClick={() => openEditDiscountModal(product._id, product.discount)}
-                                            className="text-blue-500 hover:text-blue-700"
-                                        >
-                                            <TbEdit size={16} />
-                                        </button>
-                                        <button
-                                            onClick={() => removeDiscount(product._id)}
-                                            className="text-red-500 hover:text-red-700"
-                                        >
-                                            <TbTrash size={16} />
-                                        </button>
-                                    </div>
-                                </td>
-                                <td className="p-3 border text-center items-center">
-                                    <NavLink to={`/product/details/${product._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
-                                        <FaPlus />
-                                    </NavLink>
-                                </td>
-                                <td className="p-3 border justify-center items-center">
-                                    <NavLink to={`/edit-product/${product._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
-                                        <TbEdit size={20} />
-                                    </NavLink>
-                                </td>
-                                <td className="p-3 border text-center">
-                                    <div className="flex justify-center">
-                                        <TbTrash
-                                            onClick={() => handleDeleteClick(product._id)}
-                                            className="text-red-500 hover:text-red-700 cursor-pointer"
-                                            size={20}
-                                        />
-                                    </div>
-                                </td>
+
+                {/* Обгортка для таблиці з можливістю прокрутки */}
+                <div className="overflow-auto max-h-[calc(100vh-236px)]">
+                    <table className="w-full border-collapse border border-gray-200">
+                        <thead className="bg-gray-100 sticky top-0"> {/* Залишаємо заголовок таблиці видимим при прокрутці */}
+                            <tr>
+                                <th className='p-3 border'>Товари</th>
+                                <th className='p-3 border w-60 break-words'>Назва</th>
+                                <th className='p-3 border'>Ціна</th>
+                                <th className='p-3 border'>Категорія</th>
+                                <th className='p-3 border'>Кількість</th>
+                                <th className='p-3 border'>Знижка</th>
+                                <th className='p-3 border'>Деталі</th>
+                                <th className='p-3 border w-20'>Редагувати</th>
+                                <th className='p-3 border w-20'>Видалити</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {sortedAndFilteredProducts.map((product) => (
+                                <tr key={product._id}>
+                                    <td className="p-3 border flex justify-center items-center">
+                                        {product.images && product.images.length > 0 ? (
+                                            <img
+                                                src={`${url}/images/${product.images[0]}`}
+                                                alt="product"
+                                                className="height: 100% w-24 object-cover shadow-sm"
+                                            />
+                                        ) : (
+                                            <span>Немає зображення</span>
+                                        )}
+                                    </td>
+                                    <td className="p-3 border">{product.name}</td>
+                                    <td className="p-3 border text-center">
+                                        {product.discount ? (
+                                            <>
+                                                <span className="line-through text-gray-500">{product.price} грн</span>
+                                                <br />
+                                                <span className="text-red-600 font-bold">{product.discountedPrice.toFixed(2)} грн</span>
+                                            </>
+                                        ) : (
+                                            <span>{product.price} грн</span>
+                                        )}
+                                    </td>
+                                    <td className="p-3 border text-center">{product.category}</td>
+                                    <td className="p-3 border text-center">
+                                        {product.sizes && product.sizes.length > 0 ? (
+                                            <ul>
+                                                {product.sizes.map((size, index) => (
+                                                    <li key={index}>
+                                                        {size.size}: {size.quantity}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <span>Немає розмірів</span>
+                                        )}
+                                    </td>
+                                    <td className="p-3 border text-center">
+                                        {product.discount ? (
+                                            <span>{product.discount}%</span>
+                                        ) : (
+                                            <span>Немає знижки</span>
+                                        )}
+                                        <div className="flex gap-2 justify-center mt-2">
+                                            <button
+                                                onClick={() => openEditDiscountModal(product._id, product.discount)}
+                                                className="text-blue-500 hover:text-blue-700"
+                                            >
+                                                <TbEdit size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() => removeDiscount(product._id)}
+                                                className="text-red-500 hover:text-red-700"
+                                            >
+                                                <TbTrash size={16} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td className="p-3 border text-center items-center">
+                                        <NavLink to={`/product/details/${product._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
+                                            <FaPlus />
+                                        </NavLink>
+                                    </td>
+                                    <td className="p-3 border justify-center items-center">
+                                        <NavLink to={`/edit-product/${product._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
+                                            <TbEdit size={20} />
+                                        </NavLink>
+                                    </td>
+                                    <td className="p-3 border text-center">
+                                        <div className="flex justify-center">
+                                            <TbTrash
+                                                onClick={() => handleDeleteClick(product._id)}
+                                                className="text-red-500 hover:text-red-700 cursor-pointer"
+                                                size={20}
+                                            />
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            {/* Модальне вікно для редагування знижки */}
+            {/* Модальні вікна */}
             {editingDiscount && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
                     <div className="bg-white p-6 rounded-lg">
@@ -299,7 +304,6 @@ function List() {
                 </div>
             )}
 
-            {/* Модальне вікно підтвердження видалення */}
             {showDeleteConfirmation && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
                     <div className="bg-white p-6 rounded-lg">

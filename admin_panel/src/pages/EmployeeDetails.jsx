@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useParams, NavLink, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 function EmployeeDetails() {
     const url = "http://localhost:4000";
@@ -31,68 +31,87 @@ function EmployeeDetails() {
     }, [id]);
 
     if (loading) {
-        return <div className="p-4 pl-[16%]">Завантаження...</div>;
+        return <div className="p-10 w-full bg-gray-100 flex justify-center">Завантаження...</div>;
     }
 
     if (!employee) {
-        return <div className="p-4 pl-[16%]">Дані співробітника не знайдено.</div>;
+        return <div className="p-10 w-full bg-gray-100 flex justify-center">Дані співробітника не знайдено.</div>;
     }
 
     return (
-        <section className="p-10 w-full bg-primary/20 pl-[16%]">
-            <div className="px-4">
-                <h4 className="bold-22 pb-2 uppercase">Деталі співробітника</h4>
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <p className="text-gray-600">Ім'я:</p>
-                            <p className="font-semibold">{employee.firstName}</p>
-                        </div>
-                        <div>
-                            <p className="text-gray-600">Прізвище:</p>
-                            <p className="font-semibold">{employee.secondName}</p>
-                        </div>
-                        <div>
-                            <p className="text-gray-600">Пошта:</p>
-                            <p className="font-semibold">{employee.email}</p>
-                        </div>
-                        <div>
-                            <p className="text-gray-600">Телефон:</p>
-                            <p className="font-semibold">{employee.phoneNumber}</p>
-                        </div>
-                        <div>
-                            <p className="text-gray-600">Роль:</p>
-                            <p className="font-semibold">{employee.role}</p>
-                        </div>
-                        <div>
-                            <p className="text-gray-600">Дата прийому на роботу:</p>
-                            <p className="font-semibold">
-                                {new Date(employee.hireDate).toLocaleDateString()}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-gray-600">Дата звільнення:</p>
-                            <p className="font-semibold">
-                                {employee.fireDate
-                                    ? new Date(employee.fireDate).toLocaleDateString()
-                                    : "Не звільнений"}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-gray-600">Статус:</p>
-                            <p className="font-semibold">
-                                {employee.isActive ? "Активний" : "Неактивний"}
-                            </p>
+        <section className="p-10 w-full bg-gray-100 flex justify-center min-h-screen">
+            <div className="w-full max-w-4xl bg-white shadow-lg rounded-lg p-6">
+                <h4 className="text-2xl font-bold text-black border-b pb-3 mb-4 uppercase">Деталі співробітника</h4>
+
+                <div className="grid grid-cols-2 gap-6">
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Ім'я</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {employee.firstName}
                         </div>
                     </div>
-                    <div className="mt-6">
-                        <button
-                            onClick={() => navigate(-1)}
-                            className="px-4 py-2 bg-[#fbb42c] text-black font-bold rounded-lg shadow-md hover:bg-[#d0882a] transition"
-                        >
-                            Назад
-                        </button>
+
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Прізвище</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {employee.secondName}
+                        </div>
                     </div>
+
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Пошта</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {employee.email}
+                        </div>
+                    </div>
+
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Телефон</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {employee.phoneNumber}
+                        </div>
+                    </div>
+
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Роль</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {employee.role}
+                        </div>
+                    </div>
+
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Статус</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {employee.isActive ? "Активний" : "Неактивний"}
+                        </div>
+                    </div>
+
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Дата прийому на роботу</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {new Date(employee.hireDate).toLocaleDateString()}
+                        </div>
+                    </div>
+
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Дата звільнення</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {employee.fireDate
+                                ? new Date(employee.fireDate).toLocaleDateString()
+                                : "Не звільнений"}
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div className="mt-6">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="px-5 py-3 bg-yellow-500 text-black font-bold rounded-lg shadow-md hover:bg-yellow-600 transition"
+                    >
+                        Назад
+                    </button>
                 </div>
             </div>
         </section>

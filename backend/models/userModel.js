@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema({
     postalCode: { type: String, required: false },
     registrationDate: { type: Date, default: Date.now },
     cartData: { type: Object, default: {} },
+    favourites: { type: Object, default: {} },
     // for employess
     role: { type: String, enum: ["користувач", "адміністратор", "комірник"], default: "користувач" },
     hireDate: { type: Date, default: Date.now }, // Дата прийому на роботу

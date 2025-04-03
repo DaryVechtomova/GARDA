@@ -21,8 +21,8 @@ const ProductDetails = () => {
         sizes: [],
     });
 
-    const [selectedImage, setSelectedImage] = useState(null); // Для відкриття зображення у великому розмірі
-    const [currentImageIndex, setCurrentImageIndex] = useState(0); // Для листання зображень
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -41,187 +41,162 @@ const ProductDetails = () => {
         fetchProduct();
     }, [id]);
 
-    // Відкриття зображення у великому розмірі
     const openImageModal = (index) => {
         setSelectedImage(data.images[index]);
         setCurrentImageIndex(index);
     };
 
-    // Закриття модального вікна
     const closeImageModal = () => {
         setSelectedImage(null);
     };
 
-    // Листання зображень
     const navigateImages = (direction) => {
-        let newIndex;
-        if (direction === 'prev') {
-            newIndex = currentImageIndex === 0 ? data.images.length - 1 : currentImageIndex - 1;
-        } else {
-            newIndex = currentImageIndex === data.images.length - 1 ? 0 : currentImageIndex + 1;
-        }
+        let newIndex = direction === 'prev'
+            ? (currentImageIndex === 0 ? data.images.length - 1 : currentImageIndex - 1)
+            : (currentImageIndex === data.images.length - 1 ? 0 : currentImageIndex + 1);
         setSelectedImage(data.images[newIndex]);
         setCurrentImageIndex(newIndex);
     };
 
-    // Функція для перевірки, чи поле має значення
-    const hasValue = (value) => {
-        return value !== null && value !== undefined && value !== "";
-    };
+    const hasValue = (value) => value !== null && value !== undefined && value !== "";
 
     return (
-        <section className="p-10 w-full bg-primary/20 pl-[16%]">
-            <div className="flex flex-col gap-y-5 max-w-{555px}">
-                <h4 className="bold-22 pb-2 uppercase">Деталі товару</h4>
+        <section className="p-10 w-full bg-gray-100 flex justify-center">
+            <div className="w-full max-w-4xl bg-white shadow-lg rounded-lg p-6">
+                <h4 className="text-2xl font-bold text-black border-b pb-3 mb-4 uppercase">Деталі товару</h4>
 
-                {/* Відображення всіх зображень */}
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Зображення</p>
-                    <div className="flex gap-2 flex-wrap">
-                        {data.images && data.images.length > 0 ? (
-                            data.images.map((image, index) => (
-                                <img
-                                    key={index}
-                                    src={`${url}/images/${image}`}
-                                    alt={`product-${index}`}
-                                    className="h-20 w-20 object-cover shadow-sm cursor-pointer"
-                                    onClick={() => openImageModal(index)}
-                                />
-                            ))
-                        ) : (
-                            <span>Немає зображень</span>
-                        )}
+                <div className="grid grid-cols-2 gap-6">
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Зображення</p>
+                        <div className="flex gap-2 flex-wrap">
+                            {data.images.length > 0 ? (
+                                data.images.map((image, index) => (
+                                    <img
+                                        key={index}
+                                        src={`${url}/images/${image}`}
+                                        alt={`product-${index}`}
+                                        className="h-24 w-24 object-cover rounded-md shadow cursor-pointer hover:opacity-75 transition"
+                                        onClick={() => openImageModal(index)}
+                                    />
+                                ))
+                            ) : (
+                                <span>Немає зображень</span>
+                            )}
+                        </div>
+                    </div>
+
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Назва</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {data.name}
+                        </div>
                     </div>
                 </div>
 
-                {/* Модальне вікно для перегляду зображень */}
                 {selectedImage && (
                     <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
-                        <div className="relative">
-                            <img
-                                src={`${url}/images/${selectedImage}`}
-                                alt="product-large"
-                                className="max-w-full max-h-[90vh]"
-                            />
+                        <div className="relative bg-white p-4 rounded-lg shadow-lg">
+                            <img src={`${url}/images/${selectedImage}`} alt="product-large" className="max-w-full max-h-[80vh] rounded-lg" />
                             <button
                                 onClick={() => navigateImages('prev')}
-                                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
+                                className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full"
                             >
                                 &lt;
                             </button>
                             <button
                                 onClick={() => navigateImages('next')}
-                                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full"
                             >
                                 &gt;
                             </button>
-                            <button
-                                onClick={closeImageModal}
-                                className="absolute top-0 right-0 bg-white p-2 rounded-full shadow-md"
-                            >
-                                &times;
-                            </button>
+                            <button onClick={closeImageModal} className="absolute top-2 right-2 bg-gray-800 text-white p-2 rounded-full">&times;</button>
                         </div>
                     </div>
                 )}
 
-                {/* Інформація про товар */}
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Назва</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.name}
+                <div className="mt-6 space-y-4">
+                    <p className='text-lg font-semibold text-black'>Опис</p>
+                    <div className="bg-gray-100 p-3 rounded-md text-gray-700">{data.description}</div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mt-6">
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Категорія</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">{data.category}</div>
+                    </div>
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Ціна</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">{data.price} грн</div>
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Про товар</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.description}
-                    </div>
-                </div>
-
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Категорія</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.category}
-                    </div>
-                </div>
-
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Ціна</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.price} грн
-                    </div>
-                </div>
-
+                {/* Додані поля */}
                 {hasValue(data.threads) && (
-                    <div className="flex flex-col gap-y-2">
-                        <p className='text-base'>Нитки</p>
-                        <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                    <div className="mt-6">
+                        <p className='text-lg font-semibold text-black'>Нитки</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
                             {data.threads}
                         </div>
                     </div>
                 )}
 
                 {hasValue(data.cut) && (
-                    <div className="flex flex-col gap-y-2">
-                        <p className='text-base'>Крій</p>
-                        <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                    <div className="mt-6">
+                        <p className='text-lg font-semibold text-black'>Крій</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
                             {data.cut}
                         </div>
                     </div>
                 )}
 
                 {hasValue(data.technique) && (
-                    <div className="flex flex-col gap-y-2">
-                        <p className='text-base'>Техніка виконання</p>
-                        <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                    <div className="mt-6">
+                        <p className='text-lg font-semibold text-black'>Техніка виконання</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
                             {data.technique}
                         </div>
                     </div>
                 )}
 
                 {hasValue(data.fabric) && (
-                    <div className="flex flex-col gap-y-2">
-                        <p className='text-base'>Тканина</p>
-                        <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                    <div className="mt-6">
+                        <p className='text-lg font-semibold text-black'>Тканина</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
                             {data.fabric}
                         </div>
                     </div>
                 )}
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Колір</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.colors}
+                {hasValue(data.colors) && (
+                    <div className="mt-6">
+                        <p className='text-lg font-semibold text-black'>Колір</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {data.colors}
+                        </div>
                     </div>
-                </div>
+                )}
 
-                {/* Відображення розмірів та кількості */}
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Розміри та кількість</p>
-                    {data.sizes && data.sizes.length > 0 ? (
-                        data.sizes.map((size, index) => (
-                            <div key={index} className="flex gap-2 items-center">
-                                <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                                    {size.size}
+                <div className="mt-6">
+                    <p className='text-lg font-semibold text-black'>Розміри</p>
+                    {data.sizes.length > 0 ? (
+                        <div className="space-y-2">
+                            {data.sizes.map((size, index) => (
+                                <div key={index} className="flex justify-between bg-gray-100 p-3 rounded-md text-gray-700">
+                                    <span>Розмір: {size.size}</span>
+                                    <span>Кількість: {size.quantity}</span>
                                 </div>
-                                <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                                    {size.quantity}
-                                </div>
-                            </div>
-                        ))
+                            ))}
+                        </div>
                     ) : (
                         <span>Немає розмірів</span>
                     )}
                 </div>
-                {/* Кнопка "Назад" */}
-                <button
-                    onClick={() => navigate(-1)}
-                    className="px-4 py-2 bg-[#fbb42c] text-black font-bold rounded-lg shadow-md hover:bg-[#d0882a] transition"
-                >
-                    Назад
-                </button>
+
+                <div className="mt-6">
+                    <button onClick={() => navigate(-1)} className="px-5 py-3 bg-yellow-500 text-black font-bold rounded-lg shadow-md hover:bg-yellow-600 transition">
+                        Назад
+                    </button>
+                </div>
             </div>
         </section>
     );

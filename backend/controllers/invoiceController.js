@@ -63,7 +63,6 @@ const addInvoice = async (req, res) => {
 // Отримання списку всіх накладних
 const fetchInvoices = async (req, res) => {
     try {
-        console.log("Hello");
         const invoices = await invoiceModel.find({})
             .populate("supplier") // Заповнює дані про постачальника
             .populate("products.product"); // Заповнює дані про товари
@@ -134,21 +133,18 @@ const editInvoice = async (req, res) => {
 
 // Отримання однієї накладної за ID
 const getInvoiceById = async (req, res) => {
-    const { id } = req.params;
-
     try {
-        const invoice = await invoiceModel.findById(id)
+        const invoice = await invoiceModel.findById(req.params.id)
             .populate("supplier")
             .populate("products.product");
-
         if (!invoice) {
-            return res.status(404).json({ success: false, message: "Накладну не знайдено" });
+            return res.status(404).json({ success: false, message: "Накладна не знайдена" });
         }
 
         res.json({ success: true, data: invoice });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ success: false, message: "Помилка при отриманні накладної", error: error.message });
+        console.error("Помилка при отриманні накладної:", error);
+        res.status(500).json({ success: false, message: "Помилка сервера" });
     }
 };
 

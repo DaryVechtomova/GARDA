@@ -30,37 +30,54 @@ const OrderDetails = () => {
         fetchOrderDetails();
     }, [id]);
 
-    // Функція для розрахунку загальної суми без знижок
+    const formatEditDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString("uk-UA", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+    };
+
+    // Функція для розрахунку загальної суми без знижок (тільки активні товари)
     const calculateTotalWithoutDiscount = (items) => {
-        return items.reduce((total, item) => total + item.price * item.quantity, 0);
+        return items
+            .filter(item => !item.removed)
+            .reduce((total, item) => total + item.price * item.quantity, 0);
     };
 
-    // Функція для розрахунку загальної суми знижок
+    // Функція для розрахунку загальної суми знижок (тільки активні товари)
     const calculateTotalDiscount = (items) => {
-        return items.reduce((total, item) => {
-            if (item.discount) {
-                return total + (item.price * item.quantity * item.discount) / 100;
-            }
-            return total;
-        }, 0);
+        return items
+            .filter(item => !item.removed)
+            .reduce((total, item) => {
+                if (item.discount) {
+                    return total + (item.price * item.quantity * item.discount) / 100;
+                }
+                return total;
+            }, 0);
     };
 
-    // Функція для розрахунку загальної суми з урахуванням знижок
+    // Функція для розрахунку загальної суми з урахуванням знижок (тільки активні товари)
     const calculateTotalWithDiscount = (items) => {
-        return items.reduce((total, item) => {
-            if (item.discount) {
-                return total + (item.price * item.quantity * (100 - item.discount)) / 100;
-            }
-            return total + item.price * item.quantity;
-        }, 0);
+        return items
+            .filter(item => !item.removed)
+            .reduce((total, item) => {
+                if (item.discount) {
+                    return total + (item.price * item.quantity * (100 - item.discount)) / 100;
+                }
+                return total + item.price * item.quantity;
+            }, 0);
     };
 
     if (loading) {
-        return <div>Завантаження...</div>;
+        return <div className="p-10 w-full bg-primary/20 pl-[16%]">Завантаження...</div>;
     }
 
     if (!order) {
-        return <div>Замовлення не знайдено</div>;
+        return <div className="p-10 w-full bg-primary/20 pl-[16%]">Замовлення не знайдено</div>;
     }
 
     const renderDeliveryAddress = (order) => {
@@ -113,6 +130,9 @@ const OrderDetails = () => {
                             <p className="medium-16 text-black"><strong>Дата замовлення:</strong> {new Date(order.date).toLocaleDateString()}</p>
                             <p className="medium-16 text-black"><strong>Номер замовлення:</strong> {order.orderNumber}</p>
                             <p className="medium-16 text-black"><strong>Стан замовлення:</strong> {order.status}</p>
+                            {order.status === "Скасовано" && order.cancellationReason && (
+                                <p className="medium-16 text-black"><strong>Причина скасування:</strong> {order.cancellationReason}</p>
+                            )}
                         </div>
                         <div>
                             <p className="medium-16 text-black"><strong>Дані замовника:</strong> {order.deliveryDetails.secondName} {order.deliveryDetails.firstName} {order.deliveryDetails.middleName}</p>
@@ -123,9 +143,7 @@ const OrderDetails = () => {
                             {order.deliveryMethod === "Нова Пошта" && (
                                 <p className="medium-16 text-black"><strong>Відділення:</strong> {order.deliveryDetails.departmentNumber}</p>
                             )}
-
                             <p className="medium-16 text-black"><strong>Оплата:</strong> {order.payment ? "Оплачено" : "Оплата під час доставки"}</p>
-
                         </div>
                     </div>
                 </div>
@@ -140,47 +158,74 @@ const OrderDetails = () => {
                             <th className="p-3 border">Ціна</th>
                             <th className="p-3 border">Кількість</th>
                             <th className="p-3 border">Сума</th>
+                            <th className="p-3 border">Статус</th>
                         </tr>
                     </thead>
                     <tbody>
                         {order.items.map((item, index) => (
-                            <tr key={index}>
+                            <tr
+                                key={index}
+                                className={item.removed ? "bg-gray-100 text-gray-500" : ""}
+                            >
                                 <td className="p-3 border flex justify-center items-center">
                                     <img
                                         src={`${url}/images/${item.image}`}
                                         alt="product"
-                                        className="height: 100% w-24 object-cover shadow-sm"
+                                        className={`h-24 object-cover shadow-sm ${item.removed ? "opacity-50" : ""}`}
                                     />
                                 </td>
-                                <td className="p-3 border">{item.name}</td>
-                                <td className="p-3 border text-center">{item.size}</td>
+                                <td className={`p-3 border ${item.removed ? "line-through" : ""}`}>
+                                    {item.name}
+                                </td>
+                                <td className={`p-3 border text-center ${item.removed ? "line-through" : ""}`}>
+                                    {item.size}
+                                </td>
                                 <td className="p-3 border text-center">
                                     {item.discount ? (
                                         <>
-                                            <span className="line-through text-gray-500">{item.price} грн</span>
-                                            <br />
-                                            <span className="text-red-600 font-bold">
-                                                {(item.price * (100 - item.discount) / 100).toFixed(2)} грн
+                                            <span className={`${item.removed ? "line-through text-gray-500" : ""}`}>
+                                                {item.price} грн
                                             </span>
+                                            <br />
+                                            {!item.removed && (
+                                                <span className="text-red-600 font-bold">
+                                                    {(item.price * (100 - item.discount) / 100).toFixed(2)} грн
+                                                </span>
+                                            )}
                                         </>
                                     ) : (
-                                        <span>{item.price} грн</span>
+                                        <span className={item.removed ? "line-through text-gray-500" : ""}>
+                                            {item.price} грн
+                                        </span>
                                     )}
                                 </td>
-                                <td className="p-3 border text-center">{item.quantity}</td>
+                                <td className={`p-3 border text-center ${item.removed ? "line-through" : ""}`}>
+                                    {item.quantity}
+                                </td>
                                 <td className="p-3 border text-center">
                                     {item.discount ? (
                                         <>
-                                            <span className="line-through text-gray-500">
+                                            <span className={`${item.removed ? "line-through text-gray-500" : ""}`}>
                                                 {(item.price * item.quantity).toFixed(2)} грн
                                             </span>
                                             <br />
-                                            <span className="text-red-600 font-bold">
-                                                {(item.price * item.quantity * (100 - item.discount) / 100).toFixed(2)} грн
-                                            </span>
+                                            {!item.removed && (
+                                                <span className="text-red-600 font-bold">
+                                                    {(item.price * item.quantity * (100 - item.discount) / 100).toFixed(2)} грн
+                                                </span>
+                                            )}
                                         </>
                                     ) : (
-                                        <span>{(item.price * item.quantity).toFixed(2)} грн</span>
+                                        <span className={item.removed ? "line-through text-gray-500" : ""}>
+                                            {(item.price * item.quantity).toFixed(2)} грн
+                                        </span>
+                                    )}
+                                </td>
+                                <td className="p-3 border text-center">
+                                    {item.removed ? (
+                                        <span className="text-red-600 font-bold">Видалено</span>
+                                    ) : (
+                                        <span className="text-green-600 font-bold">Активний</span>
                                     )}
                                 </td>
                             </tr>

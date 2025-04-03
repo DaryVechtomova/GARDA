@@ -215,6 +215,7 @@ const Add = () => {
                             <option value="Для жінок">Для жінок</option>
                             <option value="Для чоловіків">Для чоловіків</option>
                             <option value="Аксесуари">Аксесуари</option>
+                            <option value="Інше">Інше</option>
                         </select>
                     </div>
                 </div>

@@ -243,4 +243,105 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
-export { placeOrder, verifyOrder, userOrders, listOrders, updateOrderStatus }
+const cancelOrder = async (req, res) => {
+    const { orderId } = req.params;
+    const { reason } = req.body;
+
+    try {
+        const order = await orderModel.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Замовлення не знайдено" });
+        }
+
+        // Check if order can be canceled
+        if (order.status !== "Нове замовлення" && order.status !== "В обробці") {
+            return res.status(400).json({
+                success: false,
+                message: "Замовлення можна скасувати тільки зі статусом 'Нове замовлення' або 'В обробці'"
+            });
+        }
+
+        // Update order status and add cancellation reason
+        order.status = "Скасовано";
+        order.cancellationReason = reason; // Зберігаємо причину
+        await order.save();
+
+        res.json({
+            success: true,
+            message: "Замовлення успішно скасовано",
+            data: order
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Помилка при скасуванні замовлення"
+        });
+    }
+};
+
+const updateOrder = async (req, res) => {
+    const { id } = req.params;
+    const { editReason, ...updateData } = req.body;
+
+    try {
+        // Перевірка наявності причини редагування
+        if (!editReason) {
+            return res.status(400).json({
+                success: false,
+                message: "Будь ласка, оберіть причину редагування"
+            });
+        }
+
+        const order = await orderModel.findById(id);
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Замовлення не знайдено"
+            });
+        }
+
+        const newAmount = updateData.amount || 0;
+
+        // Створюємо запис про редагування
+        const editHistory = {
+            date: new Date(),
+            reason: editReason,
+            changes: {
+                items: updateData.items.map(item => ({
+                    productId: item.productId,
+                    action: item.removed ? "removed" : item._id ? "updated" : "added"
+                })),
+                amountChanged: order.amount !== newAmount,
+                oldAmount: order.amount,
+                newAmount: newAmount
+            }
+        };
+
+        // Оновлюємо замовлення
+        const updatedOrder = await orderModel.findByIdAndUpdate(
+            id,
+            {
+                items: updateData.items,
+                amount: newAmount,
+                $push: { editHistory: editHistory }
+            },
+            { new: true }
+        );
+
+        res.json({
+            success: true,
+            message: "Замовлення успішно оновлено",
+            data: updatedOrder
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Помилка при оновленні замовлення",
+            error: error.message
+        });
+    }
+};
+
+export { placeOrder, verifyOrder, userOrders, listOrders, updateOrderStatus, cancelOrder, updateOrder }

@@ -40,7 +40,6 @@ const SupplierDetails = () => {
         return dateString; // Якщо дата вже у форматі рррр-мм-дд
     };
 
-
     useEffect(() => {
         const fetchSupplier = async () => {
             try {
@@ -66,103 +65,119 @@ const SupplierDetails = () => {
     };
 
     return (
-        <section className="p-10 w-full bg-primary/20 pl-[16%]">
-            <div className="flex flex-col gap-y-5 max-w-{555px}">
-                <h4 className="bold-22 pb-2 uppercase">Деталі постачальника</h4>
+        <section className="p-10 w-full bg-gray-100 flex justify-center">
+            <div className="w-full max-w-4xl bg-white shadow-lg rounded-lg p-6">
+                <h4 className="text-2xl font-bold text-black border-b pb-3 mb-4 uppercase">Деталі постачальника</h4>
 
-                {/* Поля форми */}
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Назва компанії</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.companyName}
+                <div className="grid grid-cols-2 gap-6">
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Назва компанії</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {data.companyName}
+                        </div>
+                    </div>
+
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Контактна особа</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {data.contactPerson}
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Контактна особа</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.contactPerson}
+                <div className="grid grid-cols-2 gap-6 mt-6">
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Email</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {data.email}
+                        </div>
+                    </div>
+
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Телефон</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {data.phone}
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Email</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.email}
+                <div className="grid grid-cols-2 gap-6 mt-6">
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Країна</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {data.country}
+                        </div>
+                    </div>
+
+
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Місто</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {data.city}
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Телефон</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.phone}
+                <div className="grid grid-cols-2 gap-6 mt-6">
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Адреса</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {data.address}
+                        </div>
+                    </div>
+
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Дата початку співпраці</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {data.cooperationStartDate}
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Адреса</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.address}
-                    </div>
-                </div>
-
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Місто</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.city}
-                    </div>
-                </div>
-
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Країна</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.country}
-                    </div>
-                </div>
-
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Дата початку співпраці</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.cooperationStartDate}
-                    </div>
-                </div>
-                {hasValue(data.notes) && (
-                    <div className="flex flex-col gap-y-2">
-                        <p className='text-base'>Дата завершення співпраці</p>
-                        <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                            {data.cooperationEndDate}
+                {hasValue(data.cooperationEndDate) && (
+                    <div className="grid grid-cols-2 gap-6 mt-6">
+                        <div>
+                            <p className='text-lg font-semibold text-black'>Дата завершення співпраці</p>
+                            <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                                {data.cooperationEndDate}
+                            </div>
                         </div>
                     </div>
                 )}
 
-                <div className="flex items-center gap-x-6 text-black medium-15">
-                    <p className='text-base'>Тип продукції</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.productType}
+                <div className="grid grid-cols-2 gap-6 mt-6">
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Тип продукції</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {data.productType}
+                        </div>
+                    </div>
+
+                    <div>
+                        <p className='text-lg font-semibold text-black'>Статус</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
+                            {data.status}
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-x-6 text-black medium-15">
-                    <p className='text-base'>Статус</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.status}
-                    </div>
-                </div>
                 {hasValue(data.notes) && (
-                    <div className="flex flex-col gap-y-2">
-                        <p className='text-base'>Нотатки</p>
-                        <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
+                    <div className="mt-6">
+                        <p className='text-lg font-semibold text-black'>Нотатки</p>
+                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
                             {data.notes}
                         </div>
                     </div>
                 )}
 
-                <button
-                    onClick={() => navigate(-1)}
-                    className="px-4 py-2 bg-[#fbb42c] text-black font-bold rounded-lg shadow-md hover:bg-[#d0882a] transition"
-                >
-                    Назад
-                </button>
+                <div className="mt-6">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="px-5 py-3 bg-yellow-500 text-black font-bold rounded-lg shadow-md hover:bg-yellow-600 transition"
+                    >
+                        Назад
+                    </button>
+                </div>
             </div>
         </section>
     );

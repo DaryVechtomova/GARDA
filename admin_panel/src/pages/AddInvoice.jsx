@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { FaPlus } from 'react-icons/fa6';
@@ -12,11 +12,11 @@ const AddInvoice = () => {
         totalAmount: 0,
         notes: "",
     });
-    const [suppliers, setSuppliers] = useState([]); // Список постачальників
-    const [products, setProducts] = useState([]); // Список товарів
-    const [selectedProducts, setSelectedProducts] = useState([]); // Вибрані товари для накладної
-    const [selectedSize, setSelectedSize] = useState(""); // Вибір розміру
-    const [pricePerUnit, setPricePerUnit] = useState(0); // Ціна за одиницю (80% від ціни товару)
+    const [suppliers, setSuppliers] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [selectedProducts, setSelectedProducts] = useState([]);
+    const [selectedSize, setSelectedSize] = useState("");
+    const [pricePerUnit, setPricePerUnit] = useState(0);
 
     // Отримання списку постачальників та товарів
     useEffect(() => {
@@ -50,6 +50,23 @@ const AddInvoice = () => {
         fetchProducts();
     }, []);
 
+    // Фільтрація товарів за типом постачальника
+    const filteredProducts = useMemo(() => {
+        if (!data.supplier) return [];
+        const supplier = suppliers.find((s) => s._id === data.supplier);
+        if (!supplier) return [];
+
+        let allowedCategories = [];
+        if (supplier.productType === "одяг") {
+            allowedCategories = ["Для чоловіків", "Для жінок"];
+        } else if (supplier.productType === "аксесуари") {
+            allowedCategories = ["Аксесуари"];
+        } else {
+            allowedCategories = ["Інше"];
+        }
+        return products.filter((product) => allowedCategories.includes(product.category));
+    }, [data.supplier, suppliers, products]);
+
     // Обробник зміни полів форми
     const onChangeHandler = (event) => {
         const { name, value } = event.target;
@@ -70,7 +87,7 @@ const AddInvoice = () => {
             product: productId,
             size,
             quantity: parseInt(quantity),
-            pricePerUnit: pricePerUnit, // Використовуємо розраховану ціну
+            pricePerUnit: pricePerUnit,
         };
 
         setSelectedProducts([...selectedProducts, newProduct]);
@@ -112,7 +129,6 @@ const AddInvoice = () => {
             const response = await axios.post(`${url}/api/invoices/add-invoice`, invoiceData);
             if (response.data.success) {
                 toast.success(response.data.message);
-                // Очищення форми після успішного додавання
                 setData({
                     supplier: "",
                     products: [],
@@ -126,13 +142,7 @@ const AddInvoice = () => {
                 toast.error(response.data.message);
             }
         } catch (error) {
-            if (error.response) {
-                toast.error(error.response.data.message || "Не вдалося додати накладну");
-            } else if (error.request) {
-                toast.error("Не вдалося отримати відповідь від сервера");
-            } else {
-                toast.error("Помилка при налаштуванні запиту");
-            }
+            toast.error(error.response?.data?.message || "Не вдалося додати накладну");
             console.error("Помилка:", error);
         }
     };
@@ -185,23 +195,23 @@ const AddInvoice = () => {
                             className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
                             onChange={(e) => {
                                 const productId = e.target.value;
-                                const product = products.find((p) => p._id === productId);
-                                if (product) {
-                                    setData((prevData) => ({
-                                        ...prevData,
-                                        selectedProduct: productId,
-                                    }));
-                                    setSelectedSize(""); // Скидання вибраного розміру
-                                }
+                                setData((prevData) => ({ ...prevData, selectedProduct: productId }));
+                                setSelectedSize("");
                             }}
+                            value={data.selectedProduct}
                         >
                             <option value="">Оберіть товар</option>
-                            {products.map((product) => (
-                                <option key={product._id} value={product._id}>
-                                    {product.name}
-                                </option>
-                            ))}
+                            {filteredProducts.length > 0 ? (
+                                filteredProducts.map((product) => (
+                                    <option key={product._id} value={product._id}>
+                                        {product.name}
+                                    </option>
+                                ))
+                            ) : (
+                                <option value="" disabled>Немає товарів для цього постачальника</option>
+                            )}
                         </select>
+
                         <select
                             className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
                             onChange={(e) => setSelectedSize(e.target.value)}

@@ -19,17 +19,18 @@ invoiceRouter.get("/edit-invoice/:id", async (req, res) => {
         res.json({ success: false, message: "Помилка при отриманні накладної" });
     }
 });
-invoiceRouter.get("/details/:id", async (req, res) => {
-    try {
-        const invoice = await invoiceModel.findById(req.params.id);
-        if (!invoice) {
-            return res.json({ success: false, message: "Накладну не знайдено" });
-        }
-        res.json({ success: true, data: invoice });
-    } catch (error) {
-        console.log(error);
-        res.json({ success: false, message: "Помилка при отриманні накладної" });
-    }
-});
+invoiceRouter.get("/details/:id", getInvoiceById);
+// invoiceRouter.get("/details/:id", async (req, res) => {
+//     try {
+//         const invoice = await invoiceModel.findById(req.params.id);
+//         if (!invoice) {
+//             return res.json({ success: false, message: "Накладну не знайдено" });
+//         }
+//         res.json({ success: true, data: invoice });
+//     } catch (error) {
+//         console.log(error);
+//         res.json({ success: false, message: "Помилка при отриманні накладної" });
+//     }
+// });
 
 export default invoiceRouter;

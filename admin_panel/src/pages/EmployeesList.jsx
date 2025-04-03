@@ -139,59 +139,60 @@ function EmployeesList() {
                         </button>
                     </NavLink>
                 </div>
-
-                <table className="w-full border-collapse border border-gray-200">
-                    <thead className="bg-gray-100">
-                        <tr>
-                            <th className='p-3 border'>Ім'я</th>
-                            <th className='p-3 border'>Прізвище</th>
-                            <th className='p-3 border'>Пошта</th>
-                            <th className='p-3 border'>Телефон</th>
-                            <th className='p-3 border'>Роль</th>
-                            <th className='p-3 border'>Статус</th>
-                            <th className='p-3 border w-20'>Деталі</th>
-                            <th className='p-3 border w-20'>Редагувати</th>
-                            <th className='p-3 border w-20'>Звільнити</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {sortedAndFilteredEmployees.map((employee) => (
-                            <tr key={employee._id}>
-                                <td className="p-3 border">{employee.firstName}</td>
-                                <td className="p-3 border">{employee.secondName}</td>
-                                <td className="p-3 border">{employee.email}</td>
-                                <td className="p-3 border">{employee.phoneNumber}</td>
-                                <td className="p-3 border">{employee.role}</td>
-                                <td className="p-3 border">{employee.isActive ? 'активний' : 'звільнений'}</td>
-                                <td className="p-3 border text-center">
-                                    <NavLink to={`/user/details/${employee._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
-                                        <FaPlus size={20} />
-                                    </NavLink>
-                                </td>
-                                <td className="p-3 border justify-center items-center">
-                                    <NavLink to={`/edit-employee/${employee._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
-                                        <TbEdit size={20} />
-                                    </NavLink>
-                                </td>
-                                <td className="p-3 border text-center">
-                                    {employee.isActive ? ( // Умовний рендеринг кнопки "Звільнити"
-                                        <div className="flex justify-center">
-                                            <button
-                                                onClick={() => handleFireClick(employee._id)}
-                                                className="px-2 py-1 bg-[#fbb42c] text-black font-bold rounded-lg shadow-md hover:bg-[#d0882a] transition text-sm"
-                                                size={20}
-                                            >
-                                                Звільнити
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <span className="text-gray-400">Звільнений</span>
-                                    )}
-                                </td>
+                <div className="overflow-auto max-h-[calc(100vh-238px)]">
+                    <table className="w-full border-collapse border border-gray-200">
+                        <thead className="bg-gray-100 sticky top-0">
+                            <tr>
+                                <th className='p-3 border'>Ім'я</th>
+                                <th className='p-3 border'>Прізвище</th>
+                                <th className='p-3 border'>Пошта</th>
+                                <th className='p-3 border'>Телефон</th>
+                                <th className='p-3 border'>Роль</th>
+                                <th className='p-3 border'>Статус</th>
+                                <th className='p-3 border w-20'>Деталі</th>
+                                <th className='p-3 border w-20'>Редагувати</th>
+                                <th className='p-3 border w-20'>Звільнити</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {sortedAndFilteredEmployees.map((employee) => (
+                                <tr key={employee._id}>
+                                    <td className="p-3 border">{employee.firstName}</td>
+                                    <td className="p-3 border">{employee.secondName}</td>
+                                    <td className="p-3 border">{employee.email}</td>
+                                    <td className="p-3 border">{employee.phoneNumber}</td>
+                                    <td className="p-3 border">{employee.role}</td>
+                                    <td className="p-3 border">{employee.isActive ? 'активний' : 'звільнений'}</td>
+                                    <td className="p-3 border text-center">
+                                        <NavLink to={`/user/details/${employee._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
+                                            <FaPlus size={20} />
+                                        </NavLink>
+                                    </td>
+                                    <td className="p-3 border justify-center items-center">
+                                        <NavLink to={`/edit-employee/${employee._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
+                                            <TbEdit size={20} />
+                                        </NavLink>
+                                    </td>
+                                    <td className="p-3 border text-center">
+                                        {employee.isActive ? ( // Умовний рендеринг кнопки "Звільнити"
+                                            <div className="flex justify-center">
+                                                <button
+                                                    onClick={() => handleFireClick(employee._id)}
+                                                    className="text-red-500 hover:text-red-700 flex justify-center"
+                                                    size={20}
+                                                >
+                                                    Звільнити
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <span className="text-gray-400">Звільнений</span>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* Модальне вікно підтвердження звільнення */}

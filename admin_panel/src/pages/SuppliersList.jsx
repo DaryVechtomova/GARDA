@@ -123,7 +123,6 @@ function SupplierList() {
                     >
                         <option value="All">Всі типи продукції</option>
                         <option value="одяг">Одяг</option>
-                        <option value="взуття">Взуття</option>
                         <option value="аксесуари">Аксесуари</option>
                         <option value="інше">Інше</option>
                     </select>
@@ -149,54 +148,56 @@ function SupplierList() {
                         </button>
                     </NavLink>
                 </div>
-                <table className="w-full border-collapse border border-gray-200">
-                    <thead className="bg-gray-100">
-                        <tr>
-                            <th className='p-3 border'>Назва компанії</th>
-                            <th className='p-3 border'>Контактна особа</th>
-                            <th className='p-3 border'>Email</th>
-                            <th className='p-3 border'>Телефон</th>
-                            <th className='p-3 border'>Тип продукції</th>
-                            <th className='p-3 border'>Статус</th>
-                            <th className='p-3 border'>Місто</th>
-                            <th className='p-3 border w-20'>Деталі</th>
-                            <th className='p-3 border w-20'>Редагувати</th>
-                            <th className='p-3 border w-20'>Видалити</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {sortedAndFilteredSuppliers.map((supplier) => (
-                            <tr key={supplier._id}>
-                                <td className="p-3 border">{supplier.companyName}</td>
-                                <td className="p-3 border">{supplier.contactPerson}</td>
-                                <td className="p-3 border">{supplier.email}</td>
-                                <td className="p-3 border">{supplier.phone}</td>
-                                <td className="p-3 border">{supplier.productType}</td>
-                                <td className="p-3 border">{supplier.status}</td>
-                                <td className="p-3 border">{supplier.city}</td>
-                                <td className="p-3 border text-center">
-                                    <NavLink to={`/suppliers/details/${supplier._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
-                                        <FaPlus size={20} />
-                                    </NavLink>
-                                </td>
-                                <td className="p-3 border text-center">
-                                    <NavLink to={`/edit-supplier/${supplier._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
-                                        <TbEdit size={20} />
-                                    </NavLink>
-                                </td>
-                                <td className="p-3 border text-center">
-                                    <div className="flex justify-center">
-                                        <TbTrash
-                                            onClick={() => handleDeleteClick(supplier._id)}
-                                            className="text-red-500 hover:text-red-700 cursor-pointer flex justify-center"
-                                            size={20}
-                                        />
-                                    </div>
-                                </td>
+                <div className="overflow-auto max-h-[calc(100vh-238px)]">
+                    <table className="w-full border-collapse border border-gray-200">
+                        <thead className="bg-gray-100 sticky top-0">
+                            <tr>
+                                <th className='p-3 border'>Назва компанії</th>
+                                <th className='p-3 border'>Контактна особа</th>
+                                <th className='p-3 border'>Email</th>
+                                <th className='p-3 border'>Телефон</th>
+                                <th className='p-3 border'>Тип продукції</th>
+                                <th className='p-3 border'>Статус</th>
+                                <th className='p-3 border'>Місто</th>
+                                <th className='p-3 border w-20'>Деталі</th>
+                                <th className='p-3 border w-20'>Редагувати</th>
+                                <th className='p-3 border w-20'>Видалити</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {sortedAndFilteredSuppliers.map((supplier) => (
+                                <tr key={supplier._id}>
+                                    <td className="p-3 border">{supplier.companyName}</td>
+                                    <td className="p-3 border">{supplier.contactPerson}</td>
+                                    <td className="p-3 border">{supplier.email}</td>
+                                    <td className="p-3 border">{supplier.phone}</td>
+                                    <td className="p-3 border">{supplier.productType}</td>
+                                    <td className="p-3 border">{supplier.status}</td>
+                                    <td className="p-3 border">{supplier.city}</td>
+                                    <td className="p-3 border text-center">
+                                        <NavLink to={`/suppliers/details/${supplier._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
+                                            <FaPlus size={20} />
+                                        </NavLink>
+                                    </td>
+                                    <td className="p-3 border text-center">
+                                        <NavLink to={`/edit-supplier/${supplier._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
+                                            <TbEdit size={20} />
+                                        </NavLink>
+                                    </td>
+                                    <td className="p-3 border text-center">
+                                        <div className="flex justify-center">
+                                            <TbTrash
+                                                onClick={() => handleDeleteClick(supplier._id)}
+                                                className="text-red-500 hover:text-red-700 cursor-pointer flex justify-center"
+                                                size={20}
+                                            />
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* Модальне вікно підтвердження видалення */}

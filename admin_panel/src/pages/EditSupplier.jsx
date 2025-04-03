@@ -203,7 +203,6 @@ const EditSupplier = () => {
                     >
                         <option value="Оберіть тип продукції">Оберіть тип продукції</option>
                         <option value="одяг">Одяг</option>
-                        <option value="взуття">Взуття</option>
                         <option value="аксесуари">Аксесуари</option>
                         <option value="інше">Інше</option>
                     </select>

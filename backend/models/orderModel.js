@@ -10,10 +10,12 @@ const orderSchema = new mongoose.Schema({
         discount: { type: Number, default: 0 },
         size: { type: String, required: true },
         image: { type: String, required: true },
-        quantity: { type: Number, required: true }
+        quantity: { type: Number, required: true },
+        removed: { type: Boolean, default: false }
     }],
     amount: { type: Number, required: true },
     status: { type: String, default: "Нове замовлення" },
+    cancellationReason: { type: String },
     date: { type: Date, default: Date.now },
     payment: { type: Boolean, default: false },
     comment: { type: String },
@@ -37,6 +39,13 @@ const orderSchema = new mongoose.Schema({
         houseNumber: { type: String },
         departmentNumber: { type: String }, // Відділення Нової Пошти або номер поштомату
     },
+
+    editHistory: [{
+        date: Date,
+        editedBy: { type: String, required: true },
+        reason: String,
+        changes: Object
+    }],
 
 }, { minimize: false });
 
