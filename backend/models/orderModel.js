@@ -42,7 +42,7 @@ const orderSchema = new mongoose.Schema({
 
     editHistory: [{
         date: Date,
-        editedBy: { type: String, required: true },
+        // editedBy: { type: String, required: true },
         reason: String,
         changes: Object
     }],

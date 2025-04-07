@@ -15,31 +15,12 @@ function InvoiceList() {
         try {
             const response = await axios.get(`${url}/api/invoices/list-invoice`);
             if (response.data.success) {
+                const sortedInvoices = response.data.data.sort((a, b) => new Date(b.invoiceDate) - new Date(a.invoiceDate));
                 if (response.data.data.length === 0) {
                     toast.info("Накладних ще немає");
                     setInvoices([]);
                 } else {
-                    // Оновлюємо статуси накладних
-                    const updatedInvoices = response.data.data.map(invoice => {
-                        const now = new Date();
-                        const invoiceDate = new Date(invoice.invoiceDate);
-                        const timeDiff = now - invoiceDate;
-                        const hoursDiff = timeDiff / (1000 * 60 * 60);
-                        const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
-
-                        // Автоматично змінюємо статус на "виконана" через 3 дні
-                        if (daysDiff >= 3 && invoice.status === "активна") {
-                            invoice.status = "виконана";
-                            axios.post(`${url}/api/invoices/edit-invoice`, {
-                                id: invoice._id,
-                                status: "виконана",
-                            });
-                        }
-
-                        return invoice;
-                    });
-
-                    setInvoices(updatedInvoices);
+                    setInvoices(response.data.data);
                 }
             } else {
                 toast.error("Помилка завантаження накладних");
@@ -60,7 +41,8 @@ function InvoiceList() {
     const searchInvoices = (invoices) => {
         if (!searchQuery) return invoices;
         return invoices.filter(invoice =>
-            invoice.supplier.companyName.toLowerCase().includes(searchQuery.toLowerCase())
+            invoice.supplier.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (invoice.invoiceNumber && invoice.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()))
         );
     };
 
@@ -78,6 +60,20 @@ function InvoiceList() {
             }
         } catch (error) {
             toast.error("Не вдалося скасувати накладну");
+        }
+    };
+
+    const handleCompleteInvoice = async (id) => {
+        try {
+            const response = await axios.post(`${url}/api/invoices/complete-invoice`, { id });
+            if (response.data.success) {
+                toast.success("Накладу виконано та товари додано на склад");
+                fetchInvoices();
+            } else {
+                toast.error(response.data.message || "Помилка при виконанні накладної");
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Не вдалося виконати накладну");
         }
     };
 
@@ -103,7 +99,7 @@ function InvoiceList() {
                     </select>
                     <input
                         type="text"
-                        placeholder="Пошук за постачальником"
+                        placeholder="Пошук (постачальник або № накладної)"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fbb42c]"
@@ -118,6 +114,7 @@ function InvoiceList() {
                     <table className="w-full border-collapse border border-gray-200">
                         <thead className="bg-gray-100 sticky top-0">
                             <tr>
+                                <th className='p-3 border'>№ накладної</th>
                                 <th className='p-3 border'>Постачальник</th>
                                 <th className='p-3 border'>Дата</th>
                                 <th className='p-3 border'>Сума</th>
@@ -133,15 +130,29 @@ function InvoiceList() {
                                 const invoiceDate = new Date(invoice.invoiceDate);
                                 const timeDiff = now - invoiceDate;
                                 const hoursDiff = timeDiff / (1000 * 60 * 60);
-                                const isEditable = hoursDiff <= 24;
+                                const isEditable = hoursDiff <= 24 && invoice.status === "активна";
                                 const isCancelable = hoursDiff <= 24 && invoice.status === "активна";
 
                                 return (
                                     <tr key={invoice._id}>
+                                        <td className="p-3 border">{invoice.invoiceNumber || 'N/A'}</td>
                                         <td className="p-3 border">{invoice.supplier.companyName}</td>
                                         <td className="p-3 border">{new Date(invoice.invoiceDate).toLocaleDateString()}</td>
                                         <td className="p-3 border">{invoice.totalAmount} грн</td>
-                                        <td className="p-3 border">{invoice.status}</td>
+                                        <td className="p-3 border">
+                                            {invoice.status === "активна" ? (
+                                                <button
+                                                    onClick={() => handleCompleteInvoice(invoice._id)}
+                                                    className="text-green-600 hover:text-green-800 font-medium"
+                                                >
+                                                    Активна (завершити)
+                                                </button>
+                                            ) : (
+                                                <span className={invoice.status === "виконана" ? "text-black" : "text-red-600"}>
+                                                    {invoice.status}
+                                                </span>
+                                            )}
+                                        </td>
                                         <td className="p-3 border text-center">
                                             <NavLink to={`/invoices/details/${invoice._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
                                                 <FaPlus size={20} />

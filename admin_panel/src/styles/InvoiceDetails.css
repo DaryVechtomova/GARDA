@@ -1,0 +1,19 @@
+@media print {
+  .print-hide {
+    display: none !important;
+  }
+  
+  body, html {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .print-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

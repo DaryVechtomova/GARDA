@@ -1,5 +1,6 @@
 import path from "path";
 import supplierModel from "../models/supplierModel.js";
+import invoiceModel from "../models/invoiceModel.js";
 import fs from "fs";
 
 // Додавання постачальника
@@ -94,6 +95,15 @@ const removeSupplier = async (req, res) => {
 
         if (!supplier) {
             return res.status(404).json({ success: false, message: "Постачальника не знайдено" });
+        }
+
+        // Перевіряємо, чи є накладні у цього постачальника
+        const invoices = await invoiceModel.find({ supplier: req.body.id });
+        if (invoices.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Не можна видалити постачальника, у якого є накладні"
+            });
         }
 
         // Видаляємо постачальника з бази даних

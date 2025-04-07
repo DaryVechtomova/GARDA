@@ -1,5 +1,6 @@
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
+import productModel from "../models/productModel.js";
 import Stripe from "stripe"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
@@ -209,8 +210,8 @@ const updateOrderStatus = async (req, res) => {
         const allowedStatuses = [
             "Нове замовлення",
             "В обробці",
+            "Запаковане",
             "Передано в службу доставки",
-            "Чекає на отримання",
             "Доставлено",
         ];
 
@@ -231,6 +232,27 @@ const updateOrderStatus = async (req, res) => {
                 success: false,
                 message: `Недопустимий статус. Наступний статус повинен бути: ${nextStatus}`,
             });
+        }
+
+        // Оновлення кількості товарів на складі при зміні статусу
+        if (status === "В обробці" && order.status === "Нове замовлення") {
+            // Віднімаємо товари зі складу
+            for (const item of order.items) {
+                await productModel.findByIdAndUpdate(item.productId, {
+                    $inc: { "sizes.$[elem].quantity": -item.quantity }
+                }, {
+                    arrayFilters: [{ "elem.size": item.size }]
+                });
+            }
+        } else if (status === "Скасовано" && order.status === "В обробці") {
+            // Повертаємо товари на склад
+            for (const item of order.items) {
+                await productModel.findByIdAndUpdate(item.productId, {
+                    $inc: { "sizes.$[elem].quantity": item.quantity }
+                }, {
+                    arrayFilters: [{ "elem.size": item.size }]
+                });
+            }
         }
 
         // Оновлення статусу
@@ -259,6 +281,17 @@ const cancelOrder = async (req, res) => {
                 success: false,
                 message: "Замовлення можна скасувати тільки зі статусом 'Нове замовлення' або 'В обробці'"
             });
+        }
+
+        // Якщо замовлення було в обробці, повертаємо товари на склад
+        if (order.status === "В обробці") {
+            for (const item of order.items) {
+                await productModel.findByIdAndUpdate(item.productId, {
+                    $inc: { "sizes.$[elem].quantity": item.quantity }
+                }, {
+                    arrayFilters: [{ "elem.size": item.size }]
+                });
+            }
         }
 
         // Update order status and add cancellation reason

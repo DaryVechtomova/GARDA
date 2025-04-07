@@ -41,10 +41,16 @@ function List() {
                 toast.success(response.data.message);
                 fetchList();
             } else {
-                toast.error("Помилка при видаленні товару");
+                // Виводимо повідомлення про помилку з сервера, якщо воно є
+                toast.error(response.data.message || "Помилка при видаленні товару");
             }
         } catch (error) {
-            toast.error("Не вдалося видалити товар");
+            // Обробляємо помилки від сервера
+            if (error.response && error.response.data && error.response.data.message) {
+                toast.error(error.response.data.message);
+            } else {
+                toast.error("Не вдалося видалити товар");
+            }
         } finally {
             setShowDeleteConfirmation(false); // Закриваємо модальне вікно після видалення
         }

@@ -245,8 +245,8 @@ function Orders() {
                         <option value="all">Всі статуси</option>
                         <option value="Нове замовлення">Нове замовлення</option>
                         <option value="В обробці">В обробці</option>
+                        <option value="Запаковане">Запаковане</option>
                         <option value="Передано в службу доставки">Передано в службу доставки</option>
-                        <option value="Чекає на отримання">Чекає на отримання</option>
                         <option value="Доставлено">Доставлено</option>
                         <option value="Скасовано">Скасовано</option>
                         <option value="Повернення">Повернення</option>
@@ -369,7 +369,7 @@ function Orders() {
                                             {order.status === "В обробці" ? (
                                                 <NavLink
                                                     to={`/edit-order/${order._id}`}
-                                                    className="text-green-500 hover:text-green-700"
+                                                    className="text-[#077014] hover:text-[#077014]"
                                                     title="Редагувати"
                                                 >
                                                     <FaEdit />

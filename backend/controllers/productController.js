@@ -1,6 +1,9 @@
 import path from "path";
+import mongoose from 'mongoose';
 import { syncBuiltinESMExports } from "module";
 import productModel from "../models/productModel.js";
+import invoiceModel from "../models/invoiceModel.js";
+import orderModel from "../models/orderModel.js";
 import fs from "fs"
 
 // Функція для перевірки наявності дублікатів розмірів
@@ -116,7 +119,42 @@ const listProduct = async (req, res) => {
 // remove product item
 const removeProduct = async (req, res) => {
     try {
-        const product = await productModel.findById(req.body.id);
+        const productId = req.body.id;
+
+        // Перевіряємо, чи існують моделі перед використанням
+        if (!mongoose.models.invoice) {
+            console.error("Модель 'invoice' не зареєстрована!");
+            // Можна повернути помилку сервера тут, якщо потрібно
+            return res.status(500).json({ success: false, message: "Помилка сервера: модель накладної не знайдена." });
+        }
+        if (!mongoose.models.order) {
+            console.error("Модель 'order' не зареєстрована!");
+            // Можна повернути помилку сервера тут, якщо потрібно
+            return res.status(500).json({ success: false, message: "Помилка сервера: модель замовлення не знайдена." });
+        }
+
+
+        // Тепер можна безпечно використовувати моделі
+        const invoicesWithProduct = await invoiceModel.find({ // Використовуємо імпортовану модель
+            "products.product": productId,
+            status: { $ne: "скасована" }
+        });
+
+        const ordersWithProduct = await orderModel.find({ // Використовуємо імпортовану модель
+            "items.productId": productId,
+            status: { $ne: "скасоване замовлення" }
+        });
+
+
+        if (invoicesWithProduct.length > 0 || ordersWithProduct.length > 0) {
+            // ВАЖЛИВО: Надішліть відповідний статус помилки (наприклад, 409 Conflict або 400 Bad Request)
+            return res.status(409).json({ // <--- Змінено статус
+                success: false,
+                message: "Не можна видаляти товари, які є в накладних і замовленнях"
+            });
+        }
+
+        const product = await productModel.findById(productId);
 
         // Видаляємо всі зображення товару з папки uploads
         if (product.images && product.images.length > 0) {
@@ -130,11 +168,16 @@ const removeProduct = async (req, res) => {
         }
 
         // Видаляємо товар з бази даних
-        await productModel.findByIdAndDelete(req.body.id);
+        await productModel.findByIdAndDelete(productId);
         res.json({ success: true, message: "Товар видалено" });
     } catch (error) {
         console.log(error);
-        res.json({ success: false, message: "Помилка" });
+        res.json({
+            success: false,
+            message: error.message.includes("Cast to ObjectId failed")
+                ? "Невірний ID товару"
+                : "Помилка при видаленні товару"
+        });
     }
 };
 
@@ -283,5 +326,6 @@ const editDiscount = async (req, res) => {
         res.status(500).json({ success: false, message: "Помилка при оновленні знижки" });
     }
 };
+
 
 export { addProduct, listProduct, removeProduct, editProduct, removeDiscount, editDiscount }

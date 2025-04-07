@@ -44,12 +44,18 @@ function SupplierList() {
                 toast.success(response.data.message);
                 fetchSuppliers();
             } else {
-                toast.error("Помилка при видаленні постачальника");
+                // Виводимо повідомлення про помилку з сервера
+                toast.error(response.data.message || "Помилка при видаленні постачальника");
             }
         } catch (error) {
-            toast.error("Не вдалося видалити постачальника");
+            // Обробляємо помилку, якщо постачальник має накладні
+            if (error.response && error.response.data && error.response.data.message) {
+                toast.error(error.response.data.message);
+            } else {
+                toast.error("Не вдалося видалити постачальника");
+            }
         } finally {
-            setShowConfirmation(false); // Закриваємо модальне вікно після видалення
+            setShowConfirmation(false);
         }
     };
 

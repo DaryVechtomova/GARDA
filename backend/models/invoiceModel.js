@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 const invoiceSchema = new mongoose.Schema({
+    invoiceNumber: { type: String, unique: true },
     supplier: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "supplier",

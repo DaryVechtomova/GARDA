@@ -2,6 +2,22 @@ import invoiceModel from "../models/invoiceModel.js";
 import productModel from "../models/productModel.js";
 import supplierModel from "../models/supplierModel.js";
 
+// Функція для генерації унікального номера накладної
+const generateSequentialInvoiceNumber = async () => {
+    // Знаходимо останню накладну
+    const lastInvoice = await invoiceModel.findOne().sort({ createdAt: -1 });
+
+    let nextNumber = 1;
+    if (lastInvoice && lastInvoice.invoiceNumber) {
+        // Витягуємо число з номеру останньої накладної
+        const lastNumber = parseInt(lastInvoice.invoiceNumber.replace('INV-', ''));
+        nextNumber = lastNumber + 1;
+    }
+
+    // Форматуємо номер з ведучими нулями (наприклад, INV-000001)
+    return `INV-${nextNumber.toString().padStart(6, '0')}`;
+};
+
 // Додавання нової накладної
 const addInvoice = async (req, res) => {
     const {
@@ -28,30 +44,31 @@ const addInvoice = async (req, res) => {
         return res.status(404).json({ success: false, message: "Постачальника не знайдено" });
     }
 
-    // Перевірка, чи існують товари та оновлення кількості
+    // Перевірка товарів
     for (const item of products) {
         const existingProduct = await productModel.findById(item.product);
         if (!existingProduct) {
             return res.status(404).json({ success: false, message: `Товар з ID ${item.product} не знайдено` });
         }
 
-        // Оновлення кількості товару для вибраного розміру
-        const sizeIndex = existingProduct.sizes.findIndex((size) => size.size === item.size);
-        if (sizeIndex === -1) {
+        const sizeExists = existingProduct.sizes.some((size) => size.size === item.size);
+        if (!sizeExists) {
             return res.status(400).json({ success: false, message: `Розмір ${item.size} не знайдено для товару ${existingProduct.name}` });
         }
-
-        existingProduct.sizes[sizeIndex].quantity += item.quantity;
-        await existingProduct.save();
     }
-    const invoice = new invoiceModel({
-        supplier,
-        products,
-        totalAmount,
-        notes,
-    });
 
     try {
+        // Генеруємо номер накладної
+        const invoiceNumber = await generateSequentialInvoiceNumber();
+
+        const invoice = new invoiceModel({
+            invoiceNumber,
+            supplier,
+            products,
+            totalAmount,
+            notes,
+        });
+
         await invoice.save();
         res.json({ success: true, message: "Накладну додано", data: invoice });
     } catch (error) {
@@ -148,4 +165,65 @@ const getInvoiceById = async (req, res) => {
     }
 };
 
-export { addInvoice, fetchInvoices, editInvoice, getInvoiceById };
+const completeInvoice = async (req, res) => {
+    const { id } = req.body;
+
+    try {
+        // Перевірка, чи існує накладна
+        const invoice = await invoiceModel.findById(id);
+        if (!invoice) {
+            return res.status(404).json({ success: false, message: "Накладну не знайдено" });
+        }
+
+        // Перевірка, чи накладна вже виконана або скасована
+        if (invoice.status !== "активна") {
+            return res.status(400).json({
+                success: false,
+                message: `Накладна вже ${invoice.status === "виконана" ? "виконана" : "скасована"}`
+            });
+        }
+
+        // Оновлення кількості товарів на складі
+        for (const item of invoice.products) {
+            const product = await productModel.findById(item.product);
+            if (!product) {
+                return res.status(404).json({
+                    success: false,
+                    message: `Товар з ID ${item.product} не знайдено`
+                });
+            }
+
+            // Оновлення кількості для вибраного розміру
+            const sizeIndex = product.sizes.findIndex(size => size.size === item.size);
+            if (sizeIndex === -1) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Розмір ${item.size} не знайдено для товару ${product.name}`
+                });
+            }
+
+            product.sizes[sizeIndex].quantity += item.quantity;
+            await product.save();
+        }
+
+        // Оновлення статусу накладної
+        invoice.status = "виконана";
+        invoice.updatedAt = new Date();
+        await invoice.save();
+
+        res.json({
+            success: true,
+            message: "Накладу виконано та товари додано на склад",
+            data: invoice
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Помилка при виконанні накладної",
+            error: error.message
+        });
+    }
+};
+
+export { addInvoice, fetchInvoices, editInvoice, getInvoiceById, completeInvoice };
