@@ -23,7 +23,7 @@ const loginUser = async (req, res) => {
             return res.json({ success: false, message: "Ваш акаунт неактивний" });
         }
 
-        const token = createToken(user._id);
+        const token = createToken(user._id, user.role);
         //localStorage.setItem("role", response.data.role);
         res.json({
             success: true,
@@ -42,14 +42,24 @@ const loginUser = async (req, res) => {
 };
 
 
-const createToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET)
+const createToken = (userId, userRole) => { // Приймає ID та РОЛЬ
+    const payload = {
+        id: userId,
+        role: userRole
+    };
+    // Додаємо термін дії, наприклад, 1 день (в секундах)
+    const expiresIn = '1d'; // '1h', '7d', '30m' і т.д.
+
+    // Підписуємо токен з payload та терміном дії
+    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 }
 
 //register user
 const registerUser = async (req, res) => {
-    const { firstName, secondName, middleName, email, phoneNumber, password, birthDate } = req.body;
+    const { firstName, secondName, middleName, email, phoneNumber, password } = req.body;
     try {
+
+        console.log("slkvmslvkm");
         // checking is user already exists
         const exists = await userModel.findOne({ email });
         if (exists) {
@@ -75,12 +85,7 @@ const registerUser = async (req, res) => {
         if (!password) {
             return res.json({ success: false, message: "Будь ласка, введіть пароль" });
         }
-        if (!birthDate) {
-            return res.json({ success: false, message: "Будь ласка, введіть дату народження" });
-        }
-        if (!role) {
-            return res.json({ success: false, message: "Будь ласка, оберіть роль" });
-        }
+        const role = "користувач";
 
         // Перевірка формату електронної пошти
         if (!validator.isEmail(email)) {
@@ -104,11 +109,11 @@ const registerUser = async (req, res) => {
             email,
             phoneNumber,
             password: hashedPassword,
-            birthDate
+            role
         });
 
         const user = await newUser.save()
-        const token = createToken(user._id)
+        const token = createToken(user._id, user.role);
         res.json({ success: true, token })
 
     } catch (error) {
@@ -272,4 +277,39 @@ const fireEmployee = async (req, res) => {
     }
 };
 
-export { loginUser, registerUser, listEmployees, registerEmployee, editEmployee, fireEmployee }
+const getCurrentUser = async (req, res) => {
+    try {
+        // Об'єкт користувача вже додано до req.user завдяки authMiddleware
+        const user = req.user;
+
+        // Можна додатково перевірити, але authMiddleware вже це зробив
+        if (!user) {
+            // Цей випадок не мав би виникнути, якщо authMiddleware спрацював
+            return res.status(404).json({ success: false, message: "Користувача не знайдено (внутрішня помилка)" });
+        }
+
+        // Повертаємо необхідні дані (без пароля, бо його виключено в middleware)
+        res.json({
+            success: true,
+            // Називаємо поле userData, як очікує фронтенд
+            userData: {
+                id: user._id,
+                firstName: user.firstName,
+                secondName: user.secondName,
+                middleName: user.middleName,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+                role: user.role,
+                // Додайте інші поля, які можуть бути потрібні адмінці
+                // hireDate: user.hireDate,
+                // isActive: user.isActive,
+            }
+        });
+
+    } catch (error) {
+        console.error("Помилка отримання даних поточного користувача:", error);
+        res.status(500).json({ success: false, message: "Помилка сервера при отриманні даних користувача" });
+    }
+};
+
+export { loginUser, registerUser, listEmployees, registerEmployee, editEmployee, fireEmployee, getCurrentUser, }

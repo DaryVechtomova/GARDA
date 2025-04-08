@@ -71,7 +71,7 @@ const EditSupplier = () => {
             });
             if (response.data.success) {
                 toast.success(response.data.message);
-                navigate("/list-supplier");
+                navigate("/admin_panel/list-supplier");
             } else {
                 toast.error(response.data.message);
             }

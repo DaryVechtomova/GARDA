@@ -68,7 +68,7 @@ const EditEmployee = () => {
             });
             if (response.data.success) {
                 toast.success(response.data.message);
-                navigate('/list-employees'); // Повертаємося до списку співробітників після успішного оновлення
+                navigate('/admin_panel/list-employees'); // Повертаємося до списку співробітників після успішного оновлення
             } else {
                 toast.error(response.data.message);
             }

@@ -88,7 +88,7 @@ const Edit = () => {
 
             if (response.data.success) {
                 toast.success(response.data.message);
-                navigate("/list-product");
+                navigate("/admin_panel/list-product");
             } else {
                 toast.error(response.data.message);
             }

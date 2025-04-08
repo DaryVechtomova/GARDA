@@ -13,26 +13,26 @@ const Sidebar = () => {
                     <p className="hidden lg:flex">Add Items</p>
                 </NavLink> */}
 
-                <NavLink to={"/list-product"} className={({ isActive }) => isActive ? "active-link" : "flexCenter gap-x-2 cursor-pointer h-10 max-w-60 border border-slate-900/15 !bg-transparent"}>
+                <NavLink to={"/admin_panel/list-product"} className={({ isActive }) => isActive ? "active-link" : "flexCenter gap-x-2 cursor-pointer h-10 max-w-60 border border-slate-900/15 !bg-transparent"}>
                     <BsCardList />
                     <p className="hidden lg:flex">Каталог товарів</p>
                 </NavLink>
 
-                <NavLink to={"/orders"} className={({ isActive }) => isActive ? "active-link" : "flexCenter gap-x-2 cursor-pointer h-10 max-w-60 border border-slate-900/15 !bg-transparent"}>
+                <NavLink to={"/admin_panel/orders"} className={({ isActive }) => isActive ? "active-link" : "flexCenter gap-x-2 cursor-pointer h-10 max-w-60 border border-slate-900/15 !bg-transparent"}>
                     <BsCardChecklist />
                     <p className="hidden lg:flex">Замовлення</p>
                 </NavLink>
-                <NavLink to={"/list-supplier"} className={({ isActive }) => isActive ? "active-link" : "flexCenter gap-x-2 cursor-pointer h-10 max-w-60 border border-slate-900/15 !bg-transparent"}>
+                <NavLink to={"/admin_panel/list-supplier"} className={({ isActive }) => isActive ? "active-link" : "flexCenter gap-x-2 cursor-pointer h-10 max-w-60 border border-slate-900/15 !bg-transparent"}>
                     <FiUsers />
                     <p className="hidden lg:flex">Постачальники</p>
                 </NavLink>
 
-                <NavLink to={"/list-invoice"} className={({ isActive }) => isActive ? "active-link" : "flexCenter gap-x-2 cursor-pointer h-10 max-w-60 border border-slate-900/15 !bg-transparent"}>
+                <NavLink to={"/admin_panel/list-invoice"} className={({ isActive }) => isActive ? "active-link" : "flexCenter gap-x-2 cursor-pointer h-10 max-w-60 border border-slate-900/15 !bg-transparent"}>
                     <PiInvoice />
                     <p className="hidden lg:flex">Прибуткові накладні</p>
                 </NavLink>
 
-                <NavLink to={"/list-employees"} className={({ isActive }) => isActive ? "active-link" : "flexCenter gap-x-2 cursor-pointer h-10 max-w-60 border border-slate-900/15 !bg-transparent"}>
+                <NavLink to={"/admin_panel/list-employees"} className={({ isActive }) => isActive ? "active-link" : "flexCenter gap-x-2 cursor-pointer h-10 max-w-60 border border-slate-900/15 !bg-transparent"}>
                     <GrUserManager />
                     <p className="hidden lg:flex">Співробітники</p>
                 </NavLink>

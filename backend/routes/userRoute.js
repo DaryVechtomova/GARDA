@@ -1,11 +1,15 @@
+import mongoose from 'mongoose';
 import express from "express"
-import { loginUser, registerUser, listEmployees, registerEmployee, editEmployee, fireEmployee } from "../controllers/userController.js"
+import { loginUser, registerUser, listEmployees, registerEmployee, editEmployee, fireEmployee, getCurrentUser, } from "../controllers/userController.js"
+import { authMiddleware, adminMiddleware } from "../middleware/auth.js";
 import userModel from "../models/userModel.js";
 
 const userRouter = express.Router();
 
 userRouter.post("/register", registerUser)
 userRouter.post("/login", loginUser)
+userRouter.get("/me", authMiddleware, getCurrentUser);
+userRouter.get("/me", authMiddleware, getCurrentUser);
 userRouter.get("/list-employees", listEmployees);
 userRouter.post("/register-employee", registerEmployee);
 userRouter.post("/edit-employee", editEmployee)

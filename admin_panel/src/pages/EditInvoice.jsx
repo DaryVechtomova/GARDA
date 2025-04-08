@@ -145,7 +145,7 @@ const EditInvoice = () => {
             });
             if (response.data.success) {
                 toast.success(response.data.message);
-                navigate("/list-invoice");
+                navigate("/admin_panel/list-invoice");
             } else {
                 toast.error(response.data.message);
             }

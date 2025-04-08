@@ -148,7 +148,7 @@ function SupplierList() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fbb42c]"
                     />
-                    <NavLink to="/add-supplier">
+                    <NavLink to="/admin_panel/add-supplier">
                         <button className="px-4 py-2 bg-[#fbb42c] text-black font-bold rounded-lg shadow-md hover:bg-[#d0882a] transition">
                             Додати постачальника
                         </button>
@@ -181,12 +181,12 @@ function SupplierList() {
                                     <td className="p-3 border">{supplier.status}</td>
                                     <td className="p-3 border">{supplier.city}</td>
                                     <td className="p-3 border text-center">
-                                        <NavLink to={`/suppliers/details/${supplier._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
+                                        <NavLink to={`/admin_panel/suppliers/details/${supplier._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
                                             <FaPlus size={20} />
                                         </NavLink>
                                     </td>
                                     <td className="p-3 border text-center">
-                                        <NavLink to={`/edit-supplier/${supplier._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
+                                        <NavLink to={`/admin_panel/edit-supplier/${supplier._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
                                             <TbEdit size={20} />
                                         </NavLink>
                                     </td>

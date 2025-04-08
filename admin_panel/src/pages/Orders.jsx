@@ -360,7 +360,7 @@ function Orders() {
                                     <td className="p-3 border text-center">
                                         <div className="flex flex-col items-center space-y-2">
                                             <NavLink
-                                                to={`/order/details/${order._id}`}
+                                                to={`/admin_panel/order/details/${order._id}`}
                                                 className="text-blue-500 hover:text-blue-700"
                                                 title="Деталі"
                                             >
@@ -368,7 +368,7 @@ function Orders() {
                                             </NavLink>
                                             {order.status === "В обробці" ? (
                                                 <NavLink
-                                                    to={`/edit-order/${order._id}`}
+                                                    to={`/admin_panel/edit-order/${order._id}`}
                                                     className="text-[#077014] hover:text-[#077014]"
                                                     title="Редагувати"
                                                 >

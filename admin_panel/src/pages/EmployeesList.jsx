@@ -133,7 +133,7 @@ function EmployeesList() {
                         className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fbb42c]"
                     />
                     {/* Кнопка для додавання нового співробітника */}
-                    <NavLink to="/add-employee">
+                    <NavLink to="/admin_panel/add-employee">
                         <button className="px-4 py-2 bg-[#fbb42c] text-black font-bold rounded-lg shadow-md hover:bg-[#d0882a] transition">
                             Додати співробітника
                         </button>
@@ -164,12 +164,12 @@ function EmployeesList() {
                                     <td className="p-3 border">{employee.role}</td>
                                     <td className="p-3 border">{employee.isActive ? 'активний' : 'звільнений'}</td>
                                     <td className="p-3 border text-center">
-                                        <NavLink to={`/user/details/${employee._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
+                                        <NavLink to={`/admin_panel/user/details/${employee._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
                                             <FaPlus size={20} />
                                         </NavLink>
                                     </td>
                                     <td className="p-3 border justify-center items-center">
-                                        <NavLink to={`/edit-employee/${employee._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
+                                        <NavLink to={`/admin_panel/edit-employee/${employee._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
                                             <TbEdit size={20} />
                                         </NavLink>
                                     </td>

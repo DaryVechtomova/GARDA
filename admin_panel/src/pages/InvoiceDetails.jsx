@@ -143,7 +143,7 @@ function InvoiceDetails() {
                     <div className="flex gap-2">
                         {invoice.status === 'активна' && (
                             <button
-                                onClick={() => navigate(`/edit-invoice/${invoice._id}`)}
+                                onClick={() => navigate(`/admin_panel/edit-invoice/${invoice._id}`)}
                                 className="px-5 py-2 font-medium bg-yellow-500 text-black rounded-lg hover:bg-yellow-600 transition no-print flex items-center gap-2"
                             >
                                 <FaEdit /> Редагувати

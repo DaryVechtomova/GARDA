@@ -172,7 +172,7 @@ function List() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fbb42c]"
                     />
-                    <NavLink to="/add-product">
+                    <NavLink to="/admin_panel/add-product">
                         <button className="px-4 py-2 bg-[#fbb42c] text-black font-bold rounded-lg shadow-md hover:bg-[#d0882a] transition">Додати товар</button>
                     </NavLink>
                 </div>
@@ -255,12 +255,12 @@ function List() {
                                         </div>
                                     </td>
                                     <td className="p-3 border text-center items-center">
-                                        <NavLink to={`/product/details/${product._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
+                                        <NavLink to={`/admin_panel/product/details/${product._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
                                             <FaPlus />
                                         </NavLink>
                                     </td>
                                     <td className="p-3 border justify-center items-center">
-                                        <NavLink to={`/edit-product/${product._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
+                                        <NavLink to={`/admin_panel/edit-product/${product._id}`} className="text-blue-500 hover:text-blue-700 flex justify-center">
                                             <TbEdit size={20} />
                                         </NavLink>
                                     </td>

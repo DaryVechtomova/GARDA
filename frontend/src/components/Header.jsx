@@ -7,10 +7,11 @@ import { CgProfile } from "react-icons/cg";
 import { HiMenu, HiX } from "react-icons/hi";
 import Navbar from './Navbar'; // Імпортуйте Navbar
 
-const Header = () => {
+const Header = ({ setShowLogin }) => {
     const [menuOpened, setMenuOpened] = useState(false);
     const [searchOpened, setSearchOpened] = useState(false);
     const [header, setHeader] = useState(false);
+    const [token, setToken] = useState(false);
 
     const toggleMenu = () => {
         setMenuOpened(!menuOpened);
@@ -87,10 +88,23 @@ const Header = () => {
                             </Link>
 
                             {/* Профіль */}
-                            <Link to={"/profile"} className="flex flex-col items-center gap-1">
-                                <CgProfile className="text-[22px] hover:text-secondary sm:text-3xl" />
-                                <span className="text-sm hidden sm:block">Профіль</span> {/* Приховуємо текст на малих екранах */}
-                            </Link>
+                            <div className="flex flex-col items-center gap-1"> {/* Обгортка для іконки та тексту */}
+                                {!token ? (
+                                    // --- Якщо НЕМАЄ токена (не залогінений) ---
+                                    <div
+                                        onClick={() => setShowLogin(true)}
+                                        className="cursor-pointer"
+                                    >
+                                        <CgProfile className="text-[22px] hover:text-secondary sm:text-3xl" />
+                                    </div>
+                                ) : (
+                                    <Link to={"/profile"} className="flex flex-col items-center gap-1">
+                                        <CgProfile className="text-[22px] hover:text-secondary sm:text-3xl" />
+                                        {/* Приховуємо текст на малих екранах */}
+                                    </Link>
+                                )}
+                                <span className="text-sm hidden sm:block">Профіль</span>
+                            </div>
                         </div>
                     </div>
                 </div>

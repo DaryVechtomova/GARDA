@@ -16,7 +16,6 @@ const addToCart = async (req, res) => {
         console.log(error);
         res.json({ success: false, message: "Помилка" })
     }
-
 }
 
 // remove items from user cart

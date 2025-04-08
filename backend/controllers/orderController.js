@@ -14,7 +14,7 @@ const generateOrderNumber = () => {
 
 // placing user order for frontend
 const placeOrder = async (req, res) => {
-    const frontend_url = "http://localhost:5173";
+    const frontend_url = "http://localhost:5174/GARDA";
 
     try {
         const { userId, items, amount, deliveryMethod, deliveryDetails } = req.body;

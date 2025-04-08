@@ -249,7 +249,7 @@ const EditOrder = () => {
 
             if (response.data.success) {
                 toast.success("Замовлення успішно оновлено");
-                navigate('/orders');
+                navigate('/admin_panel/orders');
             } else {
                 // Виводимо конкретне повідомлення з бекенду, якщо воно є
                 toast.error(response.data.message || "Помилка при оновленні замовлення (бекенд)");
