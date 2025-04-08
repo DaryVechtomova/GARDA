@@ -2,6 +2,7 @@ import express from "express"
 import { addProduct, listProduct, removeProduct, editProduct, removeDiscount, editDiscount } from "../controllers/productController.js"
 import productModel from "../models/productModel.js"
 import multer from "multer"
+import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
 
 const productRouter = express.Router();
 
@@ -19,26 +20,15 @@ const upload = multer({
     limits: { fileSize: 10 * 1024 * 1024 } // 10MB
 });
 
-productRouter.post("/add-product", upload.array("images", 10), addProduct)
-productRouter.get("/list-product", listProduct)
-productRouter.post("/remove-product", removeProduct)
-productRouter.post("/edit-product", upload.array("images", 10), (req, res, next) => {
+productRouter.post("/add-product", authMiddleware, adminMiddleware, upload.array("images", 10), addProduct)
+productRouter.get("/list-product", authMiddleware, adminMiddleware, listProduct)
+productRouter.post("/remove-product", authMiddleware, adminMiddleware, removeProduct)
+productRouter.post("/edit-product", authMiddleware, adminMiddleware, upload.array("images", 10), (req, res, next) => {
     console.log("Отримані файли:", req.files); // Логування файлів
     next();
 }, editProduct);
-productRouter.get("/edit-product/:id", async (req, res) => {
-    try {
-        const product = await productModel.findById(req.params.id);
-        if (!product) {
-            return res.json({ success: false, message: "Товар не знайдено" });
-        }
-        res.json({ success: true, data: product });
-    } catch (error) {
-        console.log(error);
-        res.json({ success: false, message: "Помилка при отриманні товару" });
-    }
-});
-productRouter.get("/details/:id", async (req, res) => {
+
+productRouter.get("/edit-product/:id", authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const product = await productModel.findById(req.params.id);
         if (!product) {
@@ -51,7 +41,20 @@ productRouter.get("/details/:id", async (req, res) => {
     }
 });
 
-productRouter.delete("/discount/remove/:id", removeDiscount);
-productRouter.put("/discount/edit/:id", editDiscount);
+productRouter.get("/details/:id", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const product = await productModel.findById(req.params.id);
+        if (!product) {
+            return res.json({ success: false, message: "Товар не знайдено" });
+        }
+        res.json({ success: true, data: product });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Помилка при отриманні товару" });
+    }
+});
+
+productRouter.delete("/discount/remove/:id", authMiddleware, adminMiddleware, removeDiscount);
+productRouter.put("/discount/edit/:id", authMiddleware, adminMiddleware, editDiscount);
 
 export default productRouter;

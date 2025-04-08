@@ -12,6 +12,11 @@ function InvoiceList() {
     const [statusFilter, setStatusFilter] = useState('All');
 
     const fetchInvoices = async () => {
+        const token = localStorage.getItem('adminToken');
+        if (!token) {
+            window.location.href = FRONTEND_LOGIN_URL;
+            return;
+        }
         try {
             const response = await axios.get(`${url}/api/invoices/list-invoice`);
             if (response.data.success) {

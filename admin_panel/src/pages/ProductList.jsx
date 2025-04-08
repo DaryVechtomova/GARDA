@@ -17,6 +17,11 @@ function List() {
     const [productToDelete, setProductToDelete] = useState(null); // Стан для зберігання ID товару, який користувач намагається видалити
 
     const fetchList = async () => {
+        const token = localStorage.getItem('adminToken');
+        if (!token) {
+            window.location.href = FRONTEND_LOGIN_URL;
+            return;
+        }
         try {
             const response = await axios.get(`${url}/api/product/list-product`);
             if (response.data.success) {

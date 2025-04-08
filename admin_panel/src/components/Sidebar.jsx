@@ -6,13 +6,8 @@ import { PiInvoice } from "react-icons/pi";
 import { GrUserManager } from "react-icons/gr";
 const Sidebar = () => {
     return (
-        <div className="print-hide w-1/6 min-h-screen border-r  border-r-slate-900/10 fixed left-0 top-16 bg-white">
+        <div className="print-hide w-1/6 min-h-screen border-r border-r-slate-900/10 fixed left-0 top-20 bg-white">
             <div className="flex flex-col gap-5 pt-4 sm:pt-10 pl-0">
-                {/* <NavLink to={"/add"} className={({ isActive }) => isActive ? "active-link" : "flexCenter gap-x-2 cursor-pointer h-10 max-w-60 border border-slate-900/15 !bg-transparent"}>
-                    <BsPlusSquare />
-                    <p className="hidden lg:flex">Add Items</p>
-                </NavLink> */}
-
                 <NavLink to={"/admin_panel/list-product"} className={({ isActive }) => isActive ? "active-link" : "flexCenter gap-x-2 cursor-pointer h-10 max-w-60 border border-slate-900/15 !bg-transparent"}>
                     <BsCardList />
                     <p className="hidden lg:flex">Каталог товарів</p>

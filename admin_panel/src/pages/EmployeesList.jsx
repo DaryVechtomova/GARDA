@@ -16,6 +16,11 @@ function EmployeesList() {
 
     // Отримання списку співробітників
     const fetchEmployees = async () => {
+        const token = localStorage.getItem('adminToken');
+        if (!token) {
+            window.location.href = FRONTEND_LOGIN_URL;
+            return;
+        }
         try {
             const response = await axios.get(`${url}/api/user/list-employees`);
             if (response.data.success) {

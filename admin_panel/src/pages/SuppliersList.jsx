@@ -18,6 +18,11 @@ function SupplierList() {
     const [supplierToDelete, setSupplierToDelete] = useState(null); // Постачальник, якого користувач намагається видалити
 
     const fetchSuppliers = async () => {
+        const token = localStorage.getItem('adminToken');
+        if (!token) {
+            window.location.href = FRONTEND_LOGIN_URL;
+            return;
+        }
         try {
             const response = await axios.get(`${url}/api/suppliers/list-supplier`);
             if (response.data.success) {

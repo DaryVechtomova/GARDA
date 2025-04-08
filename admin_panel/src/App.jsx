@@ -27,23 +27,40 @@ import EditEmployee from "./pages/EditEmployee";
 import EmployeeDetails from "./pages/EmployeeDetails";
 
 
-const FRONTEND_LOGIN_URL = 'http://localhost:5174/GARDA/login';
-const FRONTEND_PROFILE_URL = 'http://localhost:5174/GARDA/profile';
+const frontendBaseUrl = import.meta.env.VITE_FRONTEND_BASE_URL || 'http://localhost:5174';
 const API_URL = 'http://localhost:4000';
+
+const frontendLoginUrl = `${frontendBaseUrl}/GARDA`;
+const frontendProfileUrl = `${frontendBaseUrl}/GARDA/profile`;
+
+axios.interceptors.request.use(config => {
+  const token = localStorage.getItem('adminToken');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, error => {
+  return Promise.reject(error);
+});
+
+// Перехоплювач для відповідей
+axios.interceptors.response.use(response => response, error => {
+  if (error.response && error.response.status === 401) {
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUserData');
+    window.location.href = frontendLoginUrl;
+  }
+  return Promise.reject(error);
+});
 
 const fetchUserData = async (token) => {
   console.log(token);
   if (!token) return null;
   try {
     // Запит на бекенд для отримання даних поточного користувача
-    // Переконайтесь, що у вас є такий ендпоінт на бекенді, захищений middleware для перевірки токена
-    const response = await axios.get(`${API_URL}/api/user/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const response = await axios.get(`${API_URL}/api/user/me`);
     if (response.data.success) {
-      return response.data.userData; // Припускаємо, що бекенд повертає { success: true, userData: { firstName, secondName, ... } }
+      return response.data.userData;
     } else {
       console.error("Помилка отримання даних користувача:", response.data.message);
       return null;
@@ -89,7 +106,7 @@ const AuthWrapper = ({ children }) => {
       console.log("AuthWrapper: Токен не знайдено. Перенаправлення на логін фронтенду.");
       localStorage.removeItem("adminToken"); // Чистимо на всяк випадок
       localStorage.removeItem("adminUserData"); // Чистимо дані користувача адмінки
-      window.location.href = FRONTEND_LOGIN_URL;
+      window.location.href = frontendLoginUrl;
       return; // Зупиняємо виконання
     }
 
@@ -117,7 +134,7 @@ const AuthWrapper = ({ children }) => {
         console.log("AuthWrapper: Неправильна роль. Перенаправлення на профіль фронтенду.");
         localStorage.removeItem("adminToken"); // Видаляємо невалідний токен
         localStorage.removeItem("adminUserData");
-        window.location.href = FRONTEND_PROFILE_URL;
+        window.location.href = frontendProfileUrl;
         return; // Зупиняємо виконання
       }
     } catch (error) {
@@ -125,7 +142,7 @@ const AuthWrapper = ({ children }) => {
       console.error("AuthWrapper: Помилка декодування токена або термін дії закінчився:", error);
       localStorage.removeItem("adminToken"); // Видаляємо невалідний токен
       localStorage.removeItem("adminUserData");
-      window.location.href = FRONTEND_LOGIN_URL;
+      window.location.href = frontendLoginUrl;
       return; // Зупиняємо виконання
     }
 
@@ -201,22 +218,18 @@ const AdminLayout = () => {
     loadUserData();
   }, []);
 
+  const handleLogout = () => {
+    console.log("Logging out...");
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUserData');
+    window.location.href = frontendLoginUrl; // Перенаправлення на логін фронтенду
+  };
+
   return (
     <>
       <ToastContainer />
-      <Navbar userData={userData} isLoadingUser={isLoadingUser} />
+      <Navbar userData={userData} isLoadingUser={isLoadingUser} onLogout={handleLogout} />
       <hr />
-      {isLoadingUser ? (
-        <div className="w-full bg-gray-100 p-4"><p>Завантаження даних користувача...</p></div>
-      ) : userData ? (
-        <div className="w-full bg-blue-100 p-4 shadow-sm mb-4">
-          <h2 className="text-lg md:text-xl font-semibold text-gray-800">
-            Вітаємо, {userData.role} {userData.secondName} {userData.firstName} {userData.middleName}!
-          </h2>
-        </div>
-      ) : (
-        <div className="w-full bg-red-100 p-4 shadow-sm mb-4"><p>Не вдалося завантажити дані користувача.</p></div>
-      )}
       <div className="flex w-full pt-14 pl-7">
         <Sidebar />
         <Routes>

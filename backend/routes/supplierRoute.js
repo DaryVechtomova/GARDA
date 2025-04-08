@@ -1,14 +1,15 @@
 import express from "express"
 import { addSupplier, fetchSuppliers, removeSupplier, editSupplier } from "../controllers/supplierController.js"
 import supplierModel from "../models/supplierModel.js"
+import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
 
 const supplierRouter = express.Router();
 
-supplierRouter.post("/add-supplier", addSupplier)
-supplierRouter.get("/list-supplier", fetchSuppliers)
-supplierRouter.post("/remove", removeSupplier)
-supplierRouter.post("/edit-supplier", editSupplier)
-supplierRouter.get("/edit-supplier/:id", async (req, res) => {
+supplierRouter.post("/add-supplier", authMiddleware, adminMiddleware, addSupplier)
+supplierRouter.get("/list-supplier", authMiddleware, adminMiddleware, fetchSuppliers)
+supplierRouter.post("/remove", authMiddleware, adminMiddleware, removeSupplier)
+supplierRouter.post("/edit-supplier", authMiddleware, adminMiddleware, editSupplier)
+supplierRouter.get("/edit-supplier/:id", authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const supplier = await supplierModel.findById(req.params.id);
         if (!supplier) {
@@ -20,7 +21,7 @@ supplierRouter.get("/edit-supplier/:id", async (req, res) => {
         res.json({ success: false, message: "Помилка при отриманні даних постачальника" });
     }
 });
-supplierRouter.get("/details/:id", async (req, res) => {
+supplierRouter.get("/details/:id", authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const supplier = await supplierModel.findById(req.params.id);
         if (!supplier) {

@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import express from "express"
 import { loginUser, registerUser, listEmployees, registerEmployee, editEmployee, fireEmployee, getCurrentUser, } from "../controllers/userController.js"
-import { authMiddleware, adminMiddleware } from "../middleware/auth.js";
+import { authMiddleware, adminMiddleware, strictAdminMiddleware } from "../middleware/auth.js";
 import userModel from "../models/userModel.js";
 
 const userRouter = express.Router();
@@ -10,10 +10,10 @@ userRouter.post("/register", registerUser)
 userRouter.post("/login", loginUser)
 userRouter.get("/me", authMiddleware, getCurrentUser);
 userRouter.get("/me", authMiddleware, getCurrentUser);
-userRouter.get("/list-employees", listEmployees);
-userRouter.post("/register-employee", registerEmployee);
-userRouter.post("/edit-employee", editEmployee)
-userRouter.get("/edit-employee/:id", async (req, res) => {
+userRouter.get("/list-employees", authMiddleware, strictAdminMiddleware, listEmployees);
+userRouter.post("/register-employee", authMiddleware, strictAdminMiddleware, registerEmployee);
+userRouter.post("/edit-employee", authMiddleware, strictAdminMiddleware, editEmployee)
+userRouter.get("/edit-employee/:id", authMiddleware, strictAdminMiddleware, async (req, res) => {
     try {
         const employee = await userModel.findById(req.params.id);
         if (!employee) {
@@ -26,9 +26,9 @@ userRouter.get("/edit-employee/:id", async (req, res) => {
     }
 });
 
-userRouter.post("/fire-employee", fireEmployee);
+userRouter.post("/fire-employee", authMiddleware, strictAdminMiddleware, fireEmployee);
 
-userRouter.get("/details/:id", async (req, res) => {
+userRouter.get("/details/:id", authMiddleware, strictAdminMiddleware, async (req, res) => {
     try {
         const user = await userModel.findById(req.params.id);
         if (!user) {

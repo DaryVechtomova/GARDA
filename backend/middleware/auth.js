@@ -80,4 +80,15 @@ const adminMiddleware = (req, res, next) => {
     next(); // Права є, йдемо далі
 };
 
-export { authMiddleware, adminMiddleware }; // Експортуємо оновлене middleware
+// Middleware тільки для адміністратора
+const strictAdminMiddleware = (req, res, next) => {
+    if (!req.user || req.user.role !== "адміністратор") {
+        return res.status(403).json({
+            success: false,
+            message: "Доступ заборонено. Необхідні права адміністратора"
+        });
+    }
+    next();
+};
+
+export { authMiddleware, adminMiddleware, strictAdminMiddleware }; // Експортуємо оновлене middleware

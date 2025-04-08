@@ -35,6 +35,11 @@ function Orders() {
     ];
 
     const fetchAllOrders = async () => {
+        const token = localStorage.getItem('adminToken');
+        if (!token) {
+            window.location.href = FRONTEND_LOGIN_URL;
+            return;
+        }
         try {
             const response = await axios.get(url + "/api/order/list");
             if (response.data.success) {

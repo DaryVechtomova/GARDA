@@ -1,13 +1,14 @@
 import express from "express"
 import { addInvoice, fetchInvoices, editInvoice, getInvoiceById, completeInvoice } from "../controllers/invoiceController.js"
 import invoiceModel from "../models/invoiceModel.js"
+import { authMiddleware, adminMiddleware, strictAdminMiddleware } from '../middleware/auth.js';
 
 const invoiceRouter = express.Router();
 
-invoiceRouter.post("/add-invoice", addInvoice)
-invoiceRouter.get("/list-invoice", fetchInvoices)
-invoiceRouter.post("/edit-invoice", editInvoice)
-invoiceRouter.get("/edit-invoice/:id", async (req, res) => {
+invoiceRouter.post("/add-invoice", authMiddleware, strictAdminMiddleware, addInvoice)
+invoiceRouter.get("/list-invoice", authMiddleware, strictAdminMiddleware, fetchInvoices)
+invoiceRouter.post("/edit-invoice", authMiddleware, strictAdminMiddleware, editInvoice)
+invoiceRouter.get("/edit-invoice/:id", authMiddleware, strictAdminMiddleware, async (req, res) => {
     try {
         const invoice = await invoiceModel.findById(req.params.id);
         if (!invoice) {
@@ -19,7 +20,7 @@ invoiceRouter.get("/edit-invoice/:id", async (req, res) => {
         res.json({ success: false, message: "Помилка при отриманні накладної" });
     }
 });
-invoiceRouter.get("/details/:id", getInvoiceById);
-invoiceRouter.post("/complete-invoice", completeInvoice);
+invoiceRouter.get("/details/:id", authMiddleware, strictAdminMiddleware, getInvoiceById);
+invoiceRouter.post("/complete-invoice", authMiddleware, strictAdminMiddleware, completeInvoice);
 
 export default invoiceRouter;
