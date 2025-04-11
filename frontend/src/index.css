@@ -903,7 +903,7 @@ html {
 
 /* === Медіа-запит для Телефонної версії (приклад: до 768px) === */
 /* Ти можеш змінити 767px на інше значення, якщо потрібно */
-@media (max-width: 500px) {
+@media (min-width: 451px) and (max-width: 500px) {
   /* 1. Налаштування головного контейнера */
   .product-container.ProductMd-section { /* Додаємо клас секції для специфічності */
     position: relative;     /* База для absolute позиціонування дочірніх */
@@ -1376,7 +1376,7 @@ html {
      display: none;
   }
 
-} /* Кінець @media (max-width: 767px) */
+} 
 
 /* --- Scaling Mobile Layout with Flowers (501px - 1439px) --- */
 /* Беремо макет для 500px, масштабуємо його і додаємо квіти */
@@ -1610,5 +1610,443 @@ html {
    /* --- КІНЕЦЬ МОДИФІКАЦІЙ --- */
 
 } /* Кінець @media (min-width: 501px) and (max-width: 1439px) */
+
+/* === НОВИЙ БЛОК: Стилі для 320px - 400px з центруванням === */
+@media (min-width: 320px) and (max-width: 450px) { /* Використовуємо 400px для включення цього розміру */
+
+  /* 1. Налаштування контейнера для центрування */
+  .product-container {
+    position: relative; /* Потрібно для absolute дочірніх */
+    display: block;     /* Скидання flex */
+    width: 320px;       /* Фіксована ширина за дизайном 320px */
+    margin: 20px auto;  /* Відступи зверху/знизу + автоцентрирування по горизонталі */
+    height: 720px;      /* Розрахункова висота (612.5 + 84 + запас ~ 720px) */
+    padding: 0;
+    overflow: hidden;   /* Обрізати, якщо щось вилізе */
+     /* Скидання потенційних стилів з інших медіа-запитів */
+     max-width: none;
+     gap: 0;
+     flex-wrap: initial;
+     transform: translateY(-4rem) ;
+  }
+   /* Скидання для внутрішніх обгорток, якщо вони були flex/grid */
+  .product-images-container, .product-info, .small-images, .size-selection, .product-details-tabs {
+    position: static; display: block; width: auto; padding: 0; margin: 0;
+  }
+
+
+  /* 2. Застосування стилів точно з наданого дизайну 320px */
+
+  /* Головне зображення ('image 52') */
+  .main-image {
+    box-sizing: border-box;
+    position: absolute;
+    width: 166.5px;
+    height: 222px;
+    left: 142px;
+    top: 30px;
+    background: none; /* Припускаємо img всередині */
+    border: 0.5px solid #000000;
+    padding: 0; margin: 0;
+  }
+  .main-image img {
+    display: block; width: 100%; height: 100%; object-fit: cover;
+  }
+
+  /* Маленьке зображення 1 ('image 53') */
+  .small-images img:nth-child(1) {
+    box-sizing: border-box;
+    position: absolute;
+    width: 81px;
+    height: 108px;
+    left: 44px;
+    top: 30px;
+    background: none; /* Припускаємо img всередині */
+    border: 0.5px solid #000000;
+    object-fit: cover;
+    cursor: pointer;
+    /* Скидання інших можливих стилів */
+     margin: 0; padding: 0;
+  }
+
+  /* Маленьке зображення 2 ('image 54') */
+  .small-images img:nth-child(2) {
+    box-sizing: border-box;
+    position: absolute;
+    width: 80.25px;
+    height: 107px; /* Трохи інша висота в макеті */
+    left: 44px;
+    top: 145px; /* 30px (top img1) + 108px (h img1) + 7px (gap) */
+    background: none; /* Припускаємо img всередині */
+    border: 0.5px solid #000000;
+    object-fit: cover;
+    cursor: pointer;
+    margin: 0; padding: 0;
+  }
+  /* Стиль активного малого зображення */
+  .small-images img.active {
+    border: 1.5px solid #54A5D9;
+  }
+  /* Ховаємо решту, якщо є */
+  .small-images img:nth-child(n+3) {
+    display: none;
+  }
+
+
+  /* Назва товару ('Вишита лляна сорочка...') */
+  .product-title {
+    position: absolute;
+    width: 290px;
+    height: 53px; /* За дизайном (можливо, краще auto для переносів) */
+    left: 14px;
+    top: 275px;
+    font-family: 'Montserrat Alternates', sans-serif; /* Переконайся, що підключений */
+    font-style: normal;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 22px;
+    color: #000000;
+     /* Скидання */
+     margin: 0; padding: 0;
+     height: auto; /* Дозволяємо автоматичну висоту */
+  }
+
+  /* Ціна ('Ціна: 12 900 грн') */
+  .price {
+    position: absolute;
+    width: 145px; /* Можливо, auto краще */
+    height: 41px; /* Висота контейнера */
+    left: 14px;
+    top: 349px;
+    font-family: 'Literata', serif; /* Переконайся, що підключений */
+    font-style: normal;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;
+    color: #000000;
+    /* Скидання */
+     margin: 0; padding: 0; display: flex; align-items: center;
+  }
+   /* Скидання для дочірніх елементів ціни */
+   .price span {
+      font-size: inherit; font-weight: inherit; display: inline;
+      text-decoration: none; margin: 0; padding: 0; color: inherit;
+    }
+   .price .old-price { text-decoration: line-through; color: #6b7280; margin-right: 0.5em; }
+   .price .new-price { font-weight: 600; /* Наслідуємо */ } /* Нова ціна без спец. кольору в дизайні */
+
+
+  /* Напис 'Оберіть розмір:' */
+  .size-selection h5 {
+    position: absolute;
+    width: 145px;
+    height: 41px;
+    left: 14px;
+    top: 404px;
+    font-family: 'Literata', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;
+    color: #000000;
+    /* Скидання */
+    margin: 0; padding: 0; display: flex; align-items: center;
+  }
+
+  /* Таби: Про товар ('Про товар') */
+  .product-details-tabs button:nth-child(1) {
+    position: absolute;
+    width: 87px;
+    height: 42px;
+    left: 14px;
+    top: 558px;
+    font-family: 'Literata', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px; /* У дизайні 16px */
+    line-height: 24px;
+    color: #000000;
+     /* Скидання та додаткові стилі */
+     background: none; border: none; padding: 0; margin: 0; cursor: pointer;
+     text-align: left; display: flex; align-items: center;
+  }
+
+  /* Таби: Коментарі ('Коментарі') */
+  .product-details-tabs button:nth-child(2) {
+    position: absolute;
+    width: 100px;
+    height: 42px;
+    left: 125px; /* Проміжок 125 - (14+87) = 24px */
+    top: 558px;
+    font-family: 'Literata', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 15px; /* У дизайні 15px */
+    line-height: 22px;
+    color: #000000;
+     /* Скидання */
+     background: none; border: none; padding: 0; margin: 0; cursor: pointer;
+     text-align: left; display: flex; align-items: center;
+  }
+
+  /* Лінія під активним табом ('Line 5') */
+  .tab-underline { display: none; } /* Базово сховано */
+  .product-details-tabs button.active {
+     /* Можна додати стиль для активного таба тут */
+  }
+   /* Відображення через окремий елемент .tab-underline */
+   .product-details-tabs button:nth-child(1).active ~ .tab-underline {
+    display: block;
+    position: absolute;
+    width: 87px; /* Ширина таба "Про товар" */
+    height: 0px;
+    left: 14px; /* Позиція таба */
+    top: 591px; /* Позиція лінії */
+    border: none; /* Скидання старих бордерів */
+    border-top: 1px solid #000000; /* Створюємо лінію */
+    background: none; /* На всяк випадок */
+  }
+   /* Логіка для лінії під другим табом (Коментарі) */
+   .product-details-tabs button:nth-child(2).active ~ .tab-underline {
+     display: block;
+     position: absolute;
+     width: 100px; /* Ширина таба "Коментарі" */
+     height: 0px;
+     left: 125px; /* Позиція таба */
+     top: 591px; /* Той самий рівень */
+     border: none;
+     border-top: 1px solid #000000;
+     background: none;
+   }
+
+  /* Посилання 'Таблиця розмірів' + лінія ('Line 7') */
+  .size-guide-link {
+    display: block; /* Має бути видимо */
+    position: absolute;
+    width: 100px;
+    height: auto; /* За контентом + паддінгом */
+    left: 200px;
+    top: 418px;
+    font-family: 'Literata', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 21px;
+    color: #000000;
+    text-decoration: none; margin: 0; padding: 0; cursor: pointer;
+    /* Лінія через border */
+    border-bottom: 1px solid #000000;
+    /* Відступ лінії: top_лінії(468) - top_тексту(418) - line_height(21) = 29px */
+    padding-bottom: 10px; /* Відступ від тексту до лінії */
+    padding-left: 20px;
+  }
+   .size-guide-link + .divider-line { display: none; } /* Ховаємо стару */
+
+
+  /* Посилання 'Спробувати на собі' + лінія ('Line 6') */
+  .try-on-link {
+    display: block;
+    position: absolute;
+    width: 100px;
+    height: auto; /* За контентом + паддінгом */
+    left: 200px;
+    top: 335px; /* Трохи вище ціни */
+    font-family: 'Literata', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 21px;
+    text-align: center; /* ЦЕНТРОВАНИЙ */
+    color: #000000;
+    text-decoration: none; margin: 0; padding: 0; cursor: pointer;
+    /* Лінія через border */
+    border-bottom: 1px solid #000000;
+    /* Відступ лінії: top_лінії(381) - top_тексту(335) - line_height(21) = 25px */
+    padding-bottom: 10px;
+    padding-left: 10px;
+  }
+    .try-on-link + .divider-line { display: none; } /* Ховаємо стару */
+
+
+  /* Текст розмірів ('XXS XS S M L XL') */
+  .size-options-text {
+    display: block; /* Показати */
+    position: absolute;
+    width: 201px; /* Або auto */
+    height: 29px;
+    left: 14px;
+    top: 437px;
+    font-family: 'Literata', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;
+    color: #000000;
+    /* Скидання */
+     margin: 0; padding: 0; display: flex; align-items: center;
+  }
+  /* Сховати кнопки, якщо показуємо текст */
+  .size-options {
+    display: none;
+  }
+
+
+  /* Кнопка 'Обрати розмір' ('Rectangle 24' + 'Обрати розмір') */
+  .select-size-btn { /* Або використовуй .select-size-btn-styled */
+    box-sizing: border-box;
+    position: absolute;
+    width: 290px; /* Ширина прямокутника */
+    height: 55px; /* Висота прямокутника */
+    left: 14px;
+    top: 483px; /* Округлили 482.5px */
+    background: #54A5D9;
+    border: none; /* Немає бордера в описі Rectangle 24 */
+    /* Стилі тексту */
+    font-family: 'Literata', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 55px; /* Вирівнювання тексту по центру висоти */
+    color: #FFFFFD;
+    text-align: center; /* Горизонтальне центрування */
+    /* Скидання */
+    padding: 0; margin: 0; cursor: pointer;
+    /* Текст буде показано всередині кнопки */
+    display: block; /* Важливо для відображення */
+  }
+  /* Координати тексту 'Обрати розмір' з дизайну ігноруються, бо текст центрується в кнопці */
+
+
+  /* Опис товару ('Тканина - льон...') */
+  .product-description {
+    /* За замовчуванням сховано, показуємо коли активний таб 1 */
+    display: none;
+    position: absolute;
+    width: 240px; /* Ширина тексту */
+    height: auto; /* Автоматична висота */
+    left: 14px;
+    top: 613px; /* Округлили 612.5px */
+    font-family: 'Literata', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 21px;
+    color: #000000;
+    /* Скидання */
+    margin: 0; padding: 0;
+  }
+   /* Логіка показу опису */
+   .product-details-tabs button:nth-child(1).active ~ .product-description {
+     display: block;
+   }
+   .product-details-tabs button:nth-child(2).active ~ .product-description {
+     display: none; /* Ховаємо, якщо активні коментарі */
+   }
+
+
+  /* Коментарі (припускаємо, аналогічний блок для тексту коментарів) */
+  .product-comments {
+      display: none; /* Сховано, поки таб 2 не активний */
+      position: absolute;
+      width: 240px; /* Або інша ширина? За дизайном неясно */
+      height: auto;
+      left: 14px;
+      top: 613px; /* Той самий top, що й опис */
+      font-family: 'Literata', serif; /* Припускаємо ті ж стилі */
+      font-style: normal;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 21px;
+      color: #000000;
+      margin: 0; padding: 0;
+  }
+   /* Логіка показу коментарів */
+  .product-details-tabs button:nth-child(2).active ~ .product-comments {
+      display: block;
+   }
+
+  /* Слайдер: Компоненти позиціонуються відносно .product-container */
+  .slider-controls {
+    position: static; /* Не використовуємо окремий контейнер для контролів */
+    display: block; /* Просто для очистки */
+  }
+
+  /* Слайдер: Трек ('Rectangle 22') */
+  .slider-track {
+    box-sizing: border-box;
+    position: absolute;
+    width: 15px;
+    height: 161px;
+    left: 14px; /* Від лівого краю .product-container */
+    top: 62px; /* Від верхнього краю .product-container */
+    background: #DBDFE0;
+    border: 0.5px solid #000000;
+    /* Скидання */
+    margin: 0; padding: 0;
+  }
+
+  /* Слайдер: Повзунок ('Rectangle 21') */
+  .slider-thumb {
+    box-sizing: border-box;
+    position: absolute;
+    width: 8px;
+    height: 24px;
+    /* Центруємо відносно треку: left_треку(14) + (ширина_треку(15) - ширина_повзунка(8))/2 = 14 + 3.5 = 17.5px */
+    left: 2px;
+    /* top: 196px; - Цей top динамічно змінюється JS, ставимо початковий з дизайну */
+    top: 50px;
+    background: #54A5D9;
+    border: 0.5px solid #000000;
+    transition: top 0.2s ease-out; /* Плавність */
+    margin: 0; padding: 0;
+    cursor: grab; /* Зміна курсора */
+  }
+
+
+  /* Слайдер: Стрілка Вверх ('Arrow-up') */
+  .slider-arrow.up-arrow {
+    position: absolute;
+    width: 10.84px;
+    height: 24px;
+    left: 16px; /* Від контейнера */
+    top: 31px; /* Від контейнера */
+    background: none; border: none; padding: 0; cursor: pointer;
+    display: flex; justify-content: center; align-items: center;
+    transform: none; /* Без повороту */
+  }
+  .slider-arrow.up-arrow img {
+     display: block; width: 100%; height: 100%; object-fit: contain;
+     transform: none; /* Скинути */
+  }
+
+
+  /* Слайдер: Стрілка Вниз ('Arrow-down') */
+  .slider-arrow.down-arrow {
+    position: absolute;
+    width: 10.84px;
+    height: 24px;
+    /* Вирівнюємо по лівому краю стрілки вверх: left=16px */
+    left: 16px;
+    top: 230px; /* Позиція ВЕРХУ стрілки: top_треку(62) + висота_треку(161) + проміжок (7px?) = 230px. */
+    /* Координата top: 251px в дизайні - це низ стрілки? Якщо так, то top = 251 - 24 = 227px. Використовуємо 227 */
+    top: 227px;
+    background: none; border: none; padding: 0; cursor: pointer;
+    display: flex; justify-content: center; align-items: center;
+    transform: none; /* Поворот тільки для img */
+  }
+   .slider-arrow.down-arrow img {
+      display: block; width: 100%; height: 100%; object-fit: contain;
+      transform: rotate(-180deg); /* Повертаємо зображення */
+   }
+
+   /* Ховаємо зайві елементи */
+   .wishlist-btn { display: none; }
+   .rating { display: none; }
+   .product-actions { display: none; }
+   .flowers-left, .flowers-right { display: none; }
+   .divider-line { display: none; } /* Переконатися, що стандартні роздільники приховані */
+
+
+} /* --- Кінець @media (min-width: 320px) and (max-width: 400px) --- */
 
 }

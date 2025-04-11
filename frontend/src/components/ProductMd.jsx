@@ -1,18 +1,15 @@
 import React, { useState, useContext, useEffect } from "react";
 import { FaHeart } from "react-icons/fa6";
-import { ShopContext } from "../context/ShopContext"; 
-import { useNavigate } from "react-router-dom"; 
+import { ShopContext } from "../context/ShopContext";
+import { useNavigate } from "react-router-dom";
 import ArrowIcon from '../assets/design/Arrow.png';
 
 const ProductMd = ({ product }) => {
-  const { addToCart, cartItems } = useContext(ShopContext); 
-  const navigate = useNavigate(); 
+  const { addToCart, cartItems } = useContext(ShopContext);
+  const navigate = useNavigate();
 
-  // Стан для індексу головного зображення (змінюється ТІЛЬКИ при кліку на маленьке)
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  // === НОВИЙ СТАН: для індексу повзунка/стрілок ===
   const [sliderIndex, setSliderIndex] = useState(0);
-  // ----------------------------------------------
   const [activeTab, setActiveTab] = useState('description');
   const [visibleStartIndex, setVisibleStartIndex] = useState(0);
 
@@ -22,11 +19,30 @@ const ProductMd = ({ product }) => {
 
   const totalImages = product.images.length;
   const numberOfVisibleSmallImages = 2;
-  const sliderTrackHeight = 210;
-  const sliderThumbHeight = 20; 
-  const sliderTrackTopOffset = 10;
 
-  // === useEffect: ОНОВЛЮЄМО ВИДИМІ КАРТИНКИ БАЗУЮЧИСЬ НА sliderIndex ===
+  // --- ЗМІНА: Динамічні значення для повзунка ---
+  // Визначаємо параметри повзунка ВЗАЛЕЖНОСТІ ВІД ШИРИНИ ЕКРАНУ
+  // Ці значення будуть використані в розрахунку thumbTopPosition
+
+  let sliderTrackHeight = 210; // Значення за замовчуванням (для екранів > 450px або < 320px?)
+  let sliderThumbHeight = 20; // Значення за замовчуванням
+  let sliderTrackTopOffset = 10; // Значення за замовчуванням
+
+  // Перевіряємо ширину вікна ТІЛЬКИ на клієнті
+  // typeof window !== 'undefined' запобігає помилкам при Server-Side Rendering (SSR)
+  if (typeof window !== 'undefined') {
+    const screenWidth = window.innerWidth;
+    // Застосовуємо спеціальні значення для екранів від 320 до 450 пікселів
+    if (screenWidth >= 320 && screenWidth <= 450) {
+        sliderTrackHeight = 141; // Ваше значення для цього діапазону
+        sliderThumbHeight = 20;  // Ваше значення (залишилось 20)
+        sliderTrackTopOffset = 10; // Ваше значення (залишилось 10)
+    }
+     // Тут можна додати інші умови 'else if' для інших діапазонів, якщо потрібно
+  }
+  // --------------------------------------------------
+
+
   useEffect(() => {
     if (totalImages <= numberOfVisibleSmallImages) {
       setVisibleStartIndex(0);
@@ -35,7 +51,6 @@ const ProductMd = ({ product }) => {
     let newVisibleStartIndex = visibleStartIndex;
     const currentEndVisibleIndex = visibleStartIndex + numberOfVisibleSmallImages - 1;
 
-    // Логіка тепер залежить від sliderIndex, не currentImageIndex
     if (sliderIndex < visibleStartIndex) {
       newVisibleStartIndex = sliderIndex;
     } else if (sliderIndex > currentEndVisibleIndex) {
@@ -47,12 +62,9 @@ const ProductMd = ({ product }) => {
     if (newVisibleStartIndex !== visibleStartIndex) {
       setVisibleStartIndex(newVisibleStartIndex);
     }
-    // Залежність тепер від sliderIndex
-  }, [sliderIndex, visibleStartIndex, totalImages]);
-  // -------------------------------------------------------------
+  }, [sliderIndex, visibleStartIndex, totalImages]); // numberOfVisibleSmallImages не змінюється, його не треба додавати
 
 
-  // === ОБРОБНИКИ ПОДІЙ СТРІЛОК: Змінюють ТІЛЬКИ sliderIndex ===
   const handlePrevImage = () => {
     if (totalImages <= 1) return;
     setSliderIndex(prev => prev === 0 ? totalImages - 1 : prev - 1);
@@ -62,17 +74,14 @@ const ProductMd = ({ product }) => {
     if (totalImages <= 1) return;
     setSliderIndex(prev => prev === totalImages - 1 ? 0 : prev + 1);
   };
-  // -------------------------------------------------------------
 
 
-  // === ОБРОБНИК КЛІКУ НА МАЛЕНЬКІ: Змінює ОБИДВА індекси ===
   const handleSmallImageClick = (index) => {
       if (index >= 0 && index < totalImages) {
-          setCurrentImageIndex(index); // Оновлюємо головне зображення
-          setSliderIndex(index);       // Синхронізуємо повзунок/стрілки
+          setCurrentImageIndex(index);
+          setSliderIndex(index);
       }
   };
-  // ----------------------------------------------------------
 
 
   const handleMainImageClick = () => {
@@ -83,31 +92,32 @@ const ProductMd = ({ product }) => {
 
   const sizeListText = product.sizes?.map(sizeObj => sizeObj.size).join(' ') || 'N/A';
 
-  // === Розрахунок позиції повзунка: БАЗУЄТЬСЯ НА sliderIndex ===
+
+  // === Розрахунок позиції повзунка ===
+  // ТЕПЕР ВИКОРИСТОВУЄ ДИНАМІЧНІ ЗНАЧЕННЯ sliderTrackHeight, sliderThumbHeight, sliderTrackTopOffset
   const thumbTopPosition = totalImages > 1
     ? sliderTrackTopOffset + (sliderTrackHeight - sliderThumbHeight) * (sliderIndex / (totalImages - 1))
     : sliderTrackTopOffset;
-  // ------------------------------------------------------------
+  // -------------------------------------
 
 
   return (
+    // Решта JSX коду залишається БЕЗ ЗМІН...
     <section className="product-container ProductMd-section">
       <div className="flowers-left"></div>
       <div className="flowers-right"></div>
 
       <div className="product-images-container">
-  
+
         {totalImages > 1 && (
             <div className="slider-controls">
-              {/* Стрілки тепер викликають handlePrev/Next, що змінює sliderIndex */}
               <button className="slider-arrow up-arrow" onClick={handlePrevImage} aria-label="Previous image">
                 <img src={ArrowIcon} alt="Up"/>
               </button>
               <div className="slider-track">
                 <div
                     className="slider-thumb"
-                    /* Позиція тепер залежить від sliderIndex */
-                    style={{ top: `${thumbTopPosition}px` }}
+                    style={{ top: `${thumbTopPosition}px` }} // Використовується розраховане значення
                 ></div>
               </div>
               <button className="slider-arrow down-arrow" onClick={handleNextImage} aria-label="Next image">
@@ -116,7 +126,6 @@ const ProductMd = ({ product }) => {
             </div>
          )}
 
-        {/* Маленькі зображення: рендеряться на основі visibleStartIndex (який залежить від sliderIndex) */}
         <div className="small-images">
           {product.images
             .slice(visibleStartIndex, visibleStartIndex + numberOfVisibleSmallImages)
@@ -127,30 +136,29 @@ const ProductMd = ({ product }) => {
                   key={originalIndex}
                   src={img}
                   alt={`View ${originalIndex + 1}`}
-                  /* Клас 'active' все ще залежить від currentImageIndex, щоб підсвітити головну */
                   className={originalIndex === currentImageIndex ? 'active' : ''}
-                  /* Клік на маленьке змінює І currentImageIndex І sliderIndex */
                   onClick={() => handleSmallImageClick(originalIndex)}
-                  onError={(e) => e.target.style.visibility = 'hidden'}
+                  onError={(e) => e.target.style.visibility = 'hidden'} // onError залишено
                 />
               );
           })}
         </div>
 
-        {/* Головне зображення: Залежить тільки від currentImageIndex */}
         <div className="main-image" onClick={handleMainImageClick}>
-          <img src={product.images[currentImageIndex]} alt="Main view" />
+           {/* Перевірка на випадок якщо зображення немає */}
+           {product.images[currentImageIndex] ? (
+               <img src={product.images[currentImageIndex]} alt="Main view" />
+            ) : (
+               <div style={{ /* Стилі для плейсхолдера */ width: '100%', height: '100%', background: '#eee', display:'flex', alignItems:'center', justifyContent:'center'}}>No Image</div>
+            )}
         </div>
 
         <button className="wishlist-btn" aria-label="Add to wishlist"> <FaHeart /> </button>
       </div>
 
-      {/* --- БЛОК ІНФОРМАЦІЇ ПРО ТОВАР --- */}
-      {/* (Залишено як було, оскільки запит стосувався тільки зображень) */}
       <div className="product-info">
         <h4 className="product-title">{product.name}</h4>
         <div className="price">
-          {/* ... код ціни ... */}
            {product.discount && product.price ? (
              <>
                <span className="old-price" style={{ textDecoration: 'line-through', color: '#6b7280', marginRight: '0.5em' }}>
@@ -161,13 +169,13 @@ const ProductMd = ({ product }) => {
                </span>
              </>
            ) : (
-             <span>{product.price} грн</span>
+             <span>{product.price ? `${product.price} грн` : 'Ціна не вказана'}</span>
            )}
         </div>
         <div className="size-selection">
           <h5>Оберіть розмір:</h5>
            <div className="size-options-text">{sizeListText}</div>
-           <button className="select-size-btn">Обрати розмір</button>
+           <button className="select-size-btn">Обрати розмір</button> {/* TODO: Додати логіку */}
         </div>
          <a href="#size-guide" className="size-guide-link" onClick={(e) => e.preventDefault()}>Таблиця розмірів</a>
          <div className="divider-line"></div>
@@ -182,13 +190,16 @@ const ProductMd = ({ product }) => {
              className={`tab-btn ${activeTab === 'comments' ? 'active' : ''}`}
              onClick={() => setActiveTab('comments')}
           > Коментарі </button>
-           {activeTab === 'description' && <div className="tab-underline"></div>}
+           {/* Підкреслення таба краще робити через CSS на базі класу .active */}
+           <div className={`tab-underline ${activeTab === 'description' ? 'visible' : ''}`}></div>
         </div>
         {activeTab === 'description' && (
           <div className="product-description">
              <p>Тканина - {product.fabric || 'не вказано'}</p>
              <p>Техніка виконання - {product.technique || 'не вказано'}</p>
              <p>Нитки - {product.threads || 'не вказано'}</p>
+             {/* Додаткова інформація, якщо є */}
+             {/* <p>Опис: {product.description || 'немає'}</p> */}
           </div>
         )}
         {activeTab === 'comments' && (
