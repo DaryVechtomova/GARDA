@@ -2,8 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from
 import { useEffect, useState, useMemo } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { jwtDecode } from 'jwt-decode'; // Імпортуємо бібліотеку
-import axios from 'axios'; // Потрібен для запиту даних користувача
+import { jwtDecode } from 'jwt-decode';
+import axios from 'axios';
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import AddProduct from "./pages/AddProduct";
@@ -27,7 +27,7 @@ import EditEmployee from "./pages/EditEmployee";
 import EmployeeDetails from "./pages/EmployeeDetails";
 
 
-const frontendBaseUrl = import.meta.env.VITE_FRONTEND_BASE_URL || 'http://localhost:5174';
+const frontendBaseUrl = import.meta.env.VITE_FRONTEND_BASE_URL || 'http://localhost:5173/GARDA';
 const API_URL = 'http://localhost:4000';
 
 const frontendLoginUrl = `${frontendBaseUrl}/GARDA`;
@@ -230,30 +230,34 @@ const AdminLayout = () => {
       <ToastContainer />
       <Navbar userData={userData} isLoadingUser={isLoadingUser} onLogout={handleLogout} />
       <hr />
-      <div className="flex w-full pt-14 pl-7">
+      <div className="flex pt-14 min-h-screen print:pt-0">
         <Sidebar />
-        <Routes>
-          <Route index element={<ProductList />} />
-          <Route path="add-product" element={<AddProduct />} />
-          <Route path="list-product" element={<ProductList />} />
-          <Route path="orders" element={<Orders />} />
-          <Route path="edit-product/:id" element={<EditProduct />} />
-          <Route path="product/details/:id" element={<ProductDetails />} />
-          <Route path="order/details/:id" element={<OrderDetails />} />
-          <Route path="edit-order/:id" element={<EditOrder />} />
-          <Route path="list-supplier" element={<SupplierList />} />
-          <Route path="add-supplier" element={<AddSupplier />} />
-          <Route path="edit-supplier/:id" element={<EditSupplier />} />
-          <Route path="suppliers/details/:id" element={<SupplierDetails />} />
-          <Route path="list-invoice" element={<InvoiceList />} />
-          <Route path="add-invoice" element={<AddInvoice />} />
-          <Route path="edit-invoice/:id" element={<EditInvoice />} />
-          <Route path="invoices/details/:id" element={<InvoiceDetails />} />
-          <Route path="list-employees" element={<EmployeesList />} />
-          <Route path="add-employee" element={<AddEmployee />} />
-          <Route path="edit-employee/:id" element={<EditEmployee />} />
-          <Route path="user/details/:id" element={<EmployeeDetails />} />
-        </Routes>
+        <main className="ml-[16%] flex-grow overflow-auto print:ml-0">
+          <div>
+            <Routes>
+              <Route index element={<ProductList />} />
+              <Route path="add-product" element={<AddProduct />} />
+              <Route path="list-product" element={<ProductList />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="edit-product/:id" element={<EditProduct />} />
+              <Route path="product/details/:id" element={<ProductDetails />} />
+              <Route path="order/details/:id" element={<OrderDetails />} />
+              <Route path="edit-order/:id" element={<EditOrder />} />
+              <Route path="list-supplier" element={<SupplierList />} />
+              <Route path="add-supplier" element={<AddSupplier />} />
+              <Route path="edit-supplier/:id" element={<EditSupplier />} />
+              <Route path="suppliers/details/:id" element={<SupplierDetails />} />
+              <Route path="list-invoice" element={<InvoiceList />} />
+              <Route path="add-invoice" element={<AddInvoice />} />
+              <Route path="edit-invoice/:id" element={<EditInvoice />} />
+              <Route path="invoices/details/:id" element={<InvoiceDetails />} />
+              <Route path="list-employees" element={<EmployeesList />} />
+              <Route path="add-employee" element={<AddEmployee />} />
+              <Route path="edit-employee/:id" element={<EditEmployee />} />
+              <Route path="user/details/:id" element={<EmployeeDetails />} />
+            </Routes>
+          </div>
+        </main>
       </div>
     </>
   );

@@ -46,18 +46,18 @@ const invoiceSchema = new mongoose.Schema({
         type: String,
         required: false,
     },
-    // createdBy: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "employee",
-    //     required: true,
-    // },
-    // updatedBy: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "employee",
-    // },
-    updatedAt: {
-        type: Date,
+    createdBy: {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true },
+        name: { type: String, required: true }
     },
+    changesHistory: [{
+        changedAt: { type: Date, default: Date.now },
+        changedBy: {
+            userId: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true },
+            name: { type: String, required: true }
+        },
+        changes: { type: Object }
+    }]
 }, { minimize: false });
 
 const invoiceModel = mongoose.models.invoice || mongoose.model("invoice", invoiceSchema);

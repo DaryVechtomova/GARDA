@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FaPlus } from 'react-icons/fa6';
+import { FaSave, FaArrowLeft, FaSpinner } from 'react-icons/fa';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaSave, FaTrash } from 'react-icons/fa';
 import { IMaskInput } from 'react-imask';
 
 const EditSupplier = () => {
     const url = "http://localhost:4000";
     const { id } = useParams();
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const [initialData, setInitialData] = useState(null); // Для порівняння змін
     const [data, setData] = useState({
         companyName: "",
         contactPerson: "",
@@ -20,46 +22,87 @@ const EditSupplier = () => {
         country: "Україна",
         cooperationStartDate: "",
         cooperationEndDate: "",
-        productType: "Оберіть тип продукції",
-        status: "Оберіть статус",
+        productType: "",
+        status: "",
         notes: ""
     });
 
-    const formatDate = (dateString) => {
+    // Функція для форматування дати у формат рррр-мм-дд для <input type="date">
+    const formatDateForInput = (dateString) => {
         if (!dateString) return "";
-        if (dateString.includes("T")) {
-            return dateString.split("T")[0];
-        }
-        if (dateString.includes(".")) {
-            const [day, month, year] = dateString.split(".");
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return ""; // Перевірка на валідність
+            // Повертає рядок у форматі YYYY-MM-DD
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
+        } catch (e) {
+            console.error("Error formatting date for input:", dateString, e);
+            return "";
         }
-        return dateString;
+    };
+
+    // Функція для форматування дати у формат дд.мм.рррр для відображення
+    const formatDateForDisplay = (dateString) => {
+        if (!dateString) return "N/A";
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return "Некорректна дата";
+            return date.toLocaleDateString("uk-UA", {
+                day: "2-digit", month: "2-digit", year: "numeric",
+            });
+        } catch (e) {
+            return "Помилка";
+        }
     };
 
     useEffect(() => {
         const fetchSupplier = async () => {
+            if (!id) {
+                toast.error("ID постачальника не вказано.");
+                navigate('/admin_panel/list-supplier');
+                return;
+            }
+            setLoading(true);
             try {
+                // Використовуємо GET-запит, який повертає дані для редагування
                 const response = await axios.get(`${url}/api/suppliers/edit-supplier/${id}`);
-                if (response.data.success) {
+
+                if (response.data.success && response.data.data) {
                     const supplierData = response.data.data;
-                    supplierData.cooperationStartDate = formatDate(supplierData.cooperationStartDate);
-                    supplierData.cooperationEndDate = formatDate(supplierData.cooperationEndDate);
-                    setData(supplierData);
+                    // Форматуємо дати для полів вводу
+                    const formattedData = {
+                        ...supplierData,
+                        cooperationStartDate: formatDateForInput(supplierData.cooperationStartDate),
+                        // Дату завершення теж форматуємо, якщо вона редагована
+                        cooperationEndDate: formatDateForInput(supplierData.cooperationEndDate),
+                    };
+                    setData(formattedData);
+                    setInitialData(formattedData); // Зберігаємо початкові дані
                 } else {
-                    toast.error("Помилка завантаження постачальника");
+                    toast.error(response.data.message || "Помилка завантаження даних постачальника");
+                    navigate('/admin_panel/list-supplier'); // Повертаємось, якщо не вдалося завантажити
                 }
             } catch (error) {
-                toast.error("Не вдалося отримати дані");
-                console.error("Помилка:", error);
+                toast.error("Не вдалося отримати дані постачальника для редагування");
+                console.error("Помилка завантаження:", error);
+                navigate('/admin_panel/list-supplier');
+            } finally {
+                setLoading(false);
             }
         };
         fetchSupplier();
-    }, [id]);
+    }, [id, navigate, url]);
 
     const onChangeHandler = (event) => {
         const { name, value } = event.target;
         setData((prevData) => ({ ...prevData, [name]: value }));
+    };
+
+    const onPhoneAccept = (value) => {
+        setData((prevData) => ({ ...prevData, phone: value }));
     };
 
     const onSubmitHandler = async (event) => {
@@ -81,167 +124,255 @@ const EditSupplier = () => {
         }
     };
 
-    const isDisabled = data.status === "завершений";
+    // Визначаємо, чи можна редагувати поля (все, крім статусу, якщо статус "завершений")
+    const isFormDisabled = data.status === "завершений";
+
+    if (loading) {
+        return (
+            <section className="w-full min-h-screen flex justify-center items-center">
+                <div className="flex items-center gap-2 text-gray-500">
+                    <FaSpinner className="animate-spin text-xl" />
+                    <span>Завантаження даних...</span>
+                </div>
+            </section>
+        );
+    }
+
+    if (!data || !initialData) { // Перевірка, чи дані завантажено
+        return (
+            <section className="w-full min-h-screen flex flex-col justify-center items-center gap-4">
+                <p className="text-red-500 text-lg">Не вдалося завантажити дані постачальника для редагування.</p>
+                <button
+                    onClick={() => navigate('/admin_panel/list-supplier')}
+                    className="inline-flex items-center gap-x-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-600 transition text-sm"
+                >
+                    <FaArrowLeft /> До списку постачальників
+                </button>
+            </section>
+        );
+    }
+
 
     return (
-        <section className="p-10 w-full bg-primary/20 pl-[16%]">
-            <form onSubmit={onSubmitHandler} className="flex flex-col gap-y-5">
-                <h4 className="bold-22 pb-2 uppercase">Редагування постачальника</h4>
+        <section className="p-10 w-full bg-gray-100 min-h-screen flex justify-center">
+            <div className="w-full max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+                <h4 className="text-xl font-semibold pb-4 mb-6 uppercase border-b text-gray-800">
+                    Редагування постачальника: {initialData.companyName} {/* Показуємо початкову назву */}
+                </h4>
 
-                {/* Поля форми */}
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Назва компанії</p>
-                    <input
-                        onChange={onChangeHandler}
-                        value={data.companyName}
-                        name="companyName"
-                        type="text"
-                        placeholder='Введіть назву компанії..'
-                        className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
-                        disabled={isDisabled}
-                    />
-                </div>
+                <form onSubmit={onSubmitHandler} className="space-y-4">
+                    {/* Використовуємо Grid для полів */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Контактна особа</p>
-                    <input
-                        onChange={onChangeHandler}
-                        value={data.contactPerson}
-                        name="contactPerson"
-                        type="text"
-                        placeholder='Введіть контактну особу..'
-                        className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
-                        disabled={isDisabled}
-                    />
-                </div>
+                        {/* Назва компанії */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="companyName" className='text-sm font-medium text-gray-600'>Назва компанії <span className="text-red-500">*</span></label>
+                            <input
+                                id="companyName"
+                                onChange={onChangeHandler}
+                                value={data.companyName}
+                                name="companyName"
+                                type="text"
+                                placeholder='ТОВ "Найкращий одяг"'
+                                required
+                                disabled={isFormDisabled} // Вимикаємо поле, якщо статус "завершений"
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            />
+                        </div>
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Email</p>
-                    <input
-                        onChange={onChangeHandler}
-                        value={data.email}
-                        name="email"
-                        type="email"
-                        placeholder='Введіть email..'
-                        className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
-                        disabled={isDisabled}
-                    />
-                </div>
+                        {/* Контактна особа */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="contactPerson" className='text-sm font-medium text-gray-600'>Контактна особа <span className="text-red-500">*</span></label>
+                            <input
+                                id="contactPerson"
+                                onChange={onChangeHandler}
+                                value={data.contactPerson}
+                                name="contactPerson"
+                                type="text"
+                                placeholder='Ім Прізвище'
+                                required
+                                disabled={isFormDisabled}
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            />
+                        </div>
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Телефон</p>
-                    <IMaskInput
-                        mask="+38 (000) 000-0000"
-                        value={data.phone}
-                        onAccept={(value) => {
-                            setData((prevData) => ({ ...prevData, phone: value }));
-                        }}
-                        placeholder="+38 (0XX) XXX-XXXX"
-                        className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
-                    />
-                </div>
+                        {/* Email */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="email" className='text-sm font-medium text-gray-600'>Email <span className="text-red-500">*</span></label>
+                            <input
+                                id="email"
+                                onChange={onChangeHandler}
+                                value={data.email}
+                                name="email"
+                                type="email"
+                                placeholder='example@company.com'
+                                required
+                                disabled={isFormDisabled}
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            />
+                        </div>
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Адреса</p>
-                    <input
-                        onChange={onChangeHandler}
-                        value={data.address}
-                        name="address"
-                        type="text"
-                        placeholder='Введіть адресу..'
-                        className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
-                        disabled={isDisabled}
-                    />
-                </div>
+                        {/* Телефон */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="phone" className='text-sm font-medium text-gray-600'>Телефон <span className="text-red-500">*</span></label>
+                            <IMaskInput
+                                mask="+38 (000) 000-00-00"
+                                value={data.phone} // IMaskInput приймає value
+                                unmask={true} // Можливо, потрібно передавати без маски на бекенд
+                                onAccept={onPhoneAccept}
+                                placeholder="+38 (0XX) XXX-XX-XX"
+                                id="phone"
+                                required
+                                disabled={isFormDisabled}
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            />
+                        </div>
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Місто</p>
-                    <input
-                        onChange={onChangeHandler}
-                        value={data.city}
-                        name="city"
-                        type="text"
-                        placeholder='Введіть місто..'
-                        className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
-                        disabled={isDisabled}
-                    />
-                </div>
+                        {/* Адреса */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="address" className='text-sm font-medium text-gray-600'>Адреса</label>
+                            <input
+                                id="address"
+                                onChange={onChangeHandler}
+                                value={data.address}
+                                name="address"
+                                type="text"
+                                placeholder='вул. Прикладна, 1'
+                                disabled={isFormDisabled}
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            />
+                        </div>
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Країна</p>
-                    <input
-                        onChange={onChangeHandler}
-                        value={data.country}
-                        name="country"
-                        type="text"
-                        placeholder='Введіть країну..'
-                        className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
-                        disabled={isDisabled}
-                    />
-                </div>
+                        {/* Місто */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="city" className='text-sm font-medium text-gray-600'>Місто</label>
+                            <input
+                                id="city"
+                                onChange={onChangeHandler}
+                                value={data.city}
+                                name="city"
+                                type="text"
+                                placeholder='Наприклад, Київ'
+                                disabled={isFormDisabled}
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            />
+                        </div>
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Дата початку співпраці</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.cooperationStartDate}
+                        {/* Країна */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="country" className='text-sm font-medium text-gray-600'>Країна</label>
+                            <input
+                                id="country"
+                                onChange={onChangeHandler}
+                                value={data.country}
+                                name="country"
+                                type="text"
+                                placeholder='Україна'
+                                disabled={isFormDisabled}
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            />
+                        </div>
+
+                        {/* Дата початку співпраці (тільки для перегляду) */}
+                        <div className="flex flex-col gap-y-1">
+                            <label className='text-sm font-medium text-gray-600'>Дата початку співпраці</label>
+                            <div className="border border-gray-300 rounded-md py-1.5 px-3 h-[38px] bg-gray-100 text-gray-700 flex items-center">
+                                {formatDateForDisplay(initialData.cooperationStartDate)} {/* Показуємо початкову дату */}
+                            </div>
+                        </div>
+
+                        {/* Дата завершення співпраці (редагована, якщо статус не 'завершений') */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="cooperationEndDate" className='text-sm font-medium text-gray-600'>Дата завершення співпраці</label>
+                            <input
+                                id="cooperationEndDate"
+                                onChange={onChangeHandler}
+                                value={data.cooperationEndDate} // Використовуємо форматовану дату
+                                name="cooperationEndDate"
+                                type="date"
+                                min={data.cooperationStartDate} // Мінімальна дата - дата початку
+                                disabled={isFormDisabled}
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            />
+                        </div>
+
+                        {/* Тип продукції */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="productType" className='text-sm font-medium text-gray-600'>Тип продукції <span className="text-red-500">*</span></label>
+                            <select
+                                id="productType"
+                                onChange={onChangeHandler}
+                                value={data.productType}
+                                name="productType"
+                                required
+                                disabled={isFormDisabled}
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            >
+                                <option value="" disabled>-- Оберіть тип --</option>
+                                <option value="одяг">Одяг</option>
+                                <option value="аксесуари">Аксесуари</option>
+                                <option value="тканина">Тканина</option>
+                                <option value="фурнітура">Фурнітура</option>
+                                <option value="інше">Інше</option>
+                            </select>
+                        </div>
+
+                        {/* Статус (завжди редагований) */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="status" className='text-sm font-medium text-gray-600'>Статус <span className="text-red-500">*</span></label>
+                            <select
+                                id="status"
+                                onChange={onChangeHandler}
+                                value={data.status}
+                                name="status"
+                                required
+                                // Статус можна змінювати завжди
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out bg-white"
+                            >
+                                <option value="" disabled>-- Оберіть статус --</option>
+                                <option value="активний">Активний</option>
+                                <option value="на розгляді">На розгляді</option>
+                                <option value="призупинений">Призупинений</option>
+                                <option value="завершений">Завершений</option>
+                            </select>
+                        </div>
+
+                    </div> {/* Кінець Grid */}
+
+                    {/* Нотатки */}
+                    <div className="flex flex-col gap-y-1 pt-2">
+                        <label htmlFor="notes" className='text-sm font-medium text-gray-600'>Нотатки</label>
+                        <textarea
+                            id="notes"
+                            onChange={onChangeHandler}
+                            value={data.notes}
+                            name="notes"
+                            placeholder='Додаткова інформація, умови співпраці тощо...'
+                            rows={4}
+                            disabled={isFormDisabled}
+                            className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 resize-y min-h-[80px] transition duration-150 ease-in-out disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        ></textarea>
                     </div>
-                </div>
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Дата завершення співпраці</p>
-                    <div className="ring-1 ring-slate-900/10 py-1 px-3 outline-none bg-gray-100 rounded">
-                        {data.cooperationEndDate || "Не вказано"}
+
+                    {/* Кнопки */}
+                    <div className="mt-8 pt-6 border-t flex flex-col sm:flex-row justify-center items-center gap-4">
+                        <button
+                            type="button"
+                            onClick={() => navigate(-1)} // Кнопка Назад/Скасувати
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-x-2 px-5 py-2 bg-tertiary text-white font-medium rounded-md  transition text-sm"
+                        >
+                            <FaArrowLeft /> Скасувати
+                        </button>
+                        <button
+                            type='submit'
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-x-2 px-5 py-2 bg-[#fbb42c] text-black font-medium rounded-lg shadow-sm hover:bg-[#e4a426] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#fbb42c] transition text-sm disabled:opacity-50"
+                            disabled={isSaving} // Блокуємо під час збереження
+                        >
+                            <FaSave /> {isSaving ? 'Збереження...' : 'Зберегти зміни'}
+                        </button>
                     </div>
-                </div>
-                <div className="flex items-center gap-x-6 text-black medium-15">
-                    <p className='text-base'>Тип продукції</p>
-                    <select
-                        onChange={onChangeHandler}
-                        value={data.productType}
-                        name="productType"
-                        className="outline-none ring-1 ring-slate-900/10 py-1"
-                        disabled={isDisabled}
-                    >
-                        <option value="Оберіть тип продукції">Оберіть тип продукції</option>
-                        <option value="одяг">Одяг</option>
-                        <option value="аксесуари">Аксесуари</option>
-                        <option value="інше">Інше</option>
-                    </select>
-                </div>
-
-                <div className="flex items-center gap-x-6 text-black medium-15">
-                    <p className='text-base'>Статус</p>
-                    <select
-                        onChange={onChangeHandler}
-                        value={data.status}
-                        name="status"
-                        className="outline-none ring-1 ring-slate-900/10 py-1"
-                    >
-                        <option value="Оберіть статус">Оберіть статус</option>
-                        <option value="активний">Активний</option>
-                        <option value="призупинений">Призупинений</option>
-                        <option value="завершений">Завершений</option>
-                    </select>
-                </div>
-
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Нотатки</p>
-                    <textarea
-                        onChange={onChangeHandler}
-                        value={data.notes}
-                        name="notes"
-                        placeholder='Введіть нотатки..'
-                        className="ring-1 ring-slate-900/10 py-1 px-3 outline-none resize-none"
-                        rows={4}
-                        disabled={isDisabled}
-                    />
-                </div>
-
-                {/* Кнопка додавання постачальника */}
-                <button type='submit' className="btn-dark sm:w-5-12 flexCenter gap-x-2 !py-2 rounded">
-                    <FaSave />
-                    Зберегти зміни
-                </button>
-            </form>
+                </form>
+            </div>
         </section>
     );
 };

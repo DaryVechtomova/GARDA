@@ -115,7 +115,7 @@ function SupplierList() {
     };
 
     return (
-        <section className="p-10 w-full bg-primary/20 pl-[16%]">
+        <section className="p-10 w-full bg-primary/20">
             <div className="px-4">
                 <h4 className="bold-22 pb-2 uppercase">Список постачальників</h4>
                 <div className="flex gap-4 mb-4 flex-wrap">
@@ -199,7 +199,7 @@ function SupplierList() {
                                         <div className="flex justify-center">
                                             <TbTrash
                                                 onClick={() => handleDeleteClick(supplier._id)}
-                                                className="text-red-500 hover:text-red-700 cursor-pointer flex justify-center"
+                                                className="text-[#99120d] hover:text-[#7a0e0a] cursor-pointer flex justify-center"
                                                 size={20}
                                             />
                                         </div>

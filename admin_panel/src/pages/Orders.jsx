@@ -47,8 +47,11 @@ function Orders() {
                     toast.info("Замовлень ще немає");
                     setOrders([]);
                 } else {
-                    setOrders(response.data.data);
-                    setFilteredOrders(response.data.data);
+                    const sortedOrders = response.data.data.sort((a, b) => {
+                        return new Date(b.date) - new Date(a.date);
+                    });
+                    setOrders(sortedOrders);
+                    setFilteredOrders(sortedOrders);
                 }
             } else {
                 toast.error("Помилка при отриманні замовлень");
@@ -230,7 +233,7 @@ function Orders() {
     };
 
     return (
-        <section className="p-10 w-full bg-primary/20 pl-[16%]">
+        <section className="p-10 w-full bg-primary/20">
             <div className="px-4">
                 <h4 className="bold-22 pb-2 uppercase">Список замовлень</h4>
 
@@ -345,7 +348,7 @@ function Orders() {
                                                         setSelectedOrderId(order._id);
                                                         setIsCancelModalOpen(true);
                                                     }}
-                                                    className="px-2 py-1 bg-red-500 text-white font-bold rounded-lg shadow-md hover:bg-red-600 transition text-sm"
+                                                    className="px-2 py-1 bg-[#99120d] text-white font-bold rounded-lg shadow-md hover:bg-[#7a0e0a] transition text-sm"
                                                     title="Скасувати замовлення"
                                                 >
                                                     <FaTimes />
@@ -371,7 +374,7 @@ function Orders() {
                                             >
                                                 <FaPlus />
                                             </NavLink>
-                                            {order.status === "В обробці" ? (
+                                            {order.status === "В обробці" || order.status === "Нове замовлення" ? (
                                                 <NavLink
                                                     to={`/admin_panel/edit-order/${order._id}`}
                                                     className="text-[#077014] hover:text-[#077014]"
@@ -426,7 +429,6 @@ function Orders() {
                                 onChange={(e) => setCancelComment(e.target.value)}
                                 placeholder="Вкажіть детальну причину..."
                                 className="w-full p-3 border border-gray-300 rounded-lg mb-4 h-32"
-                                required
                             />
                         )}
 
@@ -444,7 +446,7 @@ function Orders() {
                             </button>
                             <button
                                 onClick={cancelOrder}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                                className="px-4 py-2 bg-[#99120d] text-white rounded-lg hover:bg-[#7a0e0a]"
                                 disabled={isCanceling || !cancelReason || (cancelReason.includes("Інша причина") && !cancelComment)}
                             >
                                 {isCanceling ? "Скасування..." : "Підтвердити"}

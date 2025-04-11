@@ -1,118 +1,211 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, NavLink } from 'react-router-dom'; // Додав NavLink
+import { FaArrowLeft, FaEdit, FaSpinner, FaUserCircle } from 'react-icons/fa'; // Додав іконки
 
 function EmployeeDetails() {
     const url = "http://localhost:4000";
-    const { id } = useParams(); // Отримуємо ID співробітника з URL
-    const [employee, setEmployee] = useState(null);
+    const { id } = useParams();
     const navigate = useNavigate();
+    const [employee, setEmployee] = useState(null);
     const [loading, setLoading] = useState(true);
 
     // Отримання деталей співробітника
-    const fetchEmployeeDetails = async () => {
-        try {
-            const response = await axios.get(`${url}/api/user/details/${id}`);
-            if (response.data.success) {
-                setEmployee(response.data.data);
-            } else {
-                toast.error("Не вдалося завантажити дані співробітника");
+    useEffect(() => {
+        const fetchEmployeeDetails = async () => {
+            if (!id) {
+                toast.error("ID співробітника не вказано.");
+                navigate('/admin_panel/list-employees');
+                return;
             }
-        } catch (error) {
-            toast.error("Помилка при отриманні даних");
-        } finally {
-            setLoading(false);
+            setLoading(true);
+            try {
+                const response = await axios.get(`${url}/api/user/details/${id}`);
+                if (response.data.success) {
+                    setEmployee(response.data.data);
+                } else {
+                    toast.error(response.data.message || "Не вдалося завантажити дані співробітника");
+                    setEmployee(null);
+                }
+            } catch (error) {
+                toast.error("Помилка при отриманні даних співробітника");
+                console.error("Помилка завантаження:", error);
+                setEmployee(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchEmployeeDetails();
+    }, [id, navigate, url]); // Додав залежності
+
+    // Функція для форматування дати
+    const formatDateForDisplay = (dateString) => {
+        if (!dateString) return "N/A";
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return "Некорректна дата";
+            return date.toLocaleDateString("uk-UA", {
+                day: "2-digit", month: "2-digit", year: "numeric",
+            });
+        } catch (e) {
+            return "Помилка";
         }
     };
 
-    useEffect(() => {
-        fetchEmployeeDetails();
-    }, [id]);
+    // Функція для безпечного відображення значення
+    const displayValue = (value) => {
+        return value !== null && value !== undefined && value !== "" ? value : <span className="italic text-gray-500">Не вказано</span>;
+    };
 
+    // Стилі для статусу активності
+    const getIsActiveStyle = (isActive) => {
+        return isActive
+            ? "bg-green-100 text-green-800"
+            : "bg-red-100 text-red-800";
+    };
+
+    // Рендеринг
     if (loading) {
-        return <div className="p-10 w-full bg-gray-100 flex justify-center">Завантаження...</div>;
+        return (
+            <section className="w-full min-h-screen flex justify-center items-center">
+                <div className="flex items-center gap-2 text-gray-500">
+                    <FaSpinner className="animate-spin text-xl" />
+                    <span>Завантаження даних...</span>
+                </div>
+            </section>
+        );
     }
 
     if (!employee) {
-        return <div className="p-10 w-full bg-gray-100 flex justify-center">Дані співробітника не знайдено.</div>;
+        return (
+            <section className="w-full min-h-screen flex flex-col justify-center items-center gap-4">
+                <p className="text-red-500 text-lg">Не вдалося завантажити дані співробітника.</p>
+                <button
+                    onClick={() => navigate('/admin_panel/list-employees')}
+                    className="inline-flex items-center gap-x-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-600 transition text-sm"
+                >
+                    <FaArrowLeft /> До списку співробітників
+                </button>
+            </section>
+        );
     }
 
+    // Формуємо повне ім'я для заголовка
+    const fullName = `${employee.secondName || ''} ${employee.firstName || ''} ${employee.middleName || ''}`.trim();
+
     return (
-        <section className="p-10 w-full bg-gray-100 flex justify-center min-h-screen">
-            <div className="w-full max-w-4xl bg-white shadow-lg rounded-lg p-6">
-                <h4 className="text-2xl font-bold text-black border-b pb-3 mb-4 uppercase">Деталі співробітника</h4>
-
-                <div className="grid grid-cols-2 gap-6">
+        <section className="p-10 w-full bg-gray-100 min-h-[92vh] flex justify-center">
+            <div className="w-full max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+                {/* Заголовок */}
+                <div className="flex flex-col sm:flex-row justify-between items-start mb-6 pb-4 border-b">
                     <div>
-                        <p className='text-lg font-semibold text-black'>Ім'я</p>
-                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
-                            {employee.firstName}
-                        </div>
+                        <h4 className="text-xl font-semibold uppercase text-gray-800 flex items-center gap-2">
+                            <FaUserCircle className="text-gray-500" /> {fullName || "Деталі співробітника"}
+                        </h4>
+                        <p className="text-sm text-gray-500">ID: {employee._id}</p>
                     </div>
-
-                    <div>
-                        <p className='text-lg font-semibold text-black'>Прізвище</p>
-                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
-                            {employee.secondName}
-                        </div>
-                    </div>
-
-                    <div>
-                        <p className='text-lg font-semibold text-black'>Пошта</p>
-                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
-                            {employee.email}
-                        </div>
-                    </div>
-
-                    <div>
-                        <p className='text-lg font-semibold text-black'>Телефон</p>
-                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
-                            {employee.phoneNumber}
-                        </div>
-                    </div>
-
-                    <div>
-                        <p className='text-lg font-semibold text-black'>Роль</p>
-                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
-                            {employee.role}
-                        </div>
-                    </div>
-
-                    <div>
-                        <p className='text-lg font-semibold text-black'>Статус</p>
-                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
-                            {employee.isActive ? "Активний" : "Неактивний"}
-                        </div>
-                    </div>
-
-                    <div>
-                        <p className='text-lg font-semibold text-black'>Дата прийому на роботу</p>
-                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
-                            {new Date(employee.hireDate).toLocaleDateString()}
-                        </div>
-                    </div>
-
-                    <div>
-                        <p className='text-lg font-semibold text-black'>Дата звільнення</p>
-                        <div className="bg-gray-100 p-3 rounded-md text-gray-700">
-                            {employee.fireDate
-                                ? new Date(employee.fireDate).toLocaleDateString()
-                                : "Не звільнений"}
-                        </div>
-                    </div>
-
-
+                    {/* Статус Активності */}
+                    <span className={`mt-2 sm:mt-0 px-3 py-1 text-xs font-medium rounded-full ${getIsActiveStyle(employee.isActive)}`}>
+                        {employee.isActive ? "Активний" : "Неактивний"}
+                    </span>
                 </div>
 
-                <div className="mt-6">
+                {/* Секція з даними */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+
+                    {/* Ім'я */}
+                    <div className="space-y-1">
+                        <p className='text-sm font-medium text-gray-500'>Ім'я</p>
+                        <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
+                            {displayValue(employee.firstName)}
+                        </p>
+                    </div>
+
+                    {/* Прізвище */}
+                    <div className="space-y-1">
+                        <p className='text-sm font-medium text-gray-500'>Прізвище</p>
+                        <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
+                            {displayValue(employee.secondName)}
+                        </p>
+                    </div>
+
+                    {/* По батькові */}
+                    <div className="space-y-1">
+                        <p className='text-sm font-medium text-gray-500'>По батькові</p>
+                        <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
+                            {displayValue(employee.middleName)}
+                        </p>
+                    </div>
+
+                    {/* Email */}
+                    <div className="space-y-1">
+                        <p className='text-sm font-medium text-gray-500'>Email (Логін)</p>
+                        <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
+                            {displayValue(employee.email)}
+                        </p>
+                    </div>
+
+                    {/* Телефон */}
+                    <div className="space-y-1">
+                        <p className='text-sm font-medium text-gray-500'>Телефон</p>
+                        <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
+                            {displayValue(employee.phoneNumber)}
+                        </p>
+                    </div>
+
+                    {/* Дата народження */}
+                    <div className="space-y-1">
+                        <p className='text-sm font-medium text-gray-500'>Дата народження</p>
+                        <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
+                            {formatDateForDisplay(employee.birthDate)}
+                        </p>
+                    </div>
+
+                    {/* Роль */}
+                    <div className="space-y-1">
+                        <p className='text-sm font-medium text-gray-500'>Роль</p>
+                        <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px] capitalize"> {/* Додав capitalize */}
+                            {displayValue(employee.role)}
+                        </p>
+                    </div>
+
+                    {/* Дата прийому на роботу */}
+                    <div className="space-y-1">
+                        <p className='text-sm font-medium text-gray-500'>Дата прийому на роботу</p>
+                        <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
+                            {formatDateForDisplay(employee.hireDate)}
+                        </p>
+                    </div>
+
+                    {/* Дата звільнення (якщо є) */}
+                    {employee.fireDate && (
+                        <div className="space-y-1">
+                            <p className='text-sm font-medium text-gray-500'>Дата звільнення</p>
+                            <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
+                                {formatDateForDisplay(employee.fireDate)}
+                            </p>
+                        </div>
+                    )}
+
+                </div> {/* Кінець Grid */}
+
+                {/* Кнопки дій */}
+                <div className="mt-8 pt-6 border-t flex flex-col sm:flex-row justify-center items-center gap-4">
                     <button
                         onClick={() => navigate(-1)}
-                        className="px-5 py-3 bg-yellow-500 text-black font-bold rounded-lg shadow-md hover:bg-yellow-600 transition"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-x-2 px-5 py-2 bg-tertiary text-white font-medium rounded-md  transition text-sm"
                     >
-                        Назад
+                        <FaArrowLeft /> Назад
                     </button>
+                    <NavLink
+                        to={`/admin_panel/edit-employee/${id}`} // Посилання на редагування
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-x-2 px-5 py-2 bg-yellow-500 text-black font-medium rounded-lg shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-yellow-500 transition text-sm"
+                    >
+                        <FaEdit /> Редагувати
+                    </NavLink>
                 </div>
+
             </div>
         </section>
     );

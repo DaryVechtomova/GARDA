@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import express from "express"
-import { loginUser, registerUser, listEmployees, registerEmployee, editEmployee, fireEmployee, getCurrentUser, } from "../controllers/userController.js"
+import { loginUser, registerUser, listEmployees, registerEmployee, editEmployee, fireEmployee, getCurrentUser, checkUserRole } from "../controllers/userController.js"
 import { authMiddleware, adminMiddleware, strictAdminMiddleware } from "../middleware/auth.js";
 import userModel from "../models/userModel.js";
 
@@ -40,5 +40,7 @@ userRouter.get("/details/:id", authMiddleware, strictAdminMiddleware, async (req
         res.json({ success: false, message: "Помилка при даних користувача" });
     }
 });
+
+userRouter.get('/check-role', authMiddleware, checkUserRole);
 
 export default userRouter;

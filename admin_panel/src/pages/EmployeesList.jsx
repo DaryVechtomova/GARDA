@@ -109,7 +109,7 @@ function EmployeesList() {
     });
 
     return (
-        <section className="p-10 w-full bg-primary/20 pl-[16%]">
+        <section className="p-10 w-full bg-primary/20">
             <div className="px-4">
                 <h4 className="bold-22 pb-2 uppercase">Список співробітників</h4>
 
@@ -183,7 +183,7 @@ function EmployeesList() {
                                             <div className="flex justify-center">
                                                 <button
                                                     onClick={() => handleFireClick(employee._id)}
-                                                    className="text-red-500 hover:text-red-700 flex justify-center"
+                                                    className="text-[#99120d] hover:text-[#7a0e0a] flex justify-center"
                                                     size={20}
                                                 >
                                                     Звільнити

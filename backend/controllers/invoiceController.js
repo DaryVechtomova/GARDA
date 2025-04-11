@@ -4,14 +4,17 @@ import supplierModel from "../models/supplierModel.js";
 
 // Функція для генерації унікального номера накладної
 const generateSequentialInvoiceNumber = async () => {
-    // Знаходимо останню накладну
-    const lastInvoice = await invoiceModel.findOne().sort({ createdAt: -1 });
+    // Знаходимо накладну з максимальним номером
+    const lastInvoice = await invoiceModel.findOne().sort({ invoiceNumber: -1 });
 
     let nextNumber = 1;
     if (lastInvoice && lastInvoice.invoiceNumber) {
-        // Витягуємо число з номеру останньої накладної
-        const lastNumber = parseInt(lastInvoice.invoiceNumber.replace('INV-', ''));
-        nextNumber = lastNumber + 1;
+        // Витягуємо число з номеру накладної
+        const matches = lastInvoice.invoiceNumber.match(/INV-(\d+)/);
+        if (matches && matches[1]) {
+            const lastNumber = parseInt(matches[1], 10);
+            nextNumber = lastNumber + 1;
+        }
     }
 
     // Форматуємо номер з ведучими нулями (наприклад, INV-000001)
@@ -26,6 +29,15 @@ const addInvoice = async (req, res) => {
         totalAmount,
         notes,
     } = req.body;
+
+    const creator = req.user;
+
+    if (!creator) {
+        return res.status(400).json({
+            success: false,
+            message: "Не вдалося ідентифікувати користувача, який редагує"
+        });
+    }
 
     // Перевірка обов'язкових полів
     if (!supplier) {
@@ -61,12 +73,29 @@ const addInvoice = async (req, res) => {
         // Генеруємо номер накладної
         const invoiceNumber = await generateSequentialInvoiceNumber();
 
+        const editorName = creator.name || `${creator.firstName} ${creator.secondName}`.trim() || 'Адміністратор';
+
         const invoice = new invoiceModel({
             invoiceNumber,
             supplier,
             products,
             totalAmount,
             notes,
+            createdBy: {
+                userId: creator._id,
+                name: editorName
+            },
+            changesHistory: [{
+                changedAt: new Date(),
+                changedBy: {
+                    userId: creator._id,
+                    name: editorName
+                },
+                changes: {
+                    action: "created",
+                    message: "Накладна була створена"
+                }
+            }]
         });
 
         await invoice.save();
@@ -93,58 +122,117 @@ const fetchInvoices = async (req, res) => {
 
 // Редагування накладної
 const editInvoice = async (req, res) => {
-    const {
-        id,
-        supplier,
-        products,
-        totalAmount,
-        notes,
-        status,
-    } = req.body;
+    const { id, supplier, products, totalAmount, notes, status } = req.body;
+    const editor = req.user;
 
-    // Перевірка, чи існує накладна
-    const invoice = await invoiceModel.findById(id);
+    if (!editor) {
+        return res.status(400).json({
+            success: false,
+            message: "Не вдалося ідентифікувати користувача, який редагує"
+        });
+    }
+
+    const invoice = await invoiceModel.findById(id)
+        .populate("products.product");
     if (!invoice) {
         return res.status(404).json({ success: false, message: "Накладну не знайдено" });
     }
 
-    // Перевірка, чи існує постачальник
-    if (supplier) {
-        const existingSupplier = await supplierModel.findById(supplier);
-        if (!existingSupplier) {
-            return res.status(404).json({ success: false, message: "Постачальника не знайдено" });
-        }
+    const changes = {};
+    let changeType = 'order_edit';
+
+    if (supplier && supplier.toString() !== invoice.supplier.toString()) {
+        changes.supplier = {
+            from: invoice.supplier,
+            to: supplier
+        };
     }
 
-    // Перевірка, чи існують товари
-    if (products) {
-        for (const item of products) {
-            const existingProduct = await productModel.findById(item.product);
-            if (!existingProduct) {
-                return res.status(404).json({ success: false, message: `Товар з ID ${item.product} не знайдено` });
-            }
-        }
+    if (notes && notes !== invoice.notes) {
+        changes.notes = {
+            from: invoice.notes,
+            to: notes
+        };
     }
 
-    // Оновлення даних накладної
+    if (status && status !== invoice.status) {
+        changes.status = {
+            from: invoice.status,
+            to: status
+        };
+        changeType = 'status_change';
+    }
+
+    if (products && JSON.stringify(products) !== JSON.stringify(invoice.products)) {
+        // Додаємо інформацію про назви товарів до змін
+        const fromProducts = invoice.products.map(item => ({
+            ...item.toObject(),
+            productName: item.product?.name || 'Невідомий товар'
+        }));
+
+        // Отримуємо повну інформацію про нові товари
+        const populatedProducts = await Promise.all(products.map(async item => {
+            const product = await productModel.findById(item.product);
+            return {
+                ...item,
+                productName: product?.name || 'Невідомий товар'
+            };
+        }));
+
+        changes.products = {
+            from: fromProducts,
+            to: populatedProducts
+        };
+    }
+
     const updateData = {
         supplier: supplier || invoice.supplier,
         products: products || invoice.products,
         totalAmount: totalAmount || invoice.totalAmount,
         notes: notes || invoice.notes,
         status: status || invoice.status,
-        updatedAt: new Date(),
     };
 
-    try {
-        const updatedInvoice = await invoiceModel.findByIdAndUpdate(id, updateData, { new: true })
-            .populate("supplier")
-            .populate("products.product");
+    if (Object.keys(changes).length > 0) {
+        const editorName = editor.name || `${editor.firstName} ${editor.secondName}`.trim() || 'Адміністратор';
 
-        res.json({ success: true, message: "Накладну оновлено", data: updatedInvoice });
+        const historyItem = {
+            changedAt: new Date(),
+            changedBy: {
+                userId: editor._id,
+                name: editorName
+            },
+            changes: changes
+        };
+
+        updateData.$push = {
+            changesHistory: historyItem
+        };
+    }
+
+    try {
+        const updatedInvoice = await invoiceModel.findByIdAndUpdate(
+            id,
+            updateData,
+            { new: true }
+        )
+            .populate("supplier")
+            .populate("products.product")
+            .populate("createdBy changesHistory.changedBy.userId", "firstName secondName name");
+
+        res.json({
+            success: true,
+            message: "Накладну оновлено",
+            data: updatedInvoice,
+            changes: changes
+        });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ success: false, message: "Помилка при редагуванні накладної", error: error.message });
+        res.status(500).json({
+            success: false,
+            message: "Помилка при редагуванні накладної",
+            error: error.message
+        });
     }
 };
 

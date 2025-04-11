@@ -14,7 +14,7 @@ const generateOrderNumber = () => {
 
 // placing user order for frontend
 const placeOrder = async (req, res) => {
-    const frontend_url = "http://localhost:5174/GARDA";
+    const frontend_url = "http://localhost:5173/GARDA";
 
     try {
         const { userId, items, amount, deliveryMethod, deliveryDetails } = req.body;
@@ -198,7 +198,8 @@ const listOrders = async (req, res) => {
 
 const updateOrderStatus = async (req, res) => {
     const { orderId } = req.params;
-    const { status } = req.body; // Отримуємо новий статус з тіла запиту
+    const { status } = req.body;
+    const editor = req.user; // Отримуємо користувача, який змінює статус
 
     try {
         const order = await orderModel.findById(orderId);
@@ -210,64 +211,51 @@ const updateOrderStatus = async (req, res) => {
         const allowedStatuses = [
             "Нове замовлення",
             "В обробці",
-            "Запаковане",
             "Передано в службу доставки",
+            "Чекає на отримання",
             "Доставлено",
         ];
 
-        // Якщо статус "Скасовано" або "Повернення", заборонити зміну
-        if (order.status === "Скасовано" || order.status === "Повернення") {
-            return res.status(400).json({
-                success: false,
-                message: "Цей статус не можна змінити",
-            });
-        }
+        // Записуємо зміну статусу в історію
+        const statusHistory = {
+            date: new Date(),
+            editedBy: {
+                userId: editor._id,
+                name: editor.name || `${editor.firstName} ${editor.secondName}`.trim() || 'Адміністратор'
+            },
+            oldStatus: order.status,
+            newStatus: status,
+            type: 'status_change'
+        };
 
-        // Перевірка, чи новий статус є наступним у ланцюжку
-        const currentIndex = allowedStatuses.indexOf(order.status);
-        const nextStatus = allowedStatuses[currentIndex + 1];
+        // Оновлення статусу та збереження історії
+        const updatedOrder = await orderModel.findByIdAndUpdate(
+            orderId,
+            {
+                status: status,
+                $push: { editHistory: statusHistory }
+            },
+            { new: true }
+        );
 
-        if (status !== nextStatus) {
-            return res.status(400).json({
-                success: false,
-                message: `Недопустимий статус. Наступний статус повинен бути: ${nextStatus}`,
-            });
-        }
-
-        // Оновлення кількості товарів на складі при зміні статусу
-        if (status === "В обробці" && order.status === "Нове замовлення") {
-            // Віднімаємо товари зі складу
-            for (const item of order.items) {
-                await productModel.findByIdAndUpdate(item.productId, {
-                    $inc: { "sizes.$[elem].quantity": -item.quantity }
-                }, {
-                    arrayFilters: [{ "elem.size": item.size }]
-                });
-            }
-        } else if (status === "Скасовано" && order.status === "В обробці") {
-            // Повертаємо товари на склад
-            for (const item of order.items) {
-                await productModel.findByIdAndUpdate(item.productId, {
-                    $inc: { "sizes.$[elem].quantity": item.quantity }
-                }, {
-                    arrayFilters: [{ "elem.size": item.size }]
-                });
-            }
-        }
-
-        // Оновлення статусу
-        order.status = status;
-        await order.save();
-
-        res.json({ success: true, message: "Статус замовлення оновлено", data: order });
+        res.json({
+            success: true,
+            message: "Статус замовлення оновлено",
+            data: updatedOrder
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Помилка при оновленні статусу" });
+        res.status(500).json({
+            success: false,
+            message: "Помилка при оновленні статусу",
+            error: error.message
+        });
     }
 };
 
 const cancelOrder = async (req, res) => {
     const { orderId } = req.params;
     const { reason } = req.body;
+    const editor = req.user; // Отримуємо користувача, який скасовує замовлення
 
     try {
         const order = await orderModel.findById(orderId);
@@ -294,15 +282,34 @@ const cancelOrder = async (req, res) => {
             }
         }
 
+        // Записуємо скасування в історію
+        const cancelHistory = {
+            date: new Date(),
+            editedBy: {
+                userId: editor._id,
+                name: editor.name || `${editor.firstName} ${editor.secondName}`.trim() || 'Адміністратор'
+            },
+            reason: reason,
+            type: 'status_change',
+            oldStatus: order.status,
+            newStatus: "Скасовано"
+        };
+
         // Update order status and add cancellation reason
-        order.status = "Скасовано";
-        order.cancellationReason = reason; // Зберігаємо причину
-        await order.save();
+        const updatedOrder = await orderModel.findByIdAndUpdate(
+            orderId,
+            {
+                status: "Скасовано",
+                cancellationReason: reason,
+                $push: { editHistory: cancelHistory }
+            },
+            { new: true }
+        );
 
         res.json({
             success: true,
             message: "Замовлення успішно скасовано",
-            data: order
+            data: updatedOrder
         });
     } catch (error) {
         console.error(error);
@@ -316,9 +323,16 @@ const cancelOrder = async (req, res) => {
 const updateOrder = async (req, res) => {
     const { id } = req.params;
     const { editReason, ...updateData } = req.body;
+    const editor = req.user;
+
+    if (!editor) {
+        return res.status(400).json({
+            success: false,
+            message: "Не вдалося ідентифікувати користувача, який редагує"
+        });
+    }
 
     try {
-        // Перевірка наявності причини редагування
         if (!editReason) {
             return res.status(400).json({
                 success: false,
@@ -336,15 +350,71 @@ const updateOrder = async (req, res) => {
 
         const newAmount = updateData.amount || 0;
 
+        // Визначаємо зміни в товарах
+        const itemChanges = [];
+        const originalItems = order.items || [];
+        const updatedItems = updateData.items || [];
+
+        // Перевіряємо видалені товари
+        originalItems.forEach(originalItem => {
+            const foundInUpdated = updatedItems.find(item =>
+                item.productId.toString() === originalItem.productId.toString() &&
+                item.size === originalItem.size
+            );
+
+            if (!foundInUpdated || foundInUpdated.removed) {
+                itemChanges.push({
+                    productId: originalItem.productId,
+                    name: originalItem.name,
+                    size: originalItem.size,
+                    action: 'removed',
+                    quantity: originalItem.quantity
+                });
+            }
+        });
+
+        // Перевіряємо оновлені або додані товари
+        updatedItems.forEach(updatedItem => {
+            if (!updatedItem.removed) {
+                const foundInOriginal = originalItems.find(item =>
+                    item.productId.toString() === updatedItem.productId.toString() &&
+                    item.size === updatedItem.size
+                );
+
+                if (foundInOriginal) {
+                    if (foundInOriginal.quantity !== updatedItem.quantity) {
+                        itemChanges.push({
+                            productId: updatedItem.productId,
+                            name: updatedItem.name,
+                            size: updatedItem.size,
+                            action: 'quantity_changed',
+                            oldQuantity: foundInOriginal.quantity,
+                            newQuantity: updatedItem.quantity
+                        });
+                    }
+                } else {
+                    itemChanges.push({
+                        productId: updatedItem.productId,
+                        name: updatedItem.name,
+                        size: updatedItem.size,
+                        action: 'added',
+                        quantity: updatedItem.quantity
+                    });
+                }
+            }
+        });
+
         // Створюємо запис про редагування
         const editHistory = {
             date: new Date(),
+            editedBy: {
+                userId: editor._id,
+                name: editor.name || `${editor.firstName} ${editor.secondName}`.trim() || 'Адміністратор'
+            },
             reason: editReason,
+            type: 'order_edit', // Додаємо тип запису
             changes: {
-                items: updateData.items.map(item => ({
-                    productId: item.productId,
-                    action: item.removed ? "removed" : item._id ? "updated" : "added"
-                })),
+                items: itemChanges,
                 amountChanged: order.amount !== newAmount,
                 oldAmount: order.amount,
                 newAmount: newAmount
@@ -357,7 +427,13 @@ const updateOrder = async (req, res) => {
             {
                 items: updateData.items,
                 amount: newAmount,
-                $push: { editHistory: editHistory }
+                $push: { editHistory: editHistory },
+                status: order.status,
+                payment: order.payment,
+                deliveryMethod: order.deliveryMethod,
+                deliveryDetails: order.deliveryDetails,
+                userId: order.userId,
+                orderNumber: order.orderNumber
             },
             { new: true }
         );

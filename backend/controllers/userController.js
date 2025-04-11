@@ -125,7 +125,7 @@ const registerUser = async (req, res) => {
 // Отримання списку співробітників
 const listEmployees = async (req, res) => {
     try {
-        const employees = await userModel.find({ role: { $in: ["адміністратор", "комірник"] } }); // Шукаємо користувачів з ролями "admin" або "storekeeper"
+        const employees = await userModel.find({ role: { $in: ["адміністратор", "комірник"] } });
         res.json({ success: true, data: employees });
     } catch (error) {
         console.log(error);
@@ -312,4 +312,19 @@ const getCurrentUser = async (req, res) => {
     }
 };
 
-export { loginUser, registerUser, listEmployees, registerEmployee, editEmployee, fireEmployee, getCurrentUser, }
+const checkUserRole = async (req, res) => {
+    try {
+        const user = await userModel.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "Користувача не знайдено" });
+        }
+        res.status(200).json({
+            success: true,
+            role: user.role
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Помилка сервера" });
+    }
+};
+
+export { loginUser, registerUser, listEmployees, registerEmployee, editEmployee, fireEmployee, getCurrentUser, checkUserRole }

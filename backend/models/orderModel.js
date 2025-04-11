@@ -1,5 +1,37 @@
 import mongoose from "mongoose";
 
+const editHistoryItemSchema = new mongoose.Schema({
+    date: { type: Date, default: Date.now },
+    editedBy: {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true },
+        name: { type: String, required: true }
+    },
+    reason: String,
+    type: { type: String, enum: ['order_edit', 'status_change'], required: true }
+}, { discriminatorKey: 'type', _id: false });
+
+const orderEditSchema = new mongoose.Schema({
+    changes: {
+        items: [{
+            productId: { type: mongoose.Schema.Types.ObjectId },
+            name: String,
+            size: String,
+            action: { type: String, enum: ['added', 'removed', 'updated', 'quantity_changed'] },
+            quantity: Number,
+            oldQuantity: Number,
+            newQuantity: Number
+        }],
+        amountChanged: Boolean,
+        oldAmount: Number,
+        newAmount: Number
+    }
+});
+
+const statusChangeSchema = new mongoose.Schema({
+    oldStatus: { type: String, required: true },
+    newStatus: { type: String, required: true }
+});
+
 const orderSchema = new mongoose.Schema({
     orderNumber: { type: String, unique: true },
     userId: { type: String, required: true },
@@ -40,14 +72,17 @@ const orderSchema = new mongoose.Schema({
         departmentNumber: { type: String }, // Відділення Нової Пошти або номер поштомату
     },
 
-    editHistory: [{
-        date: Date,
-        // editedBy: { type: String, required: true },
-        reason: String,
-        changes: Object
-    }],
+    editHistory: [
+        {
+            type: editHistoryItemSchema,
+            required: true
+        }
+    ],
 
 }, { minimize: false });
+
+orderSchema.path('editHistory').discriminator('order_edit', orderEditSchema);
+orderSchema.path('editHistory').discriminator('status_change', statusChangeSchema);
 
 const orderModel = mongoose.models.order || mongoose.model("order", orderSchema);
 export default orderModel;

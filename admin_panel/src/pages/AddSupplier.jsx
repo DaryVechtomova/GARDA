@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FaPlus } from 'react-icons/fa6';
+import { FaPlus, FaArrowLeft } from 'react-icons/fa';
 import { IMaskInput } from 'react-imask';
+import { useNavigate } from 'react-router-dom'; // Для кнопки "Назад"
 
 const AddSupplier = () => {
     const url = "http://localhost:4000";
+    const navigate = useNavigate();
+    const [isSaving, setIsSaving] = useState(false); // Стан для блокування кнопки
     const [data, setData] = useState({
         companyName: "",
         contactPerson: "",
@@ -13,10 +16,10 @@ const AddSupplier = () => {
         phone: "",
         address: "",
         city: "",
-        country: "Україна",
-        cooperationStartDate: new Date().toISOString().split('T')[0], // Поточна дата за замовчуванням
-        productType: "Оберіть тип продукції",
-        status: "Оберіть статус",
+        country: "Україна", // Залишаємо Україну за замовчуванням
+        cooperationStartDate: new Date().toISOString().split('T')[0], // Поточна дата
+        productType: "", // Змінено на порожній рядок для валідації
+        status: "",      // Змінено на порожній рядок для валідації
         notes: "",
     });
 
@@ -25,6 +28,11 @@ const AddSupplier = () => {
         const { name, value } = event.target;
         setData((prevData) => ({ ...prevData, [name]: value }));
     };
+
+    // Обробник зміни для IMaskInput (телефон)
+    const onPhoneAccept = (value) => {
+        setData((prevData) => ({ ...prevData, phone: value }));
+    }
 
     // Відправка форми
     const onSubmitHandler = async (event) => {
@@ -64,153 +72,197 @@ const AddSupplier = () => {
     };
 
     return (
-        <section className="p-10 w-full bg-primary/20 pl-[16%]">
-            <form onSubmit={onSubmitHandler} className="flex flex-col gap-y-5">
-                <h4 className="bold-22 pb-2 uppercase">Додавання постачальника</h4>
+        <section className="p-10 w-full bg-gray-100 min-h-screen flex justify-center">
+            {/* Центрування форми */}
+            <div className="w-full max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+                <h4 className="text-xl font-semibold pb-4 mb-6 uppercase border-b text-gray-800">
+                    Додавання нового постачальника
+                </h4>
 
-                {/* Поля форми */}
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Назва компанії</p>
-                    <input
-                        onChange={onChangeHandler}
-                        value={data.companyName}
-                        name="companyName"
-                        type="text"
-                        placeholder='Введіть назву компанії..'
-                        className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
-                    />
-                </div>
+                <form onSubmit={onSubmitHandler} className="space-y-4"> {/* Використовуємо space-y для вертикальних відступів */}
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Контактна особа</p>
-                    <input
-                        onChange={onChangeHandler}
-                        value={data.contactPerson}
-                        name="contactPerson"
-                        type="text"
-                        placeholder='Введіть контактну особу..'
-                        className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
-                    />
-                </div>
+                    {/* Використовуємо Grid для кращого розташування */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Email</p>
-                    <input
-                        onChange={onChangeHandler}
-                        value={data.email}
-                        name="email"
-                        type="email"
-                        placeholder='Введіть email..'
-                        className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
-                    />
-                </div>
+                        {/* Назва компанії */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="companyName" className='text-sm font-medium text-gray-600'>Назва компанії <span className="text-red-500">*</span></label>
+                            <input
+                                id="companyName"
+                                onChange={onChangeHandler}
+                                value={data.companyName}
+                                name="companyName"
+                                type="text"
+                                placeholder='ТОВ "Найкращий одяг"'
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out"
+                            />
+                        </div>
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Телефон</p>
-                    <IMaskInput
-                        mask="+38 (000) 000-0000"
-                        value={data.phone}
-                        onAccept={(value) => {
-                            setData((prevData) => ({ ...prevData, phone: value }));
-                        }}
-                        placeholder="+38 (0XX) XXX-XXXX"
-                        className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
-                    />
-                </div>
+                        {/* Контактна особа */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="contactPerson" className='text-sm font-medium text-gray-600'>Контактна особа <span className="text-red-500">*</span></label>
+                            <input
+                                id="contactPerson"
+                                onChange={onChangeHandler}
+                                value={data.contactPerson}
+                                name="contactPerson"
+                                type="text"
+                                placeholder='ПІБ'
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out"
+                            />
+                        </div>
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Адреса</p>
-                    <input
-                        onChange={onChangeHandler}
-                        value={data.address}
-                        name="address"
-                        type="text"
-                        placeholder='Введіть адресу..'
-                        className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
-                    />
-                </div>
+                        {/* Email */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="email" className='text-sm font-medium text-gray-600'>Email <span className="text-red-500">*</span></label>
+                            <input
+                                id="email"
+                                onChange={onChangeHandler}
+                                value={data.email}
+                                name="email"
+                                type="email"
+                                placeholder='example@company.com'
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out"
+                            />
+                        </div>
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Місто</p>
-                    <input
-                        onChange={onChangeHandler}
-                        value={data.city}
-                        name="city"
-                        type="text"
-                        placeholder='Введіть місто..'
-                        className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
-                    />
-                </div>
+                        {/* Телефон */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="phone" className='text-sm font-medium text-gray-600'>Телефон <span className="text-red-500">*</span></label>
+                            <IMaskInput
+                                mask="+38 (000) 000-00-00" // Оновив маску для зручності
+                                value={data.phone}
+                                onAccept={onPhoneAccept} // Використовуємо onAccept для оновлення стану
+                                placeholder="+38 (0XX) XXX-XX-XX"
+                                id="phone" // Додав id для label
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out"
+                            />
+                        </div>
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Країна</p>
-                    <input
-                        onChange={onChangeHandler}
-                        value={data.country}
-                        name="country"
-                        type="text"
-                        placeholder='Введіть країну..'
-                        className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
-                    />
-                </div>
+                        {/* Адреса */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="address" className='text-sm font-medium text-gray-600'>Адреса</label>
+                            <input
+                                id="address"
+                                onChange={onChangeHandler}
+                                value={data.address}
+                                name="address"
+                                type="text"
+                                placeholder='вул. Прикладна, 1'
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out"
+                            />
+                        </div>
 
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Дата початку співпраці</p>
-                    <input
-                        onChange={onChangeHandler}
-                        value={data.cooperationStartDate}
-                        name="cooperationStartDate"
-                        type="date"
-                        className="ring-1 ring-slate-900/10 py-1 px-3 outline-none"
-                    />
-                </div>
+                        {/* Місто */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="city" className='text-sm font-medium text-gray-600'>Місто</label>
+                            <input
+                                id="city"
+                                onChange={onChangeHandler}
+                                value={data.city}
+                                name="city"
+                                type="text"
+                                placeholder='Наприклад, Київ'
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out"
+                            />
+                        </div>
 
-                <div className="flex items-center gap-x-6 text-black medium-15">
-                    <p className='text-base'>Тип продукції</p>
-                    <select
-                        onChange={onChangeHandler}
-                        value={data.productType}
-                        name="productType"
-                        className="outline-none ring-1 ring-slate-900/10 py-1"
-                    >
-                        <option value="Оберіть тип продукції">Оберіть тип продукції</option>
-                        <option value="одяг">Одяг</option>
-                        <option value="аксесуари">Аксесуари</option>
-                        <option value="інше">Інше</option>
-                    </select>
-                </div>
+                        {/* Країна */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="country" className='text-sm font-medium text-gray-600'>Країна</label>
+                            <input
+                                id="country"
+                                onChange={onChangeHandler}
+                                value={data.country}
+                                name="country"
+                                type="text"
+                                placeholder='Україна'
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out"
+                            />
+                        </div>
 
-                <div className="flex items-center gap-x-6 text-black medium-15">
-                    <p className='text-base'>Статус</p>
-                    <select
-                        onChange={onChangeHandler}
-                        value={data.status}
-                        name="status"
-                        className="outline-none ring-1 ring-slate-900/10 py-1"
-                    >
-                        <option value="Оберіть статус">Оберіть статус</option>
-                        <option value="активний">Активний</option>
-                        <option value="призупинений">Призупинений</option>
-                        <option value="завершений">Завершений</option>
-                    </select>
-                </div>
-                <div className="flex flex-col gap-y-2">
-                    <p className='text-base'>Нотатки</p>
-                    <textarea
-                        onChange={onChangeHandler}
-                        value={data.notes}
-                        name="notes"
-                        placeholder='Введіть нотатки..'
-                        rows={4}
-                        className="ring-1 ring-slate-900/10 py-1 px-3 outline-none resize-none"
-                    ></textarea>
-                </div>
-                {/* Кнопка додавання постачальника */}
-                <button type='submit' className="bg-[#fbb42c] hover:bg-[#d0882a] font-bold text-black sm:w-5-12 flexCenter gap-x-2 !py-2 rounded">
-                    <FaPlus />
-                    Додати постачальника
-                </button>
-            </form>
+                        {/* Дата початку співпраці */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="cooperationStartDate" className='text-sm font-medium text-gray-600'>Дата початку співпраці</label>
+                            <input
+                                id="cooperationStartDate"
+                                onChange={onChangeHandler}
+                                value={data.cooperationStartDate}
+                                name="cooperationStartDate"
+                                type="date"
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out"
+                            />
+                        </div>
+
+                        {/* Тип продукції */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="productType" className='text-sm font-medium text-gray-600'>Тип продукції <span className="text-red-500">*</span></label>
+                            <select
+                                id="productType"
+                                onChange={onChangeHandler}
+                                value={data.productType}
+                                name="productType"
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out bg-white"
+                            >
+                                <option value="" disabled>-- Оберіть тип --</option>
+                                <option value="одяг">Одяг</option>
+                                <option value="аксесуари">Аксесуари</option>
+                                <option value="інше">Інше</option>
+                            </select>
+                        </div>
+
+                        {/* Статус */}
+                        <div className="flex flex-col gap-y-1">
+                            <label htmlFor="status" className='text-sm font-medium text-gray-600'>Статус <span className="text-red-500">*</span></label>
+                            <select
+                                id="status"
+                                onChange={onChangeHandler}
+                                value={data.status}
+                                name="status"
+                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out bg-white"
+                            >
+                                <option value="" disabled>-- Оберіть статус --</option>
+                                <option value="активний">Активний</option>
+                                <option value="призупинений">Призупинений</option>
+                                <option value="завершений">Завершений</option>
+                            </select>
+                        </div>
+
+                    </div> {/* Кінець Grid */}
+
+                    {/* Нотатки - займає всю ширину */}
+                    <div className="flex flex-col gap-y-1 pt-2"> {/* Додав невеликий відступ зверху */}
+                        <label htmlFor="notes" className='text-sm font-medium text-gray-600'>Нотатки</label>
+                        <textarea
+                            id="notes"
+                            onChange={onChangeHandler}
+                            value={data.notes}
+                            name="notes"
+                            placeholder='Додаткова інформація, умови співпраці тощо...'
+                            rows={4}
+                            className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 resize-y min-h-[80px] transition duration-150 ease-in-out"
+                        ></textarea>
+                    </div>
+
+                    {/* Кнопки */}
+                    <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-6 border-t">
+                        <button
+                            type="button"
+                            onClick={() => navigate(-1)} // Кнопка Назад/Скасувати
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-x-2 px-5 py-2 bg-tertiary text-white font-medium rounded-md  transition text-sm"
+                        >
+                            <FaArrowLeft /> Скасувати
+                        </button>
+                        <button
+                            type='submit'
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-x-2 px-5 py-2 bg-[#fbb42c] text-black font-medium rounded-lg shadow-sm hover:bg-[#e4a426] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#fbb42c] transition text-sm disabled:opacity-50"
+                            disabled={isSaving}
+                        >
+                            <FaPlus /> {isSaving ? 'Збереження...' : 'Додати постачальника'}
+                        </button>
+                    </div>
+                </form>
+            </div>
         </section>
     );
 };

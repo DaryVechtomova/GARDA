@@ -9,6 +9,7 @@ import orderRouter from './routes/orderRoute.js';
 import supplierRouter from './routes/supplierRoute.js';
 import invoiceRouter from './routes/invoiceRoute.js';
 import { authMiddleware, adminMiddleware } from "./middleware/auth.js"; // Імпорт middleware
+import reviewRoute from './routes/reviewRoute.js';
 
 
 //app config
@@ -31,6 +32,7 @@ app.use("/api/cart", cartRouter)
 app.use("/api/order", orderRouter)
 app.use("/api/suppliers", supplierRouter)
 app.use("/api/invoices", invoiceRouter)
+app.use("/api/review", reviewRoute)
 
 // Маршрут для адмін-панелі
 // app.get("/admin/dashboard", authMiddleware, adminMiddleware, (req, res) => {

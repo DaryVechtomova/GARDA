@@ -5,6 +5,7 @@ import axios from "axios";
 import { ShopContext } from '../context/ShopContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { IMaskInput } from 'react-imask';
 
 
 const LoginPopup = ({ setShowLogin }) => {
@@ -12,7 +13,8 @@ const LoginPopup = ({ setShowLogin }) => {
     const navigate = useNavigate();
     //const { url, setToken } = useContext(ShopContext);
     const [state, setState] = useState("Sign Up");
-    const adminBaseUrl = import.meta.env.VITE_ADMIN_PANEL_BASE_URL || 'http://localhost:5173';
+    const adminBaseUrl = import.meta.env.VITE_ADMIN_PANEL_BASE_URL || 'http://localhost:5174';
+    console.log(adminBaseUrl);
     const [data, setData] = useState({
         firstName: "",
         secondName: "",

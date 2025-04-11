@@ -89,7 +89,7 @@ function InvoiceList() {
     const filteredAndSearchedInvoices = searchInvoices(filterInvoices(invoices));
 
     return (
-        <section className="p-10 w-full bg-primary/20 pl-[16%]">
+        <section className="p-10 w-full bg-primary/20">
             <div className="px-4">
                 <h4 className="bold-22 pb-2 uppercase">Список прибуткових накладних</h4>
                 <div className="flex gap-4 mb-4 flex-wrap">
@@ -148,12 +148,12 @@ function InvoiceList() {
                                             {invoice.status === "активна" ? (
                                                 <button
                                                     onClick={() => handleCompleteInvoice(invoice._id)}
-                                                    className="text-green-600 hover:text-green-800 font-medium"
+                                                    className="text-[#0a6e13] hover:text-[#08580f] font-medium"
                                                 >
                                                     Активна (завершити)
                                                 </button>
                                             ) : (
-                                                <span className={invoice.status === "виконана" ? "text-black" : "text-red-600"}>
+                                                <span className={invoice.status === "виконана" ? "text-black" : "text-[#99120d]"}>
                                                     {invoice.status}
                                                 </span>
                                             )}
@@ -178,7 +178,7 @@ function InvoiceList() {
                                             {isCancelable ? (
                                                 <button
                                                     onClick={() => handleCancelInvoice(invoice._id)}
-                                                    className="text-red-500 hover:text-red-700 flex justify-center"
+                                                    className="text-[#99120d] hover:[#7a0e0a] flex justify-center"
                                                 >
                                                     Скасувати
                                                 </button>

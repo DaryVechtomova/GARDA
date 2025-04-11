@@ -1,20 +1,18 @@
 import express from 'express';
-import { createReview, getReviewsByProduct, getAllReviews, deleteReview } from '../controllers/reviewController.js';
+import { createReview, getReviewsForAdmin, getReviewsForUser, deleteReview } from '../controllers/reviewController.js';
 
 import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
 
-const router = express.Router();
+const reviewRouter = express.Router();
 
 // Користувач залишає відгук
-router.post('/', authMiddleware, createReview);
+reviewRouter.post('/create', authMiddleware, createReview);
 
-// Показати всі відгуки для одного товару
-router.get('/product/:productId', getReviewsByProduct);
+reviewRouter.get('/reviews-admin/:productId', authMiddleware, getReviewsForAdmin);
 
-// Адміністратор або комірник бачать усі відгуки
-router.get('/admin', authMiddleware, adminMiddleware, getAllReviews);
+reviewRouter.get('/reviews-user/:productId', getReviewsForUser);
 
-// Адміністратор або комірник приховують відгук
-router.delete('/:reviewId', authMiddleware, adminMiddleware, deleteReview);
+// Адміністратор приховує/показує відгук
+reviewRouter.delete('/:reviewId', authMiddleware, adminMiddleware, deleteReview);
 
-export default router;
+export default reviewRouter;

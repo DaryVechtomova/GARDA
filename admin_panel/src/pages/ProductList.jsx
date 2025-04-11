@@ -156,7 +156,7 @@ function List() {
     };
 
     return (
-        <section className="p-10 w-full bg-primary/20 pl-[16%]">
+        <section className="p-10 w-full bg-primary/20">
             <div className="px-4">
                 <h4 className="bold-22 pb-2 uppercase">Список товарів</h4>
                 <div className="flex gap-4 mb-4">
@@ -218,7 +218,9 @@ function List() {
                                             <>
                                                 <span className="line-through text-gray-500">{product.price} грн</span>
                                                 <br />
-                                                <span className="text-red-600 font-bold">{product.discountedPrice.toFixed(2)} грн</span>
+                                                <span className="text-[#99120d] font-bold">
+                                                    {(product.price * (1 - product.discount / 100)).toFixed(2)} грн
+                                                </span>
                                             </>
                                         ) : (
                                             <span>{product.price} грн</span>
@@ -253,7 +255,7 @@ function List() {
                                             </button>
                                             <button
                                                 onClick={() => removeDiscount(product._id)}
-                                                className="text-red-500 hover:text-red-700"
+                                                className="text-[#99120d] hover:text-[#7a0e0a]"
                                             >
                                                 <TbTrash size={16} />
                                             </button>
@@ -273,7 +275,7 @@ function List() {
                                         <div className="flex justify-center">
                                             <TbTrash
                                                 onClick={() => handleDeleteClick(product._id)}
-                                                className="text-red-500 hover:text-red-700 cursor-pointer"
+                                                className="text-[#99120d] hover:text-[#7a0e0a] cursor-pointer"
                                                 size={20}
                                             />
                                         </div>
@@ -306,7 +308,7 @@ function List() {
                             </button>
                             <button
                                 onClick={closeEditDiscountModal}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg"
+                                className="px-4 py-2 bg-[#99120d] text-white rounded-lg"
                             >
                                 Скасувати
                             </button>
@@ -329,7 +331,7 @@ function List() {
                             </button>
                             <button
                                 onClick={confirmDelete}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                                className="px-4 py-2 bg-[#99120d] text-white rounded-lg hover:bg-[#7a0e0a]"
                             >
                                 Видалити
                             </button>

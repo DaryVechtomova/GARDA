@@ -3,18 +3,21 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../styles/InvoiceDetails.css';
-import { FaPrint, FaEdit, FaArrowLeft } from 'react-icons/fa';
+import { FaPrint, FaEdit, FaArrowLeft, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 function InvoiceDetails() {
     const url = "http://localhost:4000";
     const { id } = useParams();
     const [invoice, setInvoice] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [expandedHistory, setExpandedHistory] = useState(false);
     const navigate = useNavigate();
 
     const fetchInvoiceDetails = async () => {
         try {
-            const response = await axios.get(`${url}/api/invoices/details/${id}`);
+            const response = await axios.get(`${url}/api/invoices/details/${id}`, {
+                params: { populate: 'createdBy updatedBy changesHistory.changedBy' }
+            });
             if (response.data.success) {
                 setInvoice(response.data.data);
             } else {
@@ -22,6 +25,7 @@ function InvoiceDetails() {
             }
         } catch (error) {
             toast.error("Помилка при отриманні даних");
+            console.error("Error fetching invoice details:", error);
         } finally {
             setLoading(false);
         }
@@ -30,6 +34,74 @@ function InvoiceDetails() {
     useEffect(() => {
         fetchInvoiceDetails();
     }, [id]);
+
+    const formatDate = (dateString) => {
+        if (!dateString) return "N/A";
+        const date = new Date(dateString);
+        return date.toLocaleDateString("uk-UA", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    };
+
+    const getStatusStyle = (status) => {
+        switch (status) {
+            case "активна": return "bg-blue-100 text-blue-800";
+            case "виконана": return "bg-green-100 text-green-800";
+            case "скасована": return "bg-red-100 text-[#7a0e0a]";
+            default: return "bg-gray-100 text-gray-800";
+        }
+    };
+
+    const renderChanges = (changes) => {
+        // Якщо це запис про створення накладної
+        if (changes.action === "created") {
+            return (
+                <div className="text-green-600">
+                    <p>{changes.message}</p>
+                </div>
+            );
+        }
+
+        return Object.entries(changes).map(([field, values]) => (
+            <div key={field} className="mb-2">
+                {field === 'products' ? (
+                    <div className="mt-1">
+                        <p className="font-medium mb-1">Зміни у списку товарів:</p>
+                        <div className="pl-4 border-l-2 border-gray-200">
+                            <p className="font-medium text-sm">Було:</p>
+                            {values.from.map((item, index) => (
+                                <div key={`from-${index}`} className="text-sm mb-1 pl-2">
+                                    {item.productName || item.product?.name} - {item.size}
+                                    (Кількість: {item.quantity}, Ціна: {item.pricePerUnit?.toFixed(2)} грн)
+                                </div>
+                            ))}
+                            <p className="font-medium text-sm mt-2">Стало:</p>
+                            {values.to.map((item, index) => (
+                                <div key={`to-${index}`} className="text-sm mb-1 pl-2">
+                                    {item.productName || item.product?.name} - {item.size}
+                                    (Кількість: {item.quantity}, Ціна: {item.pricePerUnit?.toFixed(2)} грн)
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                ) : field === 'status' ? (
+                    <>
+                        <p>Було: <span className={`px-2 py-1 rounded-full text-xs ${getStatusStyle(values.from)}`}>{values.from}</span></p>
+                        <p>Стало: <span className={`px-2 py-1 rounded-full text-xs ${getStatusStyle(values.to)}`}>{values.to}</span></p>
+                    </>
+                ) : (
+                    <>
+                        <p>Було: {values.from?.toString() || 'не вказано'}</p>
+                        <p>Стало: {values.to?.toString() || 'не вказано'}</p>
+                    </>
+                )}
+            </div>
+        ));
+    };
 
     if (loading) {
         return <div className="p-10 w-full bg-gray-100 flex justify-center">Завантаження...</div>;
@@ -46,13 +118,20 @@ function InvoiceDetails() {
                     <div>
                         <h4 className="text-2xl font-bold text-black uppercase">Деталі накладної</h4>
                         <p className="text-gray-600 mt-1">№ {invoice.invoiceNumber}</p>
+
+                        {/* Інформація про автора та останнє оновлення */}
+                        <div className="mt-2 text-sm text-gray-500">
+                            {invoice.createdBy && (
+                                <p>Створено: {invoice.createdBy.firstName} {invoice.createdBy.secondName} ({formatDate(invoice.invoiceDate)})</p>
+                            )}
+                            {invoice.updatedBy && (
+                                <p>Останнє оновлення: {invoice.updatedBy.firstName} {invoice.updatedBy.secondName} ({formatDate(invoice.updatedAt)})</p>
+                            )}
+                        </div>
                     </div>
                     <div className="text-right">
-                        <p className="text-black">Дата: {new Date(invoice.invoiceDate).toLocaleDateString()}</p>
-                        <div className={`mt-1 px-3 py-1 rounded-full text-sm font-medium ${invoice.status === 'активна' ? 'bg-blue-100 text-blue-800' :
-                            invoice.status === 'виконана' ? 'bg-green-100 text-green-800' :
-                                'bg-red-100 text-red-800'
-                            }`}>
+                        <p className="text-black">Дата: {formatDate(invoice.invoiceDate)}</p>
+                        <div className={`mt-1 px-3 py-1 rounded-full text-sm font-medium ${getStatusStyle(invoice.status)}`}>
                             {invoice.status}
                         </div>
                     </div>
@@ -77,11 +156,11 @@ function InvoiceDetails() {
                         <div className="p-4 rounded-md border border-gray-200">
                             <div className="flex justify-between mb-2">
                                 <span className="text-black">Загальна сума:</span>
-                                <span className="font-medium">{invoice.totalAmount} грн</span>
+                                <span className="font-medium">{invoice.totalAmount.toFixed(2)} грн</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-black">Дата створення:</span>
-                                <span>{new Date(invoice.invoiceDate).toLocaleDateString()}</span>
+                                <span>{formatDate(invoice.invoiceDate)}</span>
                             </div>
                         </div>
                     </div>
@@ -132,6 +211,39 @@ function InvoiceDetails() {
                         </table>
                     </div>
                 </div>
+
+                {/* Історія змін */}
+                {invoice.changesHistory && invoice.changesHistory.length > 0 && (
+                    <div className="mt-6 p-4 rounded-md border print:hidden">
+                        <div
+                            className="flex justify-between items-center cursor-pointer hover:bg-gray-100 p-2 -m-2 rounded"
+                            onClick={() => setExpandedHistory(!expandedHistory)}
+                        >
+                            <h5 className="text-base font-semibold text-black">
+                                Історія змін ({invoice.changesHistory.length})
+                            </h5>
+                            {expandedHistory ? <FaChevronUp /> : <FaChevronDown />}
+                        </div>
+
+                        {expandedHistory && (
+                            <div className="space-y-3 mt-4 border-t pt-3">
+                                {[...invoice.changesHistory].reverse().map((change, index) => (
+                                    <div key={index} className="text-xs border-b pb-3 last:border-0">
+                                        <p className="font-medium text-gray-600">
+                                            {formatDate(change.changedAt)}
+                                        </p>
+                                        <p className="text-gray-500">
+                                            Користувач: <span className="font-medium">
+                                                {change.changedBy?.name}
+                                            </span>
+                                        </p>
+                                        {renderChanges(change.changes)}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 <div className="flex justify-between mt-6">
                     <button

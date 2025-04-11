@@ -63,7 +63,7 @@ html, body {
     @apply text-secondary relative flex-1 after:w-full after:h-[1px] after:bg-secondary after:absolute after:-bottom-3 after:right-0;
   } */
   .active-link {
-    @apply flexCenter gap-x-2 cursor-pointer max-w-60 h-10 border border-slate-900/15 !bg-yellow-50;
+    @apply flexCenter gap-x-2 cursor-pointer max-w-60 h-10 border border-slate-900/15 !bg-[#fcfaf4];
   }
 
   .active-ctg {
