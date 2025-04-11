@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Bruno+Ace&family=Inter:wght@100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Labrada:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Labrada:ital,wght@0,100..900;1,100..900&family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -119,7 +120,7 @@ html {
   .max-padd-container {
     @apply mx-auto max-w-[1530px] px-6 lg:px-12;
   }
-
+ 
   .flexCenter {
     @apply flex items-center justify-center;
   }
@@ -389,19 +390,1225 @@ html {
   padding: 20px; /* Відступи всередині контейнера */
   margin-bottom: 20px; /* Відступ між елементами */
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Base styles */
+.product-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  position: relative; /* Потрібно для абсолютного позиціонування дочірніх */
+}
+
+
+/* --- Flowers decoration (залишаємо як є, бо вже absolute) --- */
+.flowers-left, .flowers-right {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.flowers-left {
+  width: 132.78px;
+  height: 434.98px;
+  left: 31px; 
+  top: 183px;
+  background-image: url('./assets/design/flowers-left.png');
+}
+
+.flowers-right {
+  width: 258.78px;
+  height: 243.72px;
+  left: calc(100% - 300px); /* Приклад адаптивного left, АБО фіксоване значення в медіа-запиті нижче */
+  top: 144px;
+  background-image: url('./assets/design/flowers-right.png');
+  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+}
+
+/* --- Відсутні елементи (базові стилі, якщо потрібні) --- */
+.size-guide-link,
+.try-on-link,
+.divider-line {
+  display: none; /* Ховаємо за замовчуванням, показуємо в медіа-запиті */
+}
+
+/* --- Додаємо нові класи для кнопок та тексту згідно дизайну --- */
+.size-options-text {
+    display: none; /* Ховаємо на малих екранах */
+}
+
+.select-size-btn-styled {
+    /* Стилі для кнопки "Обрати розмір" з дизайну, якщо вони відрізняються від базової */
+    background: #54A5D9;
+    color: #FFFFFD;
+    font-family: 'Literata', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 27px;
+    padding: 14px 0; /* Розрахунок (55px висота - 27px line-height) / 2 */
+    text-align: center;
+    border: none;
+    width: 100%; /* Базова ширина, зміниться в медіа-запиті */
+    cursor: pointer;
+}
+
+/* --- Large Screen Layout (Absolute Positioning) --- */
+@media (min-width: 1440px) {
+  .product-container {
+    display: block; 
+    /* Нова висота контейнера, виходячи з положення найнижчих елементів (~483px) + невеликий відступ */
+    height: 520px; 
+    max-width: 1530px; /* Залежить від твого макету */
+    margin: 0 auto;    /* Центрування контейнера */
+    position: relative; /* База для absolute */
+    transform: translateX(-3rem);
+  }
+
+  /* --- Ліва колонка: Зображення та слайдер --- */
+  .product-images-container {
+    position: static; 
+    display: block;
+    width: auto; 
+    min-width: auto;
+  }
+
+  /* Контроли слайдера */
+  .slider-controls {
+    display: block; 
+    position: absolute;
+    /* === НОВІ left/top контейнера, базуючись на track/arrow === */
+    left: 211px; 
+    top: 40px;  
+    width: 40px; /* Достатня ширина для стрілок + треку */
+    height: 400px; /* Розрахункова: (Координата низу нижньої стрілки 439+44=483) - (top контейнера 40) = 443px */
+    z-index: 10; 
+  }
+
+  .slider-arrow { 
+    position: absolute;
+    width: auto; 
+    height: 44px; 
+    background: transparent; 
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    left: 3px; 
+  }
+  
+  .slider-arrow.up-arrow {
+    top: 0px; 
+  }
+
+  .slider-arrow.down-arrow {
+    bottom: 0px; 
+  }
+   .slider-arrow.down-arrow img {
+      transform: rotate(-180deg); 
+   }
+
+  .slider-track { /* Rectangle 22 */
+    box-sizing: border-box;
+    position: absolute;
+    width: 26px;
+    height: 290px;
+    left: 0px; 
+    top: 57px;  
+    background: #DBDFE0;
+    border: 0.5px solid #000000;
+  }
+
+  .slider-thumb { /* Rectangle 21 */
+    box-sizing: border-box;
+    position: absolute;
+    width: 14px;
+    height: 44px;
+    left: 6px; 
+    background: #54A5D9;
+    border: 0.5px solid #000000;
+    transition: top 0.2s ease-out; /* Плавний рух */
+  }
+
+  .slider-arrow img {
+    display: block; 
+    width: 20px; 
+    height: 44px; 
+  }
+  
+  /* Малі зображення */
+  .small-images {
+    position: static; 
+    display: block; 
+  }
+  .small-images img { 
+    box-sizing: border-box;
+    position: absolute;
+    width: 145px; 
+    height: 193px; 
+    border: 0.5px solid #000000;
+    object-fit: cover;
+    cursor: pointer;
+    transition: opacity 0.3s ease-in-out, border-color 0.3s ease; 
+  }
+  /* ПОЗИЦІЯ ПЕРШОГО МАЛОГО ЗОБРАЖЕННЯ (Слот 1) */
+  .small-images img:nth-child(1) { 
+    /* === НОВІ left/top === */
+    left: 271px; 
+    top: 40px; 
+  }
+  /* ПОЗИЦІЯ ДРУГОГО МАЛОГО ЗОБРАЖЕННЯ (Слот 2) */
+  .small-images img:nth-child(2) { 
+    /* === НОВІ left/top === */
+    left: 271px; 
+    top: 247px; /* Відповідає 40px + 193px + 14px(проміжок) */
+  }
+   .small-images img.active {
+      border: 1.5px solid #54A5D9; 
+   }
+
+  /* Головне зображення */
+  .main-image { /* image 44 */
+      box-sizing: border-box;
+      position: absolute;
+       /* === НОВІ left/top === */
+      left: 444px;
+      top: 39px;
+      width: 300px;
+      height: 400px;
+      border: 0.5px solid #000000;
+  }
+  .main-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; 
+      cursor: pointer;
+  }
+
+  /* Іконка серця */
+  .wishlist-btn { /* heart */
+     position: absolute;
+     width: 30px;
+     height: 30px;
+     /* === НОВІ left/top === */
+     left: 698px; 
+     top: 47px; 
+     display: flex; 
+     justify-content: center;
+     align-items: center;
+     cursor: pointer;
+     background: transparent;
+     border: none;
+     padding: 0;
+  }
+   .wishlist-btn svg { 
+       width: 24px; 
+       height: 24px;
+       fill: #000; 
+   }
+
+  /* --- Права колонка: Інформація про товар --- */
+  .product-info {
+    position: static; 
+    padding: 0; 
+  }
+
+  .product-title {
+    position: absolute;
+     /* === НОВІ left/top === */
+    left: 846px;
+    top: 46px;
+    width: 360px;
+    height: auto; /* Розрахунок висоти браузером */
+    font-family: 'Montserrat Alternates', sans-serif;
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 24px;
+    color: #000000;
+  }
+
+  .rating { display: none; } 
+
+  .price {
+    position: absolute;
+    /* === НОВІ left/top === */
+    left: 846px;
+    top: 119px;
+    width: auto; /* Адаптивна ширина */
+    height: 41px; /* Залишаємо як було для вирівнювання */
+    font-family: 'Literata', serif;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 27px;
+    color: #000000;
+  }
+   .price .old-price { /* Вкладений стиль для старої ціни */
+     text-decoration: line-through; 
+     color: #6b7280; 
+     margin-right: 0.5em;
+  }
+   .price .new-price { /* Вкладений стиль для нової ціни */
+     color: #dc2626; 
+     font-weight: bold; 
+  }
+
+
+  .size-selection {
+      margin-bottom: 0;
+      position: static; 
+  }
+  .size-selection h5 { /* "Оберіть розмір:" */
+    position: absolute;
+     /* === НОВІ left/top === */
+    left: 846px;
+    top: 174px;
+    width: 160px; /* Залишаємо */
+    height: 41px; /* Залишаємо */
+    font-family: 'Literata', serif;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 27px;
+    color: #000000;
+  }
+
+  .size-options { display: none; }
+  .size-options-text { /* Текст розмірів (XXS XS S...) */
+    display: block;
+    position: absolute;
+    /* === НОВІ left/top === */
+    left: 846px;
+    top: 207px;
+    width: 267px; /* З коментаря */
+    height: 29px; /* З коментаря */
+    font-family: 'Literata', serif;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 30px;
+    color: #000000;
+  }
+
+  .select-size-btn { /* Кнопка "Обрати розмір" */
+      box-sizing: border-box;
+      position: absolute;
+      /* === НОВІ left/top === */
+      left: 846px;
+      top: 253px;
+      width: 439px; /* З коментаря Rectangle 23 */
+      height: 55px; /* З коментаря Rectangle 23 */
+      background: #54A5D9; 
+      display: flex; 
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      font-family: 'Literata', serif; 
+      font-weight: 500;
+      font-size: 18px;
+      color: #FFFFFD;
+      line-height: 27px; 
+      text-align: center;
+      border: none;
+  }
+
+  /* Лінки та роздільники */
+  .size-guide-link {
+       display: block; 
+       position: absolute;
+       /* === НОВІ left/top === */
+       left: 1141px;
+       top: 207px;
+       width: 160px; /* Залишаємо */
+       height: 41px; /* Залишаємо */
+       font-family: 'Literata', serif;
+       font-weight: 500;
+       font-size: 16px;
+       line-height: 24px;
+       color: #000000;
+       text-decoration: none;
+       cursor: pointer;
+   }
+   .size-guide-link + .divider-line { /* Line 4 */
+        display: block;
+        position: absolute;
+         /* === НОВІ left/top === */
+        left: 1125px; /* З коментаря Line 4 */
+        top: 239px;  /* З коментаря Line 4 */
+        width: 160px; 
+        height: 0px;
+        border-top: 1px solid #000000; 
+   }
+
+  .try-on-link {
+       display: block; 
+       position: absolute;
+       /* === НОВІ left/top === */
+       left: 1128px;
+       top: 121px;
+       width: 160px; /* Залишаємо */
+       height: 41px; /* Залишаємо */
+       font-family: 'Literata', serif;
+       font-weight: 500;
+       font-size: 16px;
+       line-height: 24px;
+       color: #000000;
+       text-decoration: none;
+       cursor: pointer;
+   }
+    .try-on-link + .divider-line { /* Line 3 */
+        display: block;
+        position: absolute;
+        /* === НОВІ left/top === */
+        left: 1125px; /* З коментаря Line 3 */
+        top: 151px; /* З коментаря Line 3 */
+        width: 160px; 
+        height: 0px;
+        border-top: 1px solid #000000; 
+    }
+
+  /* Таби "Про товар", "Коментарі" */
+  .product-details-tabs {
+    position: static; 
+    display: block;
+  }
+  .product-details-tabs button {
+     box-sizing: border-box;
+     position: absolute;
+     height: 42px; 
+     font-family: 'Literata', serif;
+     font-weight: 500;
+     font-size: 18px;
+     line-height: 27px;
+     color: #000000;
+     cursor: pointer;
+     text-align: left; 
+     background: none;
+     border: none;
+     padding: 0;
+  }
+  .product-details-tabs button:nth-child(1) { /* "Про товар" */
+    width: 104px;
+    /* === НОВІ left/top === */
+    left: 846px;
+    top: 328px;
+  }
+  .product-details-tabs button:nth-child(2) { /* "Коментарі" */
+    width: 104px;
+     /* === НОВІ left/top === */
+    left: 1013px;
+    top: 328px;
+  }
+   /* Лінія під активним табом "Про товар" */
+   .product-details-tabs button:nth-child(1).active ~ .tab-underline { 
+        display: block;
+        position: absolute;
+        width: 104px; 
+        height: 0px;
+         /* === НОВІ left/top === */
+        left: 846px; 
+        top: 364px; /* З коментаря Line 2 */
+        border-top: 1px solid #000000;
+   }
+   .tab-underline { display: none; } 
+
+  /* Опис товару / Коментарі */
+  .product-description, 
+  .product-comments { 
+    position: absolute;
+    /* === НОВІ left/top === */
+    left: 846px;
+    top: 383px; /* З коментаря 'Тканина...' */
+    width: 362px;
+    height: auto; /* Нехай висота буде автоматичною */
+    font-family: 'Literata', serif;
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 22px;
+    color: #000000;
+  }
+
+  /* Кнопки +/-/кількість/Go to cart */
+  .product-actions { display: none; } 
+
+  /* Позиціонування квітів */
+   .flowers-left {
+       /* === НОВІ left/top === */
+       left: 22px; 
+       top: 39px; 
+       width: 132.78px;
+       height: 434.98px;
+       background-image: url('./assets/design/flowers-left.png'); /* ПЕРЕВІР ШЛЯХ! */
+       position: absolute;
+       z-index: 0;
+       background-repeat: no-repeat;
+       background-position: center;
+       background-size: contain;
+       pointer-events: none;
+   }
+   .flowers-right {
+       /* === НОВІ left/top === */
+       left: 1253px; 
+       top: 0px; 
+       right: auto; /* Перевизначити */
+       width: 258.78px;
+       height: 243.72px;
+       background-image: url('./assets/design/flowers-right.png'); /* ПЕРЕВІР ШЛЯХ! */
+       filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25)); 
+       position: absolute;
+       z-index: 0;
+       background-repeat: no-repeat;
+       background-position: center;
+       background-size: contain;
+       pointer-events: none;
+   }
+
+} /* Кінець @media (min-width: 1440px) */
+
+
+
+
+
+/* === Медіа-запит для приховування квітів === */
+@media (max-width: 1450px) {
+  /* Приховуємо квіти, якщо вони є */
+  .flowers-left, .flowers-right {
+    display: none;
+  }
+}
+
+
+/* === Медіа-запит для Телефонної версії (приклад: до 768px) === */
+/* Ти можеш змінити 767px на інше значення, якщо потрібно */
+@media (max-width: 500px) {
+  /* 1. Налаштування головного контейнера */
+  .product-container.ProductMd-section { /* Додаємо клас секції для специфічності */
+    position: relative;     /* База для absolute позиціонування дочірніх */
+    display: block;         /* Скидання flex/grid */
+    width: 100%;           /* Займає всю ширину */
+    max-width: 600px;      /* Обмеження максимальної ширини (залежить від дизайну, left+width) */
+    height: 1050px;        /* Приблизна висота для вміщення всіх елементів (916+66 + запас) */
+    margin: 20px auto;     /* Центрування та відступи */
+    padding: 0;            /* Скидання внутрішніх відступів */
+    overflow: hidden;      /* Приховати те, що виходить за межі */
+    transform: translateY(-10rem);
+  }
+
+  /* 2. Скидання стилів для основних блоків всередині контейнера */
+  .product-images-container,
+  .product-info {
+      position: static; /* Скидання */
+      display: block;   /* Скидання */
+      flex: none;       /* Скидання */
+      width: auto;      /* Скидання */
+      padding: 0;       /* Скидання */
+      margin: 0;        /* Скидання */
+      gap: 0;           /* Скидання */
+  }
+  .product-images-container {
+      flex-direction: initial; /* Скидання */
+      align-items: initial;    /* Скидання */
+      justify-content: initial; /* Скидання */
+  }
+  .small-images {
+      flex-direction: initial; /* Скидання */
+      order: initial;          /* Скидання */
+      position: static;        /* Переконатися, що не absolute */
+      display: block;          /* Скидання flex/grid */
+  }
+
+  /* 3. Застосування абсолютних стилів з твого запиту */
+
+  /* Головне зображення (зі стилів 'image 52') */
+  .main-image {
+    box-sizing: border-box;
+    position: absolute;
+    width: 257px;
+    height: 343px;
+    left: 180px; /* Адаптуй, якщо контейнер не 600px */
+    top: 160px;
+    border: 0.5px solid #000000;
+    background: none; /* Скидання фону, бо використовується img */
+    padding: 0;
+    margin: 0;
+  }
+  .main-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Щоб зображення заповнювало блок */
+  }
+
+  /* Маленьке зображення 1 (зі стилів 'image 53') */
+  .small-images img:nth-child(1) {
+    box-sizing: border-box;
+    position: absolute;
+    width: 124px;
+    height: 166px;
+    left: 45px;
+    top: 160px;
+    border: 0.5px solid #000000;
+    background: none;
+    object-fit: cover;
+    cursor: pointer; /* Залишаємо курсор */
+  }
+
+  /* Маленьке зображення 2 (зі стилів 'image 54') */
+  .small-images img:nth-child(2) {
+    box-sizing: border-box;
+    position: absolute;
+    width: 124px;
+    height: 166px;
+    left: 45px;
+    top: 338px;
+    border: 0.5px solid #000000;
+    background: none;
+    object-fit: cover;
+    cursor: pointer;
+  }
+   /* Стиль для активного малого зображення */
+   .small-images img.active {
+      border: 1.5px solid #54A5D9; /* Приклад підсвічування */
+   }
+
+  /* Приховуємо інші маленькі зображення, якщо їх більше двох */
+  .small-images img:nth-child(n+3) {
+      display: none;
+  }
+
+  /* Назва товару ('Вишита лляна сорочка...') */
+  .product-title {
+    position: absolute;
+    width: 357px; /* Можливо, варто зробити менше для телефонів */
+    height: auto; /* Дозволити тексту переноситись */
+    left: 5px;
+    top: 547px;
+    font-family: 'Montserrat Alternates', sans-serif; /* Переконайся, що шрифт завантажено */
+    font-style: normal;
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 24px;
+    color: #000000;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Ціна ('Ціна: 12 900 грн') */
+  .price {
+    position: absolute;
+    width: auto; /* Ширина за контентом */
+    height: 41px; /* Для вирівнювання */
+    left: 5px;
+    top: 652px;
+    font-family: 'Literata', serif; /* Переконайся, що шрифт завантажено */
+    font-style: normal;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 27px;
+    color: #000000;
+    margin: 0;
+    padding: 0;
+  }
+  /* Скидання стилів для дочірніх елементів ціни */
+  .price span {
+     display: inline;
+     text-decoration: none; /* Скинути підкреслення, якщо є */
+     margin: 0;
+     font-weight: 600; /* Повернути, якщо скинулось */
+     font-size: 18px;  /* Повернути, якщо скинулось */
+  }
+  .price .old-price {
+     text-decoration: line-through;
+     color: #6b7280;
+     margin-right: 0.5em;
+  }
+  .price .new-price {
+     color: #dc2626;
+     font-weight: bold;
+  }
+
+
+  /* Напис 'Оберіть розмір:' */
+  .size-selection h5 {
+    position: absolute;
+    width: 160px;
+    height: 41px;
+    left: 5px;
+    top: 707px;
+    font-family: 'Literata', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 27px;
+    color: #000000;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Текст розмірів ('XXS XS S M L XL') */
+  .size-options-text {
+    display: block; /* Показати текст */
+    position: absolute;
+    width: 267px;
+    height: 29px;
+    left: 5px;
+    top: 740px;
+    font-family: 'Literata', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 30px; /* Вирівнювання */
+    color: #000000;
+    margin: 0;
+    padding: 0;
+  }
+   /* Сховати окремі кнопки розмірів, якщо показуємо текст */
+   .size-options {
+     display: none;
+   }
+   /* Скинути позиціонування батьківського блоку вибору розміру */
+   .size-selection {
+     position: static;
+   }
+
+
+  /* Кнопка 'Обрати розмір' (стилі 'Rectangle 24' + текст) */
+  .select-size-btn {
+    box-sizing: border-box;
+    position: absolute;
+    width: 439px; /* Можливо, варто зробити відносною (e.g., calc(100% - 188px)) */
+    height: 55px;
+    left: 5px;
+    top: 786px;
+    background: #54A5D9;
+    border: none;
+    font-family: 'Literata', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 55px; /* Вертикальне центрування тексту */
+    color: #FFFFFD;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+  }
+
+  /* Контейнер табів */
+  .product-details-tabs {
+      position: static; /* Скидання */
+      display: block;   /* Скидання */
+      border: none;     /* Скидання */
+      padding: 0;       /* Скидання */
+      margin: 0;        /* Скидання */
+      gap: 0;           /* Скидання */
+  }
+
+  /* Таб 'Про товар' */
+  .product-details-tabs button:nth-child(1) {
+    position: absolute;
+    width: 104px;
+    height: 42px;
+    left: 5px;
+    top: 861px;
+    font-family: 'Literata', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 27px; /* Вирівнювання */
+    color: #000000;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  /* Таб 'Коментарі' */
+  .product-details-tabs button:nth-child(2) {
+    position: absolute;
+    width: 104px;
+    height: 42px;
+    left: 172px;
+    top: 861px;
+    font-family: 'Literata', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 27px;
+    color: #000000;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  /* Лінія під активним табом 'Про товар' (стилі 'Line 5') */
+  /* Використовуємо існуючий .tab-underline */
+  .product-details-tabs .tab-underline {
+    display: block; /* Показати лінію */
+    position: absolute;
+    width: 104px;
+    height: 0px;
+    left: 5px;
+    top: 897px; /* 861 (top) + 42 (height) - трохи вище */
+    border: none; /* Скидання */
+    border-top: 1px solid #000000; /* Створюємо лінію */
+    background: none;
+  }
+  /* Приховати лінію, якщо активний інший таб */
+  .product-details-tabs button:not(.active) ~ .tab-underline {
+      display: none;
+  }
+  .product-details-tabs button:nth-child(2).active ~ .tab-underline {
+      display: none; /* Або перемістити під другий таб: left: 261px; */
+  }
+
+
+  /* Опис товару ('Тканина - льон...') */
+  .product-description {
+    display: block; /* Переконатись, що видимий */
+    position: absolute;
+    width: 362px; /* Можливо, зменшити */
+    height: auto; /* Автоматична висота */
+    left: 5px;
+    top: 916px;
+    font-family: 'Literata', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 22px;
+    color: #000000;
+    margin: 0;
+    padding: 0;
+  }
+  /* Сховати коментарі, коли активний опис */
+  .product-comments {
+     display: none;
+  }
+
+  /* Коментарі (показувати та позиціонувати, коли активні) */
+   .product-details-tabs button:nth-child(2).active ~ .product-comments {
+      display: block;
+      position: absolute;
+      width: 362px; /* Або інша ширина */
+      height: auto;
+      left: 5px; /* Або інше положення */
+      top: 916px; /* Або інше положення */
+      font-family: 'Literata', serif;
+      font-style: normal;
+      font-weight: 500;
+      font-size: 15px;
+      line-height: 22px;
+      color: #000000;
+      margin: 0;
+      padding: 0;
+   }
+   /* Сховати опис, коли активні коментарі */
+   .product-details-tabs button:nth-child(2).active ~ .product-description {
+      display: none;
+   }
+
+
+  /* Посилання 'Таблиця розмірів' та лінія під ним ('Line 7') */
+  .size-guide-link {
+    display: block; /* Показати */
+    position: absolute;
+    width: 160px;
+    /* height: 41px; - висота визначається контентом + border */
+    left: 283px;
+    top: 740px;
+    font-family: 'Literata', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;
+    color: #000000;
+    text-decoration: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid #000000; /* Лінія знизу */
+    /* Розрахунок відступу для позиціонування лінії як в 'Line 7' (top: 772px) */
+    /* 772 (line top) - 740 (text top) = 32px відступ від верху тексту */
+    /* 32px - 24px (line-height) = 8px відступ знизу тексту до лінії */
+    padding-bottom: 8px;
+  }
+
+  /* Посилання 'Спробувати на собі' та лінія під ним ('Line 6') */
+  .try-on-link {
+    display: block; /* Показати */
+    position: absolute;
+    width: 160px;
+    /* height: 41px; */
+    left: 280px; /* Зменшено відносно таблиці розмірів? Перевір дизайн */
+    top: 654px;
+    font-family: 'Literata', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;
+    color: #000000;
+    text-decoration: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid #000000; /* Лінія знизу */
+     /* Розрахунок відступу для позиціонування лінії як в 'Line 6' (top: 684px) */
+     /* 684 (line top) - 654 (text top) = 30px відступ */
+     /* 30px - 24px (line-height) = 6px відступ знизу тексту */
+    padding-bottom: 6px;
+  }
+
+  /* Сховати оригінальні роздільники, якщо вони були */
+  .divider-line {
+    display: none;
+  }
+
+  /* Контроли слайдера (стрілки, трек, повзунок) */
+  .slider-controls {
+    display: block; /* Показати */
+    position: absolute;
+    /* Розміри та позиція контейнера контролів, що охоплює всі його елементи */
+    width: 63px; /* Максимальна координата 'left' серед дочірніх (стрілка вниз) */
+    height: 343px; /* Координата 'top' стрілки вниз (530) + її висота (44) */
+    left: 5px; /* Мінімальна координата 'left' (трек) */
+    top: 160px; /* Мінімальна координата 'top' (стрілка вверх) */
+    z-index: 10; /* Над зображеннями */
+  }
+
+  /* Трек слайдера ('Rectangle 22') */
+  .slider-track {
+    box-sizing: border-box;
+    position: absolute;
+    width: 22px;
+    height: 249px;
+    left: 0; /* 40px (абсолютний) - 40px (батьківський) = 0 */
+    top: 49px; /* 188px (абсолютний) - 131px (батьківський) = 57px */
+    background: #DBDFE0;
+    border: 0.5px solid #000000;
+  }
+
+  /* Повзунок слайдера ('Rectangle 21') */
+  .slider-thumb {
+    box-sizing: border-box;
+    position: absolute;
+    width: 12px;
+    height: 38px;
+    left: 5px; /* 46px (абсолютний) - 40px (батьківський) = 6px */
+    /* top: встановлюється динамічно через style в React */
+    background: #54A5D9;
+    border: 0.5px solid #000000;
+    transition: top 0.2s ease-out; /* Плавність руху */
+  }
+
+  /* Стрілки слайдера */
+  .slider-arrow {
+    position: absolute;
+    width: 17px;
+    height: 38px;
+    background: transparent; /* Фон буде від img */
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex; /* Для центрування img, якщо потрібно */
+    justify-content: center;
+    align-items: center;
+  }
+  .slider-arrow img {
+     display: block; /* Переконатися, що img видимий */
+     width: 100%;
+     height: 100%;
+     object-fit: contain; /* Зберегти пропорції стрілки */
+  }
+  .slider-arrow.up-arrow {
+    left: 3px; /* 43px (абсолютний) - 40px (батьківський) = 3px */
+    top: 0; /* 131px (абсолютний) - 131px (батьківський) = 0 */
+  }
+  .slider-arrow.up-arrow img {
+    transform: none; /* Скинути поворот, якщо був */
+  }
+  .slider-arrow.down-arrow {
+    left: 3px; /* 63px (абсолютний) - 40px (батьківський) = 23px */
+    top: 305px; /* 530px (абсолютний) - 131px (батьківський) = 399px */
+  }
+   .slider-arrow.down-arrow img {
+    transform: rotate(-180deg); /* Залишити поворот */
+  }
+
+  /* Кнопка "Wishlist" (серце) - в дизайні не вказано, можливо, приховати */
+  .wishlist-btn {
+    display: none; /* Або позиціонувати, якщо потрібно */
+    /* position: absolute; */
+    /* left: ...; */
+    /* top: ...; */
+  }
+
+  /* Приховати інші елементи, яких немає в мобільному дизайні */
+  .product-actions { /* Блок з кількістю +/- */
+     display: none;
+  }
+  .rating { /* Рейтинг, якщо є */
+     display: none;
+  }
+
+} /* Кінець @media (max-width: 767px) */
+
+/* --- Scaling Mobile Layout with Flowers (501px - 1439px) --- */
+/* Беремо макет для 500px, масштабуємо його і додаємо квіти */
+@media (min-width: 501px) and (max-width: 1439px) {
+
+  body {
+      padding: 2rem 0;
+      overflow-x: hidden;
+  }
+
+  .product-container {
+      display: block;
+      position: relative;
+
+      /* Базові розміри контейнера (визначені під 500px контент) */
+      width: 480px; /* Базова ширина залишається, квіти вийдуть за межі */
+      min-height: 1050px;
+      height: auto;
+
+      /* Центрування блоку */
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+
+      /* === ОБ'ЄДНАНА Трансформація: Зсув ТА Масштабування === */
+      /* Масштаб розраховується відносно 500px */
+      transform: translateY(-10rem) ;
+      transform-origin: top center; /* Масштабувати від верхнього центру */
+
+      /* Інші стилі для контейнера */
+      padding: 0;
+      box-sizing: border-box;
+      overflow: visible; /* Важливо, щоб квіти було видно поза 480px */
+  }
+
+  /* ===================================================================== */
+  /* === СТИЛІ КОНТЕНТУ З @media (max-width: 500px) === */
+  /* ===================================================================== */
+
+   /* Скидання обгорток */
+  .product-images-container, .product-info, .size-selection,
+  .product-details-tabs, .small-images {
+      position: static; display: block; width: auto; padding: 0; margin: 0;
+  }
+
+   /* Головне зображення (як на 500px) */
+  .main-image {
+      box-sizing: border-box; position: absolute; width: 257px; height: 343px;
+      left: 180px; top: 160px; border: 0.5px solid #000000; background: none;
+      padding: 0; margin: 0;
+  }
+  .main-image img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+  /* Маленьке зображення 1 (як на 500px) */
+  .small-images img:nth-child(1) {
+      box-sizing: border-box; position: absolute; width: 124px; height: 166px;
+      left: 45px; top: 160px; border: 0.5px solid #000000; background: none;
+      object-fit: cover; cursor: pointer;
+  }
+  /* Маленьке зображення 2 (як на 500px) */
+  .small-images img:nth-child(2) {
+      box-sizing: border-box; position: absolute; width: 124px; height: 166px;
+      left: 45px; top: 338px; border: 0.5px solid #000000; background: none;
+      object-fit: cover; cursor: pointer;
+  }
+  .small-images img.active { border: 1.5px solid #54A5D9; }
+  .small-images img:nth-child(n+3) { display: none; }
+
+  /* Назва товару (як на 500px) */
+  .product-title {
+      position: absolute; width: 357px; height: auto; left: 5px; top: 547px;
+      font-family: 'Montserrat Alternates', sans-serif; font-weight: 600;
+      font-size: 20px; line-height: 24px; color: #000000; margin: 0; padding: 0;
+  }
+  /* Ціна (як на 500px) */
+  .price {
+      position: absolute; width: auto; height: 41px; left: 5px; top: 652px;
+      font-family: 'Literata', serif; font-weight: 600; font-size: 18px;
+      line-height: 27px; color: #000000; margin: 0; padding: 0;
+  }
+  .price span { display: inline; text-decoration: none; margin: 0; }
+  .price .old-price { text-decoration: line-through; color: #6b7280; margin-right: 0.5em; }
+  .price .new-price { color: #dc2626; font-weight: bold; }
+
+  /* Напис 'Оберіть розмір:' (як на 500px) */
+  .size-selection h5 {
+      position: absolute; width: 160px; height: 41px; left: 5px; top: 707px;
+      font-family: 'Literata', serif; font-weight: 500; font-size: 18px;
+      line-height: 27px; color: #000000; margin: 0; padding: 0;
+  }
+  /* Текст розмірів (як на 500px) */
+  .size-options-text {
+      display: block; position: absolute; width: 267px; height: 29px; left: 5px;
+      top: 740px; font-family: 'Literata', serif; font-weight: 500; font-size: 20px;
+      line-height: 30px; color: #000000; margin: 0; padding: 0;
+  }
+  .size-options { display: none; }
+
+  /* Кнопка 'Обрати розмір' (як на 500px) */
+  .select-size-btn {
+      box-sizing: border-box; position: absolute; width: 439px; height: 55px;
+      left: 5px; top: 786px; background: #54A5D9; border: none; font-family: 'Literata', serif;
+      font-weight: 500; font-size: 18px; line-height: 55px; color: #FFFFFD;
+      text-align: center; padding: 0; margin: 0; cursor: pointer;
+  }
+
+  /* Таб 'Про товар' (як на 500px) */
+  .product-details-tabs button:nth-child(1) {
+      position: absolute; width: 104px; height: 42px; left: 5px; top: 861px;
+      font-family: 'Literata', serif; font-weight: 500; font-size: 18px; line-height: 27px;
+      color: #000000; background: none; border: none; padding: 0; margin: 0;
+      text-align: left; cursor: pointer;
+  }
+  /* Таб 'Коментарі' (як на 500px) */
+  .product-details-tabs button:nth-child(2) {
+      position: absolute; width: 104px; height: 42px; left: 172px; top: 861px;
+      font-family: 'Literata', serif; font-weight: 500; font-size: 18px; line-height: 27px;
+      color: #000000; background: none; border: none; padding: 0; margin: 0;
+      text-align: left; cursor: pointer;
+  }
+
+  /* Лінія під активним табом (як на 500px) */
+  .tab-underline { display: none; }
+  .product-details-tabs button.active ~ .tab-underline {
+      display: block; position: absolute; width: 104px; height: 0px; left: 5px;
+      top: 897px; border-top: 1px solid #000000; background: none;
+  }
+  .product-details-tabs button:nth-child(2).active ~ .tab-underline { left: 172px; }
+
+  /* Опис товару (як на 500px) */
+  .product-description {
+      display: block;
+      position: absolute; width: 362px; height: auto; left: 5px;
+      top: 916px; font-family: 'Literata', serif; font-weight: 500; font-size: 15px;
+      line-height: 22px; color: #000000; margin: 0; padding: 0;
+  }
+  /* Коментарі (як на 500px) */
+  .product-comments {
+      display: none;
+      position: absolute; width: 362px; height: auto; left: 5px;
+      top: 916px; font-family: 'Literata', serif; font-weight: 500;
+      font-size: 15px; line-height: 22px; color: #000000; margin: 0; padding: 0;
+  }
+  .product-details-tabs button:nth-child(2).active ~ .product-description { display: none; }
+  .product-details-tabs button:nth-child(2).active ~ .product-comments { display: block; }
+
+  /* Посилання 'Таблиця розмірів' (як на 500px) */
+  .size-guide-link {
+      display: block; position: absolute; width: 160px; left: 283px; top: 740px;
+      font-family: 'Literata', serif; font-weight: 500; font-size: 16px;
+      line-height: 24px; color: #000000; text-decoration: none; margin: 0; padding: 0;
+      border-bottom: 1px solid #000000; padding-bottom: 8px;
+  }
+  /* Посилання 'Спробувати на собі' (як на 500px) */
+  .try-on-link {
+      display: block; position: absolute; width: 160px; left: 280px; top: 654px;
+      font-family: 'Literata', serif; font-weight: 500; font-size: 16px;
+      line-height: 24px; color: #000000; text-decoration: none; margin: 0; padding: 0;
+      border-bottom: 1px solid #000000; padding-bottom: 6px;
+  }
+  .divider-line { display: none; }
+
+  /* Контроли слайдера (як на 500px) */
+  .slider-controls {
+      display: block; position: absolute; width: 63px; height: 343px;
+      left: 5px; top: 160px; z-index: 10;
+  }
+  .slider-track {
+      box-sizing: border-box; position: absolute; width: 22px; height: 249px;
+      left: 0; top: 49px; background: #DBDFE0; border: 0.5px solid #000000;
+  }
+  .slider-thumb {
+      box-sizing: border-box; position: absolute; width: 12px; height: 38px;
+      left: 5px; top: 0; background: #54A5D9; border: 0.5px solid #000000;
+      transition: top 0.2s ease-out;
+  }
+  .slider-arrow {
+      position: absolute; width: 17px; height: 38px; background: transparent;
+      border: none; padding: 0; cursor: pointer; display: flex;
+      justify-content: center; align-items: center;
+  }
+  .slider-arrow img { display: block; width: 100%; height: 100%; object-fit: contain; }
+  .slider-arrow.up-arrow { left: 3px; top: 0; }
+  .slider-arrow.up-arrow img { transform: none; }
+  .slider-arrow.down-arrow { left: 3px; top: 305px; }
+  .slider-arrow.down-arrow img { transform: rotate(-180deg); }
+
+  /* ===================================================================== */
+  /* === ДОДАНО: Квіти позиціонуються всередині контейнера === */
+  /* ===================================================================== */
+  .flowers-left {
+      display: block !important; /* Показати */
+      position: absolute;
+      width: 132.78px;
+      height: 434.98px;
+      left: -150px; /* Координата відносно 480px контейнера */
+      top: 110px;   /* Координата відносно 480px контейнера */
+      /* Стилі з базових правил */
+      background-image: url('./assets/design/flowers-left.png'); /* !!! ПЕРЕВІР ШЛЯХ !!! */
+      z-index: -1;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+      pointer-events: none;
+  }
+
+  .flowers-right {
+      display: block !important; /* Показати */
+      position: absolute;
+      width: 258.78px;
+      height: 243.72px;
+      left: 370px; /* Координата відносно 480px контейнера (ВИЙДЕ ЗА МЕЖІ!) */
+      top: 80px;  /* Координата відносно 480px контейнера */
+      right: auto; /* Скинути, якщо було */
+       /* Стилі з базових правил */
+      background-image: url('./assets/design/flowers-right.png'); /* !!! ПЕРЕВІР ШЛЯХ !!! */
+      z-index: -1;
+      filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+      pointer-events: none;
+  }
+
+  /* === Приховані елементи === */
+   .wishlist-btn { display: none; }
+   .rating { display: none; }
+   .product-actions { display: none; }
+
+   /* --- КІНЕЦЬ МОДИФІКАЦІЙ --- */
+
+} /* Кінець @media (min-width: 501px) and (max-width: 1439px) */
+
 }

@@ -46,7 +46,7 @@ export const all_products = [
         fabric: "Льон",
         colors: "Сірий",
         sizes: [], // Додайте розміри, якщо вони є
-        discount: 0,
+        discount: 10,
     },
     {
         _id: "67cb4a7af4967d7149e9ff39",

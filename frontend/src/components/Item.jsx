@@ -59,13 +59,13 @@ const Item = ({ product }) => {
                     ▶
                 </button>
             </div>
-
+            <Link to={`/product/${product._id}`}>
             {/* Назва і ціна */}
             <div className="text-center mt-4">
                 <h4 className="font-semi-bold text-l mb-5">{product.name}</h4>
                 <span className="text-lg text-gray-800">Ціна: {product.price} грн</span>
             </div>
-
+            </Link>
             {/* Іконка сердечка */}
             <button
                 onClick={toggleFavorite}
