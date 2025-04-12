@@ -60,6 +60,7 @@ const LoginPopup = ({ setShowLogin }) => {
                 // Затримка для toast, перш ніж перейти
                 setTimeout(() => {
                     if (role === "користувач") {
+                        window.dispatchEvent(new Event('storage'));
                         navigate("/profile");
                     } else if (role === "адміністратор" || role === "комірник") {
                         console.log("admin");
@@ -148,7 +149,7 @@ const LoginPopup = ({ setShowLogin }) => {
                             onClick={togglePasswordVisibility}
                             className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500'
                         >
-                            {showPassword ? <FaEyeSlash /> : <FaEye />}
+                            {showPassword ? <FaEye /> : <FaEyeSlash />}
                         </button>
                     </div>
                 </div>

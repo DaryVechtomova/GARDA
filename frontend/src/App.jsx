@@ -26,6 +26,7 @@ export default function App() {
   // }, [navigate]);
   return (
     <BrowserRouter basename="/GARDA">
+      <ToastContainer />
       {showLogin ? <LoginPopup setShowLogin={setShowLogin} /> : <></>}
       <Header setShowLogin={setShowLogin} />
       <Routes>

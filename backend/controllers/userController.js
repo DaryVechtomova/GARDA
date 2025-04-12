@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 import validator from "validator"
 
-//login user
+//login user (для всіх)
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
@@ -54,12 +54,10 @@ const createToken = (userId, userRole) => { // Приймає ID та РОЛЬ
     return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 }
 
-//register user
+// реєстрація клієнта (для користувача)
 const registerUser = async (req, res) => {
     const { firstName, secondName, middleName, email, phoneNumber, password } = req.body;
     try {
-
-        console.log("slkvmslvkm");
         // checking is user already exists
         const exists = await userModel.findOne({ email });
         if (exists) {
@@ -97,8 +95,6 @@ const registerUser = async (req, res) => {
             return res.json({ success: false, message: "Пароль має містити щонайменше 8 символів" });
         }
 
-
-        // hashing user password
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, salt)
 
@@ -122,7 +118,7 @@ const registerUser = async (req, res) => {
     }
 }
 
-// Отримання списку співробітників
+// Отримання списку співробітників (для адміна)
 const listEmployees = async (req, res) => {
     try {
         const employees = await userModel.find({ role: { $in: ["адміністратор", "комірник"] } });
@@ -133,6 +129,7 @@ const listEmployees = async (req, res) => {
     }
 };
 
+// реєстрація співробітника (для адміна)
 const registerEmployee = async (req, res) => {
     const { firstName, secondName, middleName, email, phoneNumber, password, birthDate, role } = req.body;
 
@@ -203,6 +200,7 @@ const registerEmployee = async (req, res) => {
     }
 };
 
+// редагування співробітника (для адміна)
 const editEmployee = async (req, res) => {
     const {
         id,
@@ -258,6 +256,7 @@ const editEmployee = async (req, res) => {
     }
 };
 
+// звільнити співробітника (для адміна)
 const fireEmployee = async (req, res) => {
     const { id } = req.body;
     try {
@@ -277,21 +276,17 @@ const fireEmployee = async (req, res) => {
     }
 };
 
-const getCurrentUser = async (req, res) => {
+// отримання даних співнобітника (для адміна)
+const getCurrentEmployee = async (req, res) => {
     try {
-        // Об'єкт користувача вже додано до req.user завдяки authMiddleware
         const user = req.user;
 
-        // Можна додатково перевірити, але authMiddleware вже це зробив
         if (!user) {
-            // Цей випадок не мав би виникнути, якщо authMiddleware спрацював
             return res.status(404).json({ success: false, message: "Користувача не знайдено (внутрішня помилка)" });
         }
 
-        // Повертаємо необхідні дані (без пароля, бо його виключено в middleware)
         res.json({
             success: true,
-            // Називаємо поле userData, як очікує фронтенд
             userData: {
                 id: user._id,
                 firstName: user.firstName,
@@ -299,10 +294,9 @@ const getCurrentUser = async (req, res) => {
                 middleName: user.middleName,
                 email: user.email,
                 phoneNumber: user.phoneNumber,
+                birthDate: user.birthDate,
                 role: user.role,
-                // Додайте інші поля, які можуть бути потрібні адмінці
-                // hireDate: user.hireDate,
-                // isActive: user.isActive,
+                hireDate: user.hireDate
             }
         });
 
@@ -327,4 +321,217 @@ const checkUserRole = async (req, res) => {
     }
 };
 
-export { loginUser, registerUser, listEmployees, registerEmployee, editEmployee, fireEmployee, getCurrentUser, checkUserRole }
+// оновлення профіля співробітників (для адміна)
+const updateAdminProfile = async (req, res) => {
+    const userId = req.user._id; // Беремо ID з токена
+    const { firstName, secondName, middleName, phoneNumber, birthDate } = req.body;
+
+    if (!firstName) {
+        return res.json({ success: false, message: "Будь ласка, введіть ім'я" });
+    }
+    if (!secondName) {
+        return res.json({ success: false, message: "Будь ласка, введіть прізвище" });
+    }
+    if (!middleName) {
+        return res.json({ success: false, message: "Будь ласка, введіть по батькові" });
+    }
+    if (!phoneNumber) {
+        return res.json({ success: false, message: "Будь ласка, введіть номер телефону" });
+    }
+    if (!birthDate) {
+        return res.json({ success: false, message: "Будь ласка, введіть дату народження" });
+    }
+
+    try {
+        const updatedUser = await userModel.findByIdAndUpdate(userId, {
+            firstName,
+            secondName,
+            middleName,
+            phoneNumber,
+            birthDate
+        }, { new: true }).select('-password'); // Оновлюємо і повертаємо без пароля
+
+        if (!updatedUser) {
+            return res.status(404).json({ success: false, message: "Користувача не знайдено" });
+        }
+
+        res.json({ success: true, message: "Профіль оновлено", updatedUser }); // Повертаємо оновлені дані
+
+    } catch (error) {
+        console.error("Помилка оновлення профілю:", error);
+        res.status(500).json({ success: false, message: "Помилка сервера" });
+    }
+};
+
+// Зміна пароля поточного користувача (для всіх)
+const changePassword = async (req, res) => {
+    const userId = req.user._id; // ID з токена
+    const { oldPassword, newPassword } = req.body;
+
+    // Валідація
+    if (!oldPassword || !newPassword) {
+        return res.status(400).json({ success: false, message: "Старий та новий паролі обов'язкові" });
+    }
+    if (newPassword.length < 8) {
+        return res.status(400).json({ success: false, message: "Новий пароль має містити щонайменше 8 символів" });
+    }
+
+    try {
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "Користувача не знайдено" });
+        }
+
+        // Перевірка старого пароля
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ success: false, message: "Невірний старий пароль" });
+        }
+
+        // Хешування та збереження нового пароля
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        await user.save();
+
+        res.json({ success: true, message: "Пароль успішно змінено" });
+
+    } catch (error) {
+        console.error("Помилка зміни пароля:", error);
+        res.status(500).json({ success: false, message: "Помилка сервера" });
+    }
+};
+
+// отримання даних клієнта (для клієнтів)
+const getCurrentUser = async (req, res) => {
+    try {
+        const user = req.user;
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "Користувача не знайдено (внутрішня помилка)" });
+        }
+
+        res.json({
+            success: true,
+            userData: {
+                id: user._id,
+                firstName: user.firstName,
+                secondName: user.secondName,
+                middleName: user.middleName,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+                birthDate: user.birthDate,
+                region: user.region,
+                city: user.city,
+                street: user.street,
+                houseNumber: user.houseNumber,
+                apartmentNumber: user.apartmentNumber,
+                postalCode: user.postalCode,
+                //registrationDate: user.registrationDate,
+            }
+        });
+
+    } catch (error) {
+        console.error("Помилка отримання даних поточного користувача:", error);
+        res.status(500).json({ success: false, message: "Помилка сервера при отриманні даних користувача" });
+    }
+};
+
+// Оновлення профілю клієнта (для самого клієнта)
+const updateClientProfile = async (req, res) => {
+    const userId = req.user._id; // Беремо ID з токена
+    const {
+        firstName,
+        secondName,
+        middleName,
+        phoneNumber,
+        birthDate,
+        region,
+        city,
+        street,
+        houseNumber,
+        apartmentNumber,
+        postalCode
+    } = req.body;
+
+    // Валідація обов'язкових полів
+    if (!firstName) {
+        return res.status(400).json({ success: false, message: "Будь ласка, введіть ім'я" });
+    }
+    if (!secondName) {
+        return res.status(400).json({ success: false, message: "Будь ласка, введіть прізвище" });
+    }
+    if (!middleName) {
+        return res.status(400).json({ success: false, message: "Будь ласка, введіть по батькові" });
+    }
+    if (!phoneNumber) {
+        return res.status(400).json({ success: false, message: "Будь ласка, введіть номер телефону" });
+    }
+
+    try {
+        // Формуємо об'єкт для оновлення
+        const updateData = {
+            firstName,
+            secondName,
+            middleName,
+            phoneNumber,
+            ...(birthDate && { birthDate: new Date(birthDate) }), // Опціональне поле
+            ...(region && { region }),
+            ...(city && { city }),
+            ...(street && { street }),
+            ...(houseNumber && { houseNumber }),
+            ...(apartmentNumber && { apartmentNumber }),
+            ...(postalCode && { postalCode })
+        };
+
+        // Оновлюємо користувача
+        const updatedUser = await userModel.findByIdAndUpdate(
+            userId,
+            updateData,
+            { new: true, runValidators: true }
+        ).select('-password -cartData -favourites');
+
+        if (!updatedUser) {
+            return res.status(404).json({ success: false, message: "Користувача не знайдено" });
+        }
+
+        res.json({
+            success: true,
+            message: "Профіль успішно оновлено",
+            userData: {
+                firstName: updatedUser.firstName,
+                secondName: updatedUser.secondName,
+                middleName: updatedUser.middleName,
+                email: updatedUser.email,
+                phoneNumber: updatedUser.phoneNumber,
+                birthDate: updatedUser.birthDate,
+                region: updatedUser.region,
+                city: updatedUser.city,
+                street: updatedUser.street,
+                houseNumber: updatedUser.houseNumber,
+                apartmentNumber: updatedUser.apartmentNumber,
+                postalCode: updatedUser.postalCode
+            }
+        });
+
+    } catch (error) {
+        console.error("Помилка оновлення профілю:", error);
+
+        // Обробка помилок валідації Mongoose
+        if (error.name === 'ValidationError') {
+            const errors = Object.values(error.errors).map(err => err.message);
+            return res.status(400).json({
+                success: false,
+                message: "Помилка валідації даних",
+                errors
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            message: "Помилка сервера при оновленні профілю",
+            error: error.message
+        });
+    }
+};
+
+export { loginUser, registerUser, listEmployees, registerEmployee, editEmployee, fireEmployee, getCurrentEmployee, checkUserRole, updateAdminProfile, changePassword, getCurrentUser, updateClientProfile }

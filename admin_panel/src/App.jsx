@@ -25,6 +25,8 @@ import EmployeesList from "./pages/EmployeesList";
 import AddEmployee from "./pages/AddEmployee";
 import EditEmployee from "./pages/EditEmployee";
 import EmployeeDetails from "./pages/EmployeeDetails";
+import ProfilePage from './pages/ProfilePage';
+import ChangePasswordPage from './pages/ChangePasswordPage';
 
 
 const frontendBaseUrl = import.meta.env.VITE_FRONTEND_BASE_URL || 'http://localhost:5173/GARDA';
@@ -255,6 +257,8 @@ const AdminLayout = () => {
               <Route path="add-employee" element={<AddEmployee />} />
               <Route path="edit-employee/:id" element={<EditEmployee />} />
               <Route path="user/details/:id" element={<EmployeeDetails />} />
+              <Route path="profile" element={<ProfilePage />} />
+              <Route path="change-password" element={<ChangePasswordPage />} />
             </Routes>
           </div>
         </main>

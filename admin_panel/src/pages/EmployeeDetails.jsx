@@ -95,119 +95,121 @@ function EmployeeDetails() {
     const fullName = `${employee.secondName || ''} ${employee.firstName || ''} ${employee.middleName || ''}`.trim();
 
     return (
-        <section className="p-10 w-full bg-gray-100 min-h-[92vh] flex justify-center">
-            <div className="w-full max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
-                {/* Заголовок */}
-                <div className="flex flex-col sm:flex-row justify-between items-start mb-6 pb-4 border-b">
-                    <div>
-                        <h4 className="text-xl font-semibold uppercase text-gray-800 flex items-center gap-2">
-                            <FaUserCircle className="text-gray-500" /> {fullName || "Деталі співробітника"}
-                        </h4>
-                        <p className="text-sm text-gray-500">ID: {employee._id}</p>
-                    </div>
-                    {/* Статус Активності */}
-                    <span className={`mt-2 sm:mt-0 px-3 py-1 text-xs font-medium rounded-full ${getIsActiveStyle(employee.isActive)}`}>
-                        {employee.isActive ? "Активний" : "Неактивний"}
-                    </span>
-                </div>
-
-                {/* Секція з даними */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
-
-                    {/* Ім'я */}
-                    <div className="space-y-1">
-                        <p className='text-sm font-medium text-gray-500'>Ім'я</p>
-                        <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
-                            {displayValue(employee.firstName)}
-                        </p>
+        <div className="bg-gray-100 min-h-[92vh]">
+            <section className="p-10 w-full flex justify-center">
+                <div className="w-full max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+                    {/* Заголовок */}
+                    <div className="flex flex-col sm:flex-row justify-between items-start mb-6 pb-4 border-b">
+                        <div>
+                            <h4 className="text-xl font-semibold uppercase text-gray-800 flex items-center gap-2">
+                                <FaUserCircle className="text-gray-500" /> {fullName || "Деталі співробітника"}
+                            </h4>
+                            <p className="text-sm text-gray-500">ID: {employee._id}</p>
+                        </div>
+                        {/* Статус Активності */}
+                        <span className={`mt-2 sm:mt-0 px-3 py-1 text-xs font-medium rounded-full ${getIsActiveStyle(employee.isActive)}`}>
+                            {employee.isActive ? "Активний" : "Неактивний"}
+                        </span>
                     </div>
 
-                    {/* Прізвище */}
-                    <div className="space-y-1">
-                        <p className='text-sm font-medium text-gray-500'>Прізвище</p>
-                        <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
-                            {displayValue(employee.secondName)}
-                        </p>
-                    </div>
+                    {/* Секція з даними */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
 
-                    {/* По батькові */}
-                    <div className="space-y-1">
-                        <p className='text-sm font-medium text-gray-500'>По батькові</p>
-                        <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
-                            {displayValue(employee.middleName)}
-                        </p>
-                    </div>
-
-                    {/* Email */}
-                    <div className="space-y-1">
-                        <p className='text-sm font-medium text-gray-500'>Email (Логін)</p>
-                        <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
-                            {displayValue(employee.email)}
-                        </p>
-                    </div>
-
-                    {/* Телефон */}
-                    <div className="space-y-1">
-                        <p className='text-sm font-medium text-gray-500'>Телефон</p>
-                        <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
-                            {displayValue(employee.phoneNumber)}
-                        </p>
-                    </div>
-
-                    {/* Дата народження */}
-                    <div className="space-y-1">
-                        <p className='text-sm font-medium text-gray-500'>Дата народження</p>
-                        <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
-                            {formatDateForDisplay(employee.birthDate)}
-                        </p>
-                    </div>
-
-                    {/* Роль */}
-                    <div className="space-y-1">
-                        <p className='text-sm font-medium text-gray-500'>Роль</p>
-                        <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px] capitalize"> {/* Додав capitalize */}
-                            {displayValue(employee.role)}
-                        </p>
-                    </div>
-
-                    {/* Дата прийому на роботу */}
-                    <div className="space-y-1">
-                        <p className='text-sm font-medium text-gray-500'>Дата прийому на роботу</p>
-                        <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
-                            {formatDateForDisplay(employee.hireDate)}
-                        </p>
-                    </div>
-
-                    {/* Дата звільнення (якщо є) */}
-                    {employee.fireDate && (
+                        {/* Ім'я */}
                         <div className="space-y-1">
-                            <p className='text-sm font-medium text-gray-500'>Дата звільнення</p>
+                            <p className='text-sm font-medium text-gray-500'>Ім'я</p>
                             <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
-                                {formatDateForDisplay(employee.fireDate)}
+                                {displayValue(employee.firstName)}
                             </p>
                         </div>
-                    )}
 
-                </div> {/* Кінець Grid */}
+                        {/* Прізвище */}
+                        <div className="space-y-1">
+                            <p className='text-sm font-medium text-gray-500'>Прізвище</p>
+                            <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
+                                {displayValue(employee.secondName)}
+                            </p>
+                        </div>
 
-                {/* Кнопки дій */}
-                <div className="mt-8 pt-6 border-t flex flex-col sm:flex-row justify-center items-center gap-4">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-x-2 px-5 py-2 bg-tertiary text-white font-medium rounded-md  transition text-sm"
-                    >
-                        <FaArrowLeft /> Назад
-                    </button>
-                    <NavLink
-                        to={`/admin_panel/edit-employee/${id}`} // Посилання на редагування
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-x-2 px-5 py-2 bg-yellow-500 text-black font-medium rounded-lg shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-yellow-500 transition text-sm"
-                    >
-                        <FaEdit /> Редагувати
-                    </NavLink>
+                        {/* По батькові */}
+                        <div className="space-y-1">
+                            <p className='text-sm font-medium text-gray-500'>По батькові</p>
+                            <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
+                                {displayValue(employee.middleName)}
+                            </p>
+                        </div>
+
+                        {/* Email */}
+                        <div className="space-y-1">
+                            <p className='text-sm font-medium text-gray-500'>Email (Логін)</p>
+                            <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
+                                {displayValue(employee.email)}
+                            </p>
+                        </div>
+
+                        {/* Телефон */}
+                        <div className="space-y-1">
+                            <p className='text-sm font-medium text-gray-500'>Телефон</p>
+                            <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
+                                {displayValue(employee.phoneNumber)}
+                            </p>
+                        </div>
+
+                        {/* Дата народження */}
+                        <div className="space-y-1">
+                            <p className='text-sm font-medium text-gray-500'>Дата народження</p>
+                            <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
+                                {formatDateForDisplay(employee.birthDate)}
+                            </p>
+                        </div>
+
+                        {/* Роль */}
+                        <div className="space-y-1">
+                            <p className='text-sm font-medium text-gray-500'>Роль</p>
+                            <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px] capitalize"> {/* Додав capitalize */}
+                                {displayValue(employee.role)}
+                            </p>
+                        </div>
+
+                        {/* Дата прийому на роботу */}
+                        <div className="space-y-1">
+                            <p className='text-sm font-medium text-gray-500'>Дата прийому на роботу</p>
+                            <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
+                                {formatDateForDisplay(employee.hireDate)}
+                            </p>
+                        </div>
+
+                        {/* Дата звільнення (якщо є) */}
+                        {employee.fireDate && (
+                            <div className="space-y-1">
+                                <p className='text-sm font-medium text-gray-500'>Дата звільнення</p>
+                                <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
+                                    {formatDateForDisplay(employee.fireDate)}
+                                </p>
+                            </div>
+                        )}
+
+                    </div> {/* Кінець Grid */}
+
+                    {/* Кнопки дій */}
+                    <div className="mt-8 pt-6 border-t flex flex-col sm:flex-row justify-center items-center gap-4">
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-x-2 px-5 py-2 bg-tertiary text-white font-medium rounded-md  transition text-sm"
+                        >
+                            <FaArrowLeft /> Назад
+                        </button>
+                        <NavLink
+                            to={`/admin_panel/edit-employee/${id}`} // Посилання на редагування
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-x-2 px-5 py-2 bg-yellow-500 text-black font-medium rounded-lg shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-yellow-500 transition text-sm"
+                        >
+                            <FaEdit /> Редагувати
+                        </NavLink>
+                    </div>
+
                 </div>
-
-            </div>
-        </section>
+            </section>
+        </div>
     );
 }
 

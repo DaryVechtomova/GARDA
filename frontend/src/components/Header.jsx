@@ -5,13 +5,31 @@ import { HiOutlineShoppingBag } from "react-icons/hi2";
 import { HiSearch } from "react-icons/hi";
 import { CgProfile } from "react-icons/cg";
 import { HiMenu, HiX } from "react-icons/hi";
-import Navbar from './Navbar'; // Імпортуйте Navbar
+import Navbar from './Navbar';
 
 const Header = ({ setShowLogin }) => {
     const [menuOpened, setMenuOpened] = useState(false);
     const [searchOpened, setSearchOpened] = useState(false);
     const [header, setHeader] = useState(false);
-    const [token, setToken] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    // Перевіряємо стан авторизації при завантаженні компонента
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        setIsLoggedIn(!!token); // !! перетворює значення в boolean
+
+        // Додаємо слухач подій для оновлення стану при зміні токена
+        const handleStorageChange = () => {
+            const newToken = localStorage.getItem("token");
+            setIsLoggedIn(!!newToken);
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, []);
 
     const toggleMenu = () => {
         setMenuOpened(!menuOpened);
@@ -43,7 +61,7 @@ const Header = ({ setShowLogin }) => {
                             ) : (
                                 <HiX className="text-2xl hover:text-secondary sm:text-3xl" />
                             )}
-                            <span className="text-sm hidden sm:block">Меню</span> {/* Приховуємо текст на малих екранах */}
+                            <span className="text-sm hidden sm:block">Меню</span>
                         </div>
                     </div>
 
@@ -70,27 +88,26 @@ const Header = ({ setShowLogin }) => {
                                 )}
                                 <div className="flex flex-col items-center gap-1">
                                     <HiSearch onClick={toggleSearch} className="text-2xl hover:text-secondary cursor-pointer sm:text-3xl" />
-                                    <span className="text-sm hidden sm:block">Пошук</span> {/* Приховуємо текст на малих екранах */}
+                                    <span className="text-sm hidden sm:block">Пошук</span>
                                 </div>
                             </div>
 
                             {/* Уподобані */}
                             <Link to={"/favorites"} className="flex flex-col items-center gap-1">
                                 <MdFavoriteBorder className="text-[22px] hover:text-secondary sm:text-3xl" />
-                                <span className="text-sm hidden sm:block">Вподобані</span> {/* Приховуємо текст на малих екранах */}
+                                <span className="text-sm hidden sm:block">Вподобані</span>
                             </Link>
 
                             {/* Кошик */}
                             <Link to={"/cart"} className="flex flex-col items-center gap-1 relative">
                                 <HiOutlineShoppingBag className="text-[22px] hover:text-secondary sm:text-3xl" />
                                 <span className="bg-white text-sm absolute -top-2 -right-3 flexCenter w-5 h-5 rounded-full shadow-md">0</span>
-                                <span className="text-sm hidden sm:block">Кошик</span> {/* Приховуємо текст на малих екранах */}
+                                <span className="text-sm hidden sm:block">Кошик</span>
                             </Link>
 
                             {/* Профіль */}
-                            <div className="flex flex-col items-center gap-1"> {/* Обгортка для іконки та тексту */}
-                                {!token ? (
-                                    // --- Якщо НЕМАЄ токена (не залогінений) ---
+                            <div className="flex flex-col items-center gap-1">
+                                {!isLoggedIn ? (
                                     <div
                                         onClick={() => setShowLogin(true)}
                                         className="cursor-pointer"
@@ -100,7 +117,6 @@ const Header = ({ setShowLogin }) => {
                                 ) : (
                                     <Link to={"/profile"} className="flex flex-col items-center gap-1">
                                         <CgProfile className="text-[22px] hover:text-secondary sm:text-3xl" />
-                                        {/* Приховуємо текст на малих екранах */}
                                     </Link>
                                 )}
                                 <span className="text-sm hidden sm:block">Профіль</span>
@@ -109,12 +125,11 @@ const Header = ({ setShowLogin }) => {
                     </div>
                 </div>
 
-                {/* Меню (з'являється зліва для всіх розмірів екранів) */}
+                {/* Меню */}
                 {menuOpened && (
                     <div className="fixed top-0 left-0 h-screen w-64 bg-white shadow-lg z-40">
                         <div className="p-5">
                             <HiX onClick={toggleMenu} className="cursor-pointer hover:text-secondary text-2xl mb-5" />
-                            {/* Додано Navbar у випадаюче меню */}
                             <Navbar containerStyles={"flex flex-col gap-y-5"} />
                         </div>
                     </div>
