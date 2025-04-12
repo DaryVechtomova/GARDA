@@ -12,6 +12,7 @@ body {
   padding: 0;
   box-sizing: border-box;
   font-family: "Inter", sans-serif;
+
 }
 
 
@@ -20,10 +21,12 @@ body {
   padding: 0;
   box-sizing: border-box;
   font-family: "Inter", sans-serif;
+
 }
 
 html {
   scroll-behavior: smooth;
+ 
 }
 
 /* width */
@@ -910,16 +913,17 @@ html {
     display: block;         /* Скидання flex/grid */
     width: 100%;           /* Займає всю ширину */
     max-width: 600px;      /* Обмеження максимальної ширини (залежить від дизайну, left+width) */
-    height: 1050px;        /* Приблизна висота для вміщення всіх елементів (916+66 + запас) */
+    min-height: 1050px;
     margin: 20px auto;     /* Центрування та відступи */
     padding: 0;            /* Скидання внутрішніх відступів */
-    overflow: hidden;      /* Приховати те, що виходить за межі */
     transform: translateY(-10rem);
+    padding-bottom: 3rem;
   }
 
   /* 2. Скидання стилів для основних блоків всередині контейнера */
   .product-images-container,
   .product-info {
+      margin-bottom: 3rem;
       position: static; /* Скидання */
       display: block;   /* Скидання */
       flex: none;       /* Скидання */
@@ -2048,5 +2052,144 @@ html {
 
 
 } /* --- Кінець @media (min-width: 320px) and (max-width: 400px) --- */
+
+
+/* --- Батьківський контейнер для позиціонування --- */
+.main-image {
+  /* ВАЖЛИВО: .main-image ПОВИНЕН мати position: relative (або absolute),
+     щоб стати батьком для абсолютного позиціонування дочірніх елементів.
+     Переконайтесь, що цей стиль застосовується до .main-image
+     у ваших існуючих CSS правилах або додайте його. */
+  position: relative;
+  display: block; /* Запобігає зайвим відступам під img */
+  /* overflow: hidden; */ /* ЗАКОМЕНТУЙТЕ або ВИДАЛІТЬ це, якщо кнопки виходять за межі */
+
+  /* --- Ваші існуючі стилі для .main-image (розмір, бордер тощо) --- */
+  /* Приклад з вашого CSS для великого екрану: */
+  /* width: 300px; */
+  /* height: 400px; */
+  /* border: 0.5px solid #000000; */
+  /* cursor: pointer; */ /* Якщо хочете, щоб курсор був вказівником */
+}
+
+.main-image img {
+  display: block; /* Запобігає зайвим відступам */
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Або contain, залежно від потреби */
+}
+
+/* --- Кнопка Сердечка (Wishlist) --- */
+.wishlist-button-over-image {
+  position: absolute; /* Позиціонування відносно .main-image */
+  z-index: 5; /* Щоб бути над картинкою */
+  top: 8px; /* Відступ від верхнього краю */
+  right: 8px; /* Відступ від правого краю */
+  width: 30px; /* Базовий розмір, можна адаптувати в @media */
+  height: 30px; /* Базовий розмір */
+  background: transparent; /* Прозорий фон */
+  border: none; /* Без рамки */
+  padding: 0; /* Без внутрішніх відступів */
+  cursor: pointer; /* Вказівник */
+  display: flex; /* Для центрування SVG */
+  justify-content: center;
+  align-items: center;
+}
+.wishlist-button-over-image svg {
+    width: 80%; /* Масштабування SVG відносно кнопки */
+    height: 80%;
+    /* Стилі для самого SVG, якщо потрібно (stroke тощо) */
+    stroke: black;
+    stroke-width: 1.25;
+}
+
+
+/* --- Контейнер для кнопок +/- та кількості --- */
+.quantity-controls-over-image {
+  position: absolute; /* Позиціонування відносно .main-image */
+  z-index: 5; /* Щоб бути над картинкою */
+  bottom: 8px; /* Відступ від нижнього краю */
+  right: 8px; /* Відступ від правого краю */
+
+  /* Стилі для вигляду контейнера (як кола в дизайні) */
+  background-color: rgba(255, 255, 253, 0.75); /* Напівпрозорий білий */
+  border: 1px solid #ccc; /* Тонка сіра рамка */
+  border-radius: 15px; /* Округлення кутів */
+  padding: 3px 6px; /* Внутрішні відступи */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Легка тінь */
+
+  /* Розташування елементів всередині */
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Відстань між кнопками та числом */
+}
+
+/* --- Кнопки +/- всередині контейнера --- */
+.quantity-controls-over-image .quantity-btn {
+  /* Не потребують position: absolute */
+  background-color: #fff; /* Білий фон */
+  border: 1px solid #aaa; /* Сіра рамка */
+  border-radius: 50%; /* Кругла форма */
+  width: 22px; /* Фіксований розмір, можна адаптувати в @media */
+  height: 22px;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  line-height: 1; /* Важливо для вертикального центрування іконки */
+  transition: background-color 0.2s ease;
+}
+.quantity-controls-over-image .quantity-btn:hover {
+  background-color: #f0f0f0; /* Ефект при наведенні */
+}
+.quantity-controls-over-image .quantity-btn svg {
+  color: #333; /* Колір іконки +/- */
+  /* Розмір іконки контролюється через size={...} в JSX */
+}
+
+/* --- Відображення кількості --- */
+.quantity-controls-over-image .quantity-display-over-image {
+  /* Не потребує position: absolute */
+  font-family: 'Inter', sans-serif; /* Шрифт з дизайну */
+  font-size: 14px; /* Базовий розмір */
+  font-weight: 500; /* Трохи жирніший */
+  min-width: 1.2em; /* Мінімальна ширина, щоб число не стрибало */
+  text-align: center;
+  color: #000000; /* Чорний колір */
+  user-select: none; /* Заборонити виділення тексту */
+}
+
+
+/* --- Адаптація для менших екранів (Приклад) --- */
+/* Ви можете додати @media запити, щоб змінити РОЗМІРИ кнопок
+   або ВІДСТУПИ від країв (top/right/bottom) на менших екранах, якщо потрібно */
+@media (max-width: 600px) { /* Приклад для екранів <= 600px */
+  .wishlist-button-over-image {
+    width: 24px; /* Трохи менше серце */
+    height: 24px;
+    top: 5px;    /* Трохи ближче до країв */
+    right: 5px;
+  }
+
+  .quantity-controls-over-image {
+    bottom: 5px; /* Трохи ближче до країв */
+    right: 5px;
+    padding: 2px 5px; /* Менші відступи */
+    gap: 6px;       /* Менша відстань */
+  }
+
+  .quantity-controls-over-image .quantity-btn {
+    width: 20px; /* Менші кнопки */
+    height: 20px;
+  }
+
+  .quantity-controls-over-image .quantity-display-over-image {
+    font-size: 12px; /* Менший шрифт */
+  }
+   /* Можливо, знадобиться зменшити size={} для FaMinus/FaPlus в JSX для цього розміру */
+}
+
+
 
 }

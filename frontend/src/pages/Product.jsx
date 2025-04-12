@@ -3,7 +3,6 @@ import { ShopContext } from '../context/ShopContext';
 import { useParams } from 'react-router-dom';
 import ProductMd from '../components/ProductMd';
 import ProductHd from '../components/ProductHd';
-import ProductDescription from '../components/ProductDescription';
 
 const Product = () => {
   const { all_products } = useContext(ShopContext);
@@ -19,7 +18,6 @@ const Product = () => {
     <section className='product-page max-padd-container py-20 relative'> {/* Додано relative для позиціонування квітів */}
       <ProductHd  />
       <ProductMd product={product} />
-      <ProductDescription product={product} />
     </section>
   );
 };

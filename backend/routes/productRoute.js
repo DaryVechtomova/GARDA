@@ -21,7 +21,7 @@ const upload = multer({
 });
 
 productRouter.post("/add-product", authMiddleware, adminMiddleware, upload.array("images", 10), addProduct)
-productRouter.get("/list-product", authMiddleware, adminMiddleware, listProduct)
+productRouter.get("/list-product", listProduct)
 productRouter.post("/remove-product", authMiddleware, adminMiddleware, removeProduct)
 productRouter.post("/edit-product", authMiddleware, adminMiddleware, upload.array("images", 10), (req, res, next) => {
     console.log("Отримані файли:", req.files); // Логування файлів

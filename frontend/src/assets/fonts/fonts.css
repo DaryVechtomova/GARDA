@@ -1,4 +1,26 @@
 /* src/fonts/fonts.css */
+/* === Файл: ../assets/fonts/fonts.css (або ваш головний CSS файл) === */
+
+/* Переконайтесь, що імпорт шрифту вже існує вище */
+@import url('https://fonts.googleapis.com/css2?family=Labrada:ital,wght@0,100..900;1,100..900&family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+/* 
+  Стиль для назв категорій. 
+  Ми використовуємо ID секції (#categories) та класи батьківського div (.flex-wrap),
+  щоб зробити селектор специфічним і застосувати шрифт тільки до h4 категорій.
+*/
+#categories .flex-wrap h4 {
+    font-family: "Montserrat Alternates", sans-serif; 
+    font-size: 20px;
+    /* Додайте !important, якщо Tailwind клас (напр., regular-18) 
+       має більший пріоритет і перевизначає font-family */
+    /* font-family: "Montserrat Alternates", sans-serif !important; */
+
+    /* Також ви можете налаштувати вагу шрифту тут, якщо потрібно,
+       наприклад, щоб відповідати класу regular-18 або вашим потребам: */
+    font-weight: 500; 
+    /* font-weight: 600; /* semibold */
+} 
 
 @font-face {
     font-family: 'NyghtSerif';

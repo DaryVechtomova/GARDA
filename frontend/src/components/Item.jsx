@@ -1,6 +1,5 @@
 import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
 import { FaMinus, FaPlus } from 'react-icons/fa6';
 import { ShopContext } from '../context/ShopContext';
 
@@ -23,7 +22,7 @@ const Item = ({ product }) => {
         setIsFavorited(!isFavorited);
     };
 
-    const { cartItems, addToCart, removeFromCart } = useContext(ShopContext);
+    const { cartItems, addToCart, removeFromCart, url } = useContext(ShopContext);
 
 
     return (
@@ -41,7 +40,7 @@ const Item = ({ product }) => {
                 </button>
                 <Link to={`/product/${product._id}`}>
                     <img
-                        src={product.images[currentImageIndex]}
+                        src={url+"/images/"+product.images[currentImageIndex]}
                         alt={product.name}
                         style={{
                             width: '100%',
@@ -62,8 +61,8 @@ const Item = ({ product }) => {
             <Link to={`/product/${product._id}`}>
             {/* Назва і ціна */}
             <div className="text-center mt-4">
-                <h4 className="font-semi-bold text-l mb-5">{product.name}</h4>
-                <span className="text-lg text-gray-800">Ціна: {product.price} грн</span>
+                <h4 style={{ fontFamily: 'Montserrat Alternates', fontWeight: 600 }} className="font-semi-bold text-l mb-5">{product.name}</h4>
+                <span style={{ fontFamily: 'Montserrat Alternates', fontWeight: 500 }} className="text-lg text-gray-800">Ціна: {product.price} грн</span>
             </div>
             </Link>
             {/* Іконка сердечка */}

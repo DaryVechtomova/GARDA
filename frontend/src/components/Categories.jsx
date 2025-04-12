@@ -3,6 +3,8 @@ import { categories } from '../assets/data';
 import '../assets/fonts/fonts.css';
 import flower from "../assets/design/flower-categories.png"; // Імпорт зображення
 
+
+
 const Categories = ({ category, setCategory }) => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
@@ -26,17 +28,18 @@ const Categories = ({ category, setCategory }) => {
     // Розрахунок розмірів для flower-categories
     const calculateStyles = (minWidth, maxWidth, minStyle, maxStyle) => {
         return {
-            width: `${interpolate(windowWidth, 600, minStyle.width, 1540, maxStyle.width)}px`,
-            height: `${interpolate(windowWidth, 600, minStyle.height, 1540, maxStyle.height)}px`,
-            left: `${interpolate(windowWidth, 600, minStyle.left, 1540, maxStyle.left)}px`,
-            top: `${interpolate(windowWidth, 600, minStyle.top, 1540, maxStyle.top)}px`,
+            width: `${interpolate(windowWidth, 320, minStyle.width, 1540, maxStyle.width)}px`,
+            height: `${interpolate(windowWidth, 320, minStyle.height, 1540, maxStyle.height)}px`,
+            left: `${interpolate(windowWidth, 320, minStyle.left, 1540, maxStyle.left)}px`,
+            top: `${interpolate(windowWidth, 320, minStyle.top, 1540, maxStyle.top)}px`,
         };
     };
 
     // Стилі для мобільної версії (600px)
     const mobileStyles = {
-        flower: { width: 285, height: 215, left: -6, top: 1200 },
-        section: { top: -350 },
+        flower: { width: 285, height: 215, left: -6, top: 1270 },
+        section: { top: -320 },
+       
     };
 
     // Стилі для десктопної версії (1530px)
@@ -54,6 +57,7 @@ const Categories = ({ category, setCategory }) => {
     return (
         <section id="categories" className="max-padd-container pt-40 relative" style={{
             top: `${sectionTop}px`, // Адаптивне зміщення розділу
+           
         }}>
             {/* Картинка flower-categories */}
             <img
@@ -73,7 +77,7 @@ const Categories = ({ category, setCategory }) => {
                     top: '0'
                 }}>
                     <h4 className="text-4xl font-extrabold leading-none font-ace pb-20">
-                        <span style={{ fontFamily: 'NyghtSerif', fontWeight: 1000 }}>
+                        <span style={{ fontFamily: 'Montserrat Alternates', fontWeight: 500 }}>
                             Категорії
                         </span>
                     </h4>
