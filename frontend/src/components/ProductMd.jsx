@@ -5,6 +5,7 @@ import { ShopContext } from "../context/ShopContext";
 import { useNavigate } from "react-router-dom";
 import ArrowIcon from '../assets/design/Arrow.png'; // Переконайтесь, що шлях правильний
 import ProductDescription from '../components/ProductDescription';
+import ProductComments  from '../components/ProductComments';
 
 const ProductMd = ({ product }) => {
     // Переконайтесь, що 'url' отримується з контексту
@@ -190,7 +191,15 @@ const ProductMd = ({ product }) => {
                      <div className={`tab-underline ${activeTab === 'description' ? 'visible' : ''}`}></div>
                   </div>
                  {activeTab === 'description' && ( <div className="product-description"   style={scrollableStyle} > <ProductDescription product={product} /> </div> )}
-                 {activeTab === 'comments' && ( <div className="product-comments"    style={scrollableStyle}> <p>Коментарі поки що не доступні.</p> </div> )}
+                 {activeTab === 'comments' && (
+    <div className="product-description" style={scrollableStyle}>
+        {/* Передаємо productId та url */}
+         <ProductComments productId={product?._id} />
+         {/* Примітка: url має бути доступним тут, імовірно з ShopContext,
+             але ProductComments сам дістає його з контексту, тож явно передавати не обов'язково,
+             якщо він правильно налаштований в ProductComments */}
+    </div>
+)}
             </div> {/* --- End .product-info --- */}
         </section>
     );

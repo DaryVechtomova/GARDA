@@ -35,22 +35,23 @@ const LoginPopup = ({ setShowLogin }) => {
     const onLogin = async (event) => {
         event.preventDefault();
         let newUrl = url;
-
+    
         if (state === "Login") {
             newUrl += "/api/user/login";
         } else {
             newUrl += "/api/user/register";
         }
-
+    
         try {
             const response = await axios.post(newUrl, data);
-
+    
             if (response.data.success) {
                 toast.success(state === "Login" ? "Успішний вхід!" : "Реєстрація пройшла успішно!");
                 const token = response.data.token;
                 console.log(response.data.token);
                 const role = response.data.role;
                 setShowLogin(false);
+                
                 // Затримка для toast, перш ніж перейти
                 setTimeout(() => {
                     if (role === "користувач") {

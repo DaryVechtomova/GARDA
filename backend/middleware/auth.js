@@ -8,14 +8,14 @@ const authMiddleware = async (req, res, next) => {
 
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
         // 401 Unauthorized - стандартний код для відсутності автентифікації
-        return res.status(401).json({ success: false, message: 'Потрібна авторизація (токен не надано)' });
+        return res.status(401).json({ success: false, message: 'Для виконання цієї дії необхідно авторизуватися' });
     }
 
     // Витягуємо сам токен
     const token = authorizationHeader.split(' ')[1];
 
     if (!token) {
-        return res.status(401).json({ success: false, message: 'Потрібна авторизація (некоректний формат хедера)' });
+        return res.status(401).json({ success: false, message: 'Для виконання цієї дії необхідно авторизуватися' });
     }
 
     try {

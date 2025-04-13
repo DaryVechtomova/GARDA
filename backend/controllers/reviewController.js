@@ -5,22 +5,53 @@ import User from '../models/userModel.js';
 const createReview = async (req, res) => {
     try {
         const { productId, comment } = req.body;
-        const userId = req.user._id;
+        // userId додається мідлвером authMiddleware в req.user
+        const userId = req.user?._id; // Додаткова перевірка наявності req.user
 
+        // --- Валідація ---
+        if (!productId || !comment || typeof comment !== 'string' || comment.trim() === '') {
+            return res.status(400).json({ // 400 Bad Request - невірний запит
+                success: false,
+                message: 'Необхідно надати ID товару та текст коментаря.'
+            });
+        }
+        if (!userId) {
+             // Це не повинно статись, якщо authMiddleware відпрацював, але про всяк випадок
+            console.error('UserId not found in req.user in createReview');
+            return res.status(401).json({ success: false, message: 'Помилка авторизації.' });
+        }
+
+        // --- Створення та збереження ---
         const newReview = new Review({
             product: productId,
             user: userId,
-            comment
+            comment: comment.trim() // Зберігаємо без зайвих пробілів
         });
 
         await newReview.save();
-        res.status(201).json(newReview);
+
+        // --- Успішна відповідь ---
+        // Populate user data одразу для повернення на фронтенд
+        const populatedReview = await Review.findById(newReview._id).populate('user', 'firstName secondName');
+
+        res.status(201).json({ // 201 Created
+            success: true, // Додаємо success: true
+            data: populatedReview,   // Надсилаємо створений відгук з даними користувача
+            message: "Відгук успішно додано"
+        });
+
     } catch (err) {
-        res.status(500).json({ message: 'Помилка при створенні відгуку', error: err.message });
+        // --- Обробка помилок сервера/БД ---
+        console.error('Error creating review:', err); // Логуємо помилку на сервері
+        res.status(500).json({ // 500 Internal Server Error
+            success: false, // Додаємо success: false
+            message: 'Виникла помилка при створенні відгуку. Спробуйте пізніше.'
+            // Не надсилаємо err.message на фронтенд напряму з міркувань безпеки
+        });
     }
 };
 
-// Отримати відгуки по конкретному товару
+// Отримати відгуки по конкретному товару (для адміністратора)
 const getReviewsForAdmin = async (req, res) => {
     const { productId } = req.params;
 
@@ -35,7 +66,7 @@ const getReviewsForAdmin = async (req, res) => {
     }
 };
 
-// Отримати всі відгуки (для адміністратора)
+// Отримати всі відгуки (для комірника та клієнта)
 const getReviewsForUser = async (req, res) => {
     const { productId } = req.params;
 
