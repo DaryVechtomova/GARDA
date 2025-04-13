@@ -49,17 +49,16 @@ const LoginPopup = ({ setShowLogin }) => {
                 toast.success(state === "Login" ? "Успішний вхід!" : "Реєстрація пройшла успішно!");
                 const token = response.data.token;
                 console.log(response.data.token);
-                localStorage.setItem("token", token);
                 const role = response.data.role;
-                localStorage.setItem("role", role);
                 setShowLogin(false);
-                localStorage.setItem("userFirstName", response.data.firstName || '');
-                localStorage.setItem("userSecondName", response.data.secondName || '');
-                localStorage.setItem("userMiddleName", response.data.middleName || '');
-
                 // Затримка для toast, перш ніж перейти
                 setTimeout(() => {
                     if (role === "користувач") {
+                        localStorage.setItem("token", token);
+                        localStorage.setItem("role", role);
+                        localStorage.setItem("userFirstName", response.data.firstName || '');
+                        localStorage.setItem("userSecondName", response.data.secondName || '');
+                        localStorage.setItem("userMiddleName", response.data.middleName || '');
                         window.dispatchEvent(new Event('storage'));
                         navigate("/profile");
                     } else if (role === "адміністратор" || role === "комірник") {

@@ -7,9 +7,10 @@ import { CgProfile } from "react-icons/cg";
 import { HiMenu, HiX } from "react-icons/hi";
 import Navbar from './Navbar';
 import { ShopContext } from '../context/ShopContext';
+import { TbLogout } from "react-icons/tb"
 
 const Header = ({ setShowLogin }) => {
-    const { getTotalCartItems, token, setToken}=useContext(ShopContext);
+    const { getTotalCartItems, token, setToken } = useContext(ShopContext);
     const [menuOpened, setMenuOpened] = useState(false);
     const [searchOpened, setSearchOpened] = useState(false);
     const [header, setHeader] = useState(false);
@@ -57,7 +58,7 @@ const Header = ({ setShowLogin }) => {
         setToken(null); // якщо використовуєш глобальний токен
         navigate("/");
     };
-    
+
 
     return (
         <header className={`${header ? "!py-3 shadow-sm" : ""} fixed w-full top-0 left-0 right-0 py-4 z-30 transition-all bg-[#fcfaf4]`}>
@@ -114,27 +115,42 @@ const Header = ({ setShowLogin }) => {
                                 <HiOutlineShoppingBag className="text-[22px] hover:text-secondary sm:text-3xl" />
                                 <span className="bg-white text-sm absolute -top-2 -right-3 flexCenter w-5 h-5 rounded-full shadow-md">{getTotalCartItems()}</span>
                                 <span className="text-sm hidden sm:block">
-                                    
+
                                     Кошик</span>
                             </Link>
 
                             {/* Профіль */}
                             <div className="flex flex-col items-center gap-1 relative group">
-                                <CgProfile className="text-[22px] hover:text-secondary sm:text-3xl cursor-pointer" />
-                                <span className="text-sm hidden sm:block">Профіль</span>
+
+
 
                                 {/* Випадаючий список при ховері (Logout) */}
-                                {isLoggedIn && (
-                                    <ul className="absolute top-10 right-0 bg-white border rounded shadow-md hidden group-hover:block z-50">
-                                        <li
-                                            onClick={logout}
-                                            className="flex items-center gap-x-2 px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                        >
-                                            <TbLogout className="text-[19px]" />
-                                            <span>Вийти</span>
-                                        </li>
-                                    </ul>
+                                {!isLoggedIn ? (
+                                    <div
+                                        onClick={() => setShowLogin(true)}
+                                        className="cursor-pointer"
+                                    >
+                                        <CgProfile className="text-[22px] hover:text-secondary sm:text-3xl cursor-pointer" />
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <Link to={"/profile"} className="flex flex-col items-center gap-1">
+                                            <CgProfile className="text-[22px] hover:text-secondary sm:text-3xl cursor-pointer" />
+                                        </Link>
+                                        <ul className="absolute top-10 right-0 bg-white border rounded shadow-md hidden group-hover:block z-50">
+
+                                            <li
+                                                onClick={logout}
+                                                className="flex items-center gap-x-2 px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                            >
+                                                <TbLogout className="text-[19px]" />
+                                                <span>Вийти</span>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 )}
+
+                                <span className="text-sm hidden sm:block">Профіль</span>
                             </div>
 
                         </div>

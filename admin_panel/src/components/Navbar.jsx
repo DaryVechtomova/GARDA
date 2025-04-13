@@ -41,6 +41,8 @@ const Navbar = ({ userData, isLoadingUser, onLogout }) => {
     // Обробник виходу
     const handleLogoutClick = () => {
         setIsDropdownOpen(false); // Закриваємо дропдаун
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminUserData');
         onLogout(); // Викликаємо функцію виходу
     }
 

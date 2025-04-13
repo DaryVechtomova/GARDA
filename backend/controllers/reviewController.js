@@ -4,13 +4,12 @@ import User from '../models/userModel.js';
 // Створити новий відгук
 const createReview = async (req, res) => {
     try {
-        const { productId, rating, comment } = req.body;
+        const { productId, comment } = req.body;
         const userId = req.user._id;
 
         const newReview = new Review({
             product: productId,
             user: userId,
-            rating,
             comment
         });
 

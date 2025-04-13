@@ -324,11 +324,7 @@ const ProductDetails = () => {
                                                     {review.user?.secondName} {review.user?.firstName}
                                                 </h5>
                                                 <p className="text-gray-600">{review.user?.email}</p>
-                                                <div className="flex items-center mt-1">
-                                                    {[...Array(5)].map((_, i) => (
-                                                        <span key={i} className={i < review.rating ? 'text-yellow-500' : 'text-gray-300'}>★</span>
-                                                    ))}
-                                                </div>
+
                                             </div>
                                             <div className="text-sm text-gray-500">
                                                 {new Date(review.createdAt).toLocaleDateString()}
