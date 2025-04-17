@@ -845,7 +845,7 @@ html {
     /* === НОВІ left/top === */
     left: 846px;
     top: 383px; /* З коментаря 'Тканина...' */
-    width: 362px;
+    width: 439px;
     height: auto; /* Нехай висота буде автоматичною */
     font-family: 'Literata', serif;
     font-weight: 500;
@@ -1199,7 +1199,7 @@ html {
   .product-description {
     display: block; /* Переконатись, що видимий */
     position: absolute;
-    width: 362px; /* Можливо, зменшити */
+    width: 439px; /* Можливо, зменшити */
     height: auto; /* Автоматична висота */
     left: 5px;
     top: 916px;
@@ -1214,7 +1214,20 @@ html {
   }
   /* Сховати коментарі, коли активний опис */
   .product-comments {
-     display: none;
+    display: block; /* Переконатись, що видимий */
+    position: absolute;
+    width: 362px; /* Можливо, зменшити */
+    height: auto; /* Автоматична висота */
+    left: 5px;
+    top: 916px;
+    font-family: 'Literata', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 22px;
+    color: #000000;
+    margin: 0;
+    padding: 0;
   }
 
   /* Коментарі (показувати та позиціонувати, коли активні) */
@@ -1514,7 +1527,7 @@ html {
   /* Опис товару (як на 500px) */
   .product-description {
       display: block;
-      position: absolute; width: 362px; height: auto; left: 5px;
+      position: absolute; width: 439px; height: auto; left: 5px;
       top: 916px; font-family: 'Literata', serif; font-weight: 500; font-size: 15px;
       line-height: 22px; color: #000000; margin: 0; padding: 0;
   }
@@ -1926,7 +1939,7 @@ html {
     /* За замовчуванням сховано, показуємо коли активний таб 1 */
     display: none;
     position: absolute;
-    width: 240px; /* Ширина тексту */
+    width: 290px; /* Ширина тексту */
     height: auto; /* Автоматична висота */
     left: 14px;
     top: 613px; /* Округлили 612.5px */
@@ -2190,6 +2203,152 @@ html {
    /* Можливо, знадобиться зменшити size={} для FaMinus/FaPlus в JSX для цього розміру */
 }
 
+/* =============================================== */
+/* === Стилі для секції коментарів (ProductComments) === */
+/* =============================================== */
 
+/* --- Загальний контейнер секції (всередині вкладки) --- */
+.product-comments-tab-content {
+  /* Задається через style={scrollableStyle} в ProductMd, */
+  /* але можна додати базові відступи тут, якщо потрібно */
+  padding: 10px; /* Додаємо трохи повітря */
+}
+
+/* --- Окремий коментар --- */
+.comment-item {
+  margin-bottom: 1rem; /* Відступ між коментарями */
+  padding-bottom: 1rem; /* Відступ перед розділювачем */
+  position: relative; /* Для позиціонування ::after, якщо знадобиться для hr */
+}
+
+/* Ім'я автора (Василь Федорович Опанасенко) */
+.comment-author {
+  font-family: 'Literata', serif; /* Змінено з sans-serif */
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 18px;
+  color: #991313;
+  margin-bottom: 0.3rem; /* Невеликий відступ знизу */
+  /* width і height не потрібні, текст займе потрібне місце */
+}
+
+/* Текст коментаря (Чудова вишиванка...) */
+.comment-text {
+  font-family: 'Literata', serif; /* Змінено з sans-serif */
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 18px;
+  color: #000000;
+  margin-bottom: 0.3rem;
+}
+
+/* Дата коментаря (13.04.2025) */
+.comment-date {
+  font-family: 'Literata', serif; /* Змінено з sans-serif */
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 18px;
+  color: #000000;
+}
+
+/* Роздільник (Line 8) */
+.comment-divider {
+  /* width: 436px; Замість фіксованої ширини зробимо 100% від батька */
+  width: 100%;
+  border: none; /* Скидаємо стандартний стиль hr */
+  border-top: 1px dashed #000000; /* Задаємо стиль з дизайну */
+  margin-top: 1rem; /* Відступ над лінією (додав, щоб співпадало з padding-bottom) */
+  /* height: 0px; - не потрібно для border-top */
+}
+/* Можна стилізувати останній hr, щоб прибрати його, якщо він зайвий */
+.comment-list .comment-item:last-child .comment-divider {
+  display: none;
+}
+
+/* --- Секція додавання коментаря --- */
+.add-comment-section {
+  margin-top: 1.5rem; /* Відступ над формою додавання */
+  border-top: 1px solid #e0e0e0; /* Тонка лінія зверху */
+  padding-top: 1rem;
+}
+
+/* Заголовок "Додати коментар" */
+.add-comment-title {
+  font-family: 'Literata', serif; /* Змінено з sans-serif */
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 21px;
+  color: #000000;
+  margin-bottom: 0.8rem;
+}
+
+/* Поле вводу тексту (Rectangle 25) */
+.comment-input {
+  box-sizing: border-box;
+  width: 100%; /* На всю ширину батьківського блоку */
+  height: 100px; /* Висота з дизайну */
+  background: #FFFFFD;
+  border: 1px solid #000000;
+  font-family: 'Literata', serif; /* Застосуємо до тексту всередині */
+  font-size: 13px; /* Як у плейсхолдера, але можна змінити */
+  padding: 10px; /* Внутрішні відступи для тексту */
+  margin-bottom: 1rem; /* Відступ під полем */
+  resize: vertical; /* Дозволити змінювати висоту, якщо потрібно */
+}
+
+/* Стилізація плейсхолдера ("Напишіть коментар") */
+.comment-input::placeholder {
+  font-family: 'Literata', serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 19px; /* Відповідає висоті з дизайну */
+  color: #585252;
+  /* Не position: absolute */
+  /* width/height ігноруються для плейсхолдера */
+}
+
+/* Кнопка "Надіслати" (Rectangle 26 + Text) */
+.submit-comment-button {
+  width: 100%; /* Кнопка на всю ширину */
+  /* height: 51px; - Висота кнопки задається паддінгами та line-height */
+  background: #54A5D9;
+  border: none;
+  padding: 12px 20px; /* Вертикальні та горизонтальні відступи */
+
+  /* Стилі тексту "Надіслати" */
+  font-family: 'Literata', serif; /* Змінено з sans-serif */
+  font-style: normal;
+  font-weight: 500; /* В дизайні для тексту кнопки 500 */
+  font-size: 18px;
+  line-height: 27px; /* Вже задає висоту тексту */
+  color: #FFFFFF;
+  text-align: center; /* Горизонтальне центрування */
+  cursor: pointer;
+  transition: background-color 0.2s ease; /* Плавний перехід для hover */
+}
+
+.submit-comment-button:hover {
+  background-color: #438abd; /* Трохи темніший колір при наведенні */
+}
+
+/* Стилі для повідомлень про помилки */
+.error-message {
+    color: #dc2626; /* Червоний */
+    font-size: 12px;
+    margin-top: 5px;
+}
+.error-message.submit-error {
+    margin-bottom: 10px; /* Додатковий відступ для помилки відправки */
+}
+.no-comments-message {
+    color: #6b7280; /* Сірий */
+    font-style: italic;
+    font-size: 14px;
+}
 
 }

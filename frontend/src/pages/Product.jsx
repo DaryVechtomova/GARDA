@@ -18,6 +18,7 @@ const Product = () => {
     <section className='product-page max-padd-container py-20 relative'> {/* Додано relative для позиціонування квітів */}
       <ProductHd  />
       <ProductMd product={product} />
+      <ProductHd  />
     </section>
   );
 };
