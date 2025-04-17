@@ -61,7 +61,7 @@ const Item = ({ product }) => {
             <Link to={`/product/${product._id}`}>
             {/* Назва і ціна */}
             <div className="text-center mt-4">
-                <h4 style={{ fontFamily: 'Montserrat Alternates', fontWeight: 600 }} className="font-semi-bold text-l mb-5">{product.name}</h4>
+                <h4 style={{ fontFamily: 'Montserrat Alternates', fontWeight: 600 }} className="font-semi-bold text-l mb-2">{product.name}</h4>
                 <span style={{ fontFamily: 'Montserrat Alternates', fontWeight: 500 }} className="text-lg text-gray-800">Ціна: {product.price} грн</span>
             </div>
             </Link>

@@ -327,5 +327,17 @@ const editDiscount = async (req, res) => {
     }
 };
 
+const getProductById = async(req, res)=>{
+    try {
+        const product = await productModel.findById(req.params.id);
+        if (!product) {
+            return res.json({ success: false, message: "Товар не знайдено" });
+        }
+        res.json({ success: true, data: product });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Помилка при отриманні товару" });
+    }
+}
 
-export { addProduct, listProduct, removeProduct, editProduct, removeDiscount, editDiscount }
+export { addProduct, listProduct, removeProduct, editProduct, removeDiscount, editDiscount, getProductById }
