@@ -1,7 +1,7 @@
 import express from "express";
 import { authMiddleware, adminMiddleware, strictAdminMiddleware } from "../middleware/auth.js";
 import orderModel from "../models/orderModel.js"
-import { placeOrder, verifyOrder, userOrders, listOrders, updateOrderStatus, cancelOrder, updateOrder } from "../controllers/orderController.js";
+import { placeOrder, verifyOrder, userOrders, listOrders, updateOrderStatus, cancelOrder, updateOrder, cancelOrderForUser, getOrderStatus } from "../controllers/orderController.js";
 
 const orderRouter = express.Router();
 
@@ -36,5 +36,7 @@ orderRouter.get("/details/:orderId", authMiddleware, adminMiddleware, async (req
         res.json({ success: false, message: "Помилка при отриманні замовлення" });
     }
 });
+orderRouter.put("/cancel-order-user/:orderId", authMiddleware, cancelOrderForUser);
+orderRouter.get('/:orderId/status', authMiddleware, getOrderStatus);
 
 export default orderRouter;

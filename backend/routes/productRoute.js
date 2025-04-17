@@ -1,5 +1,16 @@
 import express from "express"
-import { addProduct, listProduct, removeProduct, editProduct, removeDiscount, editDiscount, getProductById} from "../controllers/productController.js"
+import { 
+    addProduct,
+    listProduct,
+    removeProduct,
+    editProduct,
+    removeDiscount,
+    editDiscount,
+    getProductById,
+    listDiscountedProducts,
+    checkProductAvailability
+} 
+from "../controllers/productController.js"
 import productModel from "../models/productModel.js"
 import multer from "multer"
 import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
@@ -67,5 +78,8 @@ productRouter.get('/search', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+
+productRouter.get("/list-discounted-products", listDiscountedProducts)
+productRouter.get("/availability/:id", checkProductAvailability);
 
 export default productRouter;

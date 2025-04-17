@@ -62,7 +62,30 @@ const Item = ({ product }) => {
             {/* Назва і ціна */}
             <div className="text-center mt-4">
                 <h4 style={{ fontFamily: 'Montserrat Alternates', fontWeight: 600 }} className="font-semi-bold text-l mb-2">{product.name}</h4>
-                <span style={{ fontFamily: 'Montserrat Alternates', fontWeight: 500 }} className="text-lg text-gray-800">Ціна: {product.price} грн</span>
+                <div className="text-lg text-gray-800">
+                <span style={{ fontFamily: 'Montserrat Alternates', fontWeight: 500 }}>Ціна:</span>
+                {product.price ? (
+                    <span style={{ fontFamily: 'Montserrat Alternates', fontWeight: 500 }} className="ml-2">
+                    {product.discount ? (
+                        <>
+                        <span style={{ fontFamily: 'Montserrat Alternates', fontWeight: 500 }}className="line-through text-gray-500">{product.price} грн</span>
+                        <br />
+                        <span style={{ fontFamily: 'Montserrat Alternates', fontWeight: 500 }} className="text-red-600 font-bold">
+                            {Math.round(product.price * (1 - product.discount / 100))} грн
+                        </span>
+                        </>
+                    ) : (
+                        <>{product.price} грн</>
+                    )}
+                    </span>
+                ) : (
+                    'Ціна не вказана'
+                )}
+                </div>
+
+
+
+
             </div>
             </Link>
             {/* Іконка сердечка */}

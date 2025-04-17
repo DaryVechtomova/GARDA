@@ -340,4 +340,86 @@ const getProductById = async(req, res)=>{
     }
 }
 
-export { addProduct, listProduct, removeProduct, editProduct, removeDiscount, editDiscount, getProductById }
+const listDiscountedProducts = async (req, res) => {
+    try {
+        // Знаходимо товари, де знижка більше 0
+        const products = await productModel.find({ discount: { $gt: 0 } });
+        
+        // Додаємо поле discountedPrice для кожного товару
+        const productsWithDiscount = products.map((product) => ({
+            ...product.toObject(),
+            discountedPrice: getDiscountedPrice(product.price, product.discount),
+        }));
+        
+        res.json({ success: true, data: productsWithDiscount });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Помилка при отриманні товарів зі знижкою" });
+    }
+};
+
+const checkProductAvailability = async (req, res) => {
+    try {
+        const productId = req.params.id;
+        
+        // Знаходимо товар за ID
+        const product = await productModel.findById(productId);
+        
+        if (!product) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "Товар не знайдено" 
+            });
+        }
+
+        // Перевіряємо наявність товару (якщо є розміри - перевіряємо їх, інакше перевіряємо загальну наявність)
+        let available = false;
+        let availabilityDetails = {};
+
+        if (product.sizes && product.sizes.length > 0) {
+            // Для товарів з розмірами
+            availabilityDetails.sizes = [];
+            
+            product.sizes.forEach(size => {
+                if (size.quantity > 0) {
+                    available = true;
+                    availabilityDetails.sizes.push({
+                        size: size.size,
+                        available: true,
+                        quantity: size.quantity
+                    });
+                } else {
+                    availabilityDetails.sizes.push({
+                        size: size.size,
+                        available: false,
+                        quantity: 0
+                    });
+                }
+            });
+        } else {
+            // Для товарів без розмірів (просто перевіряємо загальну кількість)
+            available = product.quantity > 0;
+            availabilityDetails.quantity = product.quantity || 0;
+        }
+
+        res.json({ 
+            success: true, 
+            data: {
+                productId: product._id,
+                name: product.name,
+                available: available,
+                details: availabilityDetails
+            }
+        });
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ 
+            success: false, 
+            message: "Помилка при перевірці наявності товару",
+            error: error.message
+        });
+    }
+};
+
+export { addProduct, listProduct, removeProduct, editProduct, removeDiscount, editDiscount, getProductById, listDiscountedProducts, checkProductAvailability }

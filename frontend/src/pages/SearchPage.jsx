@@ -46,18 +46,30 @@ const SearchPage = () => {
 
     // Розрахунок відступів для контейнера
     const calculateMarginTop = () => {
-        const mobileMarginTop = -200; // Відступ для мобільної версії
-        const desktopMarginTop = 40; // Відступ для десктопної версії
+        const mobileMarginTop = 40; // Змінено на позитивне значення
+        const desktopMarginTop = 80; // Збільшено для десктопної версії
 
         return interpolate(windowWidth, 600, mobileMarginTop, 1540, desktopMarginTop);
     };
 
     return (
-        <section id="search-results" className="max-w-screen-lg mx-auto py-16" style={{ marginTop: `${calculateMarginTop()}px` }}>
-            <h2 style={{ fontFamily: 'Montserrat Alternates', fontWeight: 500 }} className="text-2xl font-bold mb-5 text-center">Результати пошуку для "{query}"</h2>
+        <section 
+            id="search-results" 
+            className="max-w-screen-lg mx-auto py-16 min-h-[70vh] flex flex-col"
+            style={{ 
+                marginTop: `${calculateMarginTop()}px`,
+                paddingBottom: "100px" // Додаємо відступ знизу
+            }}
+        >
+            <h2 
+                style={{ fontFamily: 'Montserrat Alternates', fontWeight: 500 }} 
+                className="text-2xl font-bold mb-8 text-center"
+            >
+                Результати пошуку для "{query}"
+            </h2>
             
             {searchResults.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-20">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-20 flex-grow">
                     {searchResults.map(product => (
                         <div key={product._id} className="flex justify-center">
                             <Item product={product} />
@@ -65,7 +77,9 @@ const SearchPage = () => {
                     ))}
                 </div>
             ) : (
-                <p className="text-center">Товарів не знайдено</p>
+                <div className="flex-grow flex items-center justify-center">
+                    <p className="text-center text-lg">Товарів не знайдено</p>
+                </div>
             )}
         </section>
     );
