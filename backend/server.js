@@ -45,6 +45,15 @@ app.get("/", (req, res) => {
     res.send("API Working")
 })
 
-app.listen(port, () => {
-    console.log(`Server started on http://localhost:${port}`)
-})
+// app.listen(port, () => {
+//     console.log(`Server started on http://localhost:${port}`)
+// })
+
+export { app }
+
+// Запускаємо сервер тільки якщо це не тестовий режим
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(port, () => {
+        console.log(`Server started on http://localhost:${port}`)
+    })
+}

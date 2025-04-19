@@ -128,7 +128,8 @@ const registerUser = async (req, res) => {
 // Отримання списку співробітників (для адміна)
 const listEmployees = async (req, res) => {
     try {
-        const employees = await userModel.find({ role: { $in: ["адміністратор", "комірник"] } });
+        const employees = await userModel.find({ role: { $in: ["адміністратор", "комірник"] } })
+            .select('-password');
         res.json({ success: true, data: employees });
     } catch (error) {
         console.log(error);
