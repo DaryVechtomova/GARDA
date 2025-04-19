@@ -134,7 +134,7 @@ const placeOrder = async (req, res) => {
 
         const line_items = items.map((item) => ({
             price_data: {
-                currency: "грн",
+                currency: "usd",
                 product_data: {
                     name: item.name
                 },
@@ -184,6 +184,7 @@ const userOrders = async (req, res) => {
         res.json({ success: false, message: "Error" })
     }
 }
+
 
 // listing orders for admin panel
 const listOrders = async (req, res) => {
