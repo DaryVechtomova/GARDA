@@ -7,6 +7,7 @@ import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
 import Footer from "./components/Footer";
 import LoginPopup from "./components/LoginPopup";
+import SearchPage from './pages/SearchPage';
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { ToastContainer } from 'react-toastify';
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/favorites" element={<Favorites />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/search" element={<SearchPage />} />
       </Routes>
       <Footer />
     </BrowserRouter>

@@ -16,6 +16,24 @@ const Header = ({ setShowLogin }) => {
     const [header, setHeader] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate()
+    const [searchQuery, setSearchQuery] = useState(''); // Додайте цей стан
+    const { url } = useContext(ShopContext); // Додайте url з контексту
+
+    // Функція для обробки пошуку
+    const handleSearch = async () => {
+        if (!searchQuery.trim()) {
+            return;
+        }
+        navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+        setSearchOpened(false);
+    };
+
+    // Обробник натискання клавіші Enter
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
 
     // Перевіряємо стан авторизації при завантаженні компонента
     useEffect(() => {
@@ -42,7 +60,7 @@ const Header = ({ setShowLogin }) => {
     const toggleSearch = () => {
         setSearchOpened(!searchOpened);
     };
-
+   
     useEffect(() => {
         const handleScroll = () => {
             window.scrollY > 40 ? setHeader(true) : setHeader(false);
@@ -59,6 +77,14 @@ const Header = ({ setShowLogin }) => {
         navigate("/");
     };
 
+    const searchProducts = (products) => {
+        if (!searchQuery) return products;
+        return products.filter(product =>
+            product.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    };
+
+   
 
     return (
         <header className={`${header ? "!py-3 shadow-sm" : ""} fixed w-full top-0 left-0 right-0 py-4 z-30 transition-all bg-[#fcfaf4]`}>
@@ -91,19 +117,35 @@ const Header = ({ setShowLogin }) => {
                         <div className="flexBetween gap-x-3 sm:gap-x-8">
                             {/* Пошук */}
                             <div className="flex items-center gap-2">
-                                {searchOpened && (
-                                    <input
-                                        type="text"
-                                        placeholder="Пошук..."
-                                        className="bg-white border border-gray-300 rounded-md p-2 w-48 shadow-md transition-all duration-300"
-                                    />
-                                )}
+                            {searchOpened && (
+        <div className="relative">
+            <input
+                type="text"
+                placeholder="Пошук..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="bg-white border border-gray-300 rounded-md p-2 w-48 shadow-md transition-all duration-300"
+            />
+            <HiSearch 
+                onClick={handleSearch}
+                className="absolute right-2 top-2 text-xl hover:text-secondary cursor-pointer" 
+            />
+        </div>
+    )}
                                 <div className="flex flex-col items-center gap-1">
-                                    <HiSearch onClick={toggleSearch} className="text-2xl hover:text-secondary cursor-pointer sm:text-3xl" />
+                                    <HiSearch 
+                                        onClick={() => {
+                                            toggleSearch();
+                                            if (searchOpened && searchQuery) {
+                                                handleSearch();
+                                            }
+                                        }} 
+                                        className="text-2xl hover:text-secondary cursor-pointer sm:text-3xl" 
+                                    />
                                     <span className="text-sm hidden sm:block">Пошук</span>
                                 </div>
                             </div>
-
                             {/* Уподобані */}
                             <Link to={"/favorites"} className="flex flex-col items-center gap-1">
                                 <MdFavoriteBorder className="text-[22px] hover:text-secondary sm:text-3xl" />

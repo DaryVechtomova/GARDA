@@ -453,4 +453,144 @@ const updateOrder = async (req, res) => {
     }
 };
 
-export { placeOrder, verifyOrder, userOrders, listOrders, updateOrderStatus, cancelOrder, updateOrder }
+const cancelOrderForUser = async (req, res) => {
+    const { orderId } = req.params;
+    const { reason } = req.body;
+    const user = req.user; // Отримуємо поточного користувача
+
+    try {
+        const order = await orderModel.findById(orderId);
+        
+        // Перевіряємо, чи існує замовлення
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Замовлення не знайдено" });
+        }
+
+        // Перевіряємо, чи замовлення належить цьому користувачеві
+        if (order.userId.toString() !== user._id.toString()) {
+            return res.status(403).json({ 
+                success: false, 
+                message: "Ви не маєте прав для скасування цього замовлення" 
+            });
+        }
+
+        // Перевіряємо, чи можна скасувати замовлення
+        if (order.status !== "Нове замовлення" && order.status !== "В обробці") {
+            return res.status(400).json({
+                success: false,
+                message: "Замовлення можна скасувати тільки зі статусом 'Нове замовлення' або 'В обробці'"
+            });
+        }
+
+        // Якщо замовлення було в обробці, повертаємо товари на склад
+        if (order.status === "В обробці") {
+            for (const item of order.items) {
+                await productModel.findByIdAndUpdate(item.productId, {
+                    $inc: { "sizes.$[elem].quantity": item.quantity }
+                }, {
+                    arrayFilters: [{ "elem.size": item.size }]
+                });
+            }
+        }
+
+        // Записуємо скасування в історію
+        const cancelHistory = {
+            date: new Date(),
+            editedBy: {
+                userId: user._id,
+                name: user.name || `${user.firstName} ${user.lastName}`.trim() || 'Користувач'
+            },
+            reason: reason,
+            type: 'status_change',
+            oldStatus: order.status,
+            newStatus: "Скасовано"
+        };
+
+        // Оновлюємо статус замовлення та додаємо причину скасування
+        const updatedOrder = await orderModel.findByIdAndUpdate(
+            orderId,
+            {
+                status: "Скасовано",
+                cancellationReason: reason,
+                $push: { editHistory: cancelHistory }
+            },
+            { new: true }
+        );
+
+        res.json({
+            success: true,
+            message: "Ваше замовлення успішно скасовано",
+            data: updatedOrder
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Помилка при скасуванні замовлення"
+        });
+    }
+};
+
+
+/**
+ * Отримання статусу замовлення
+ * @param {Object} req - Об'єкт запиту
+ * @param {Object} res - Об'єкт відповіді
+ */
+const getOrderStatus = async (req, res) => {
+    const { orderId } = req.params;
+    const user = req.user; // Поточний користувач
+
+    try {
+        // Знаходимо замовлення за ID
+        const order = await orderModel.findById(orderId).select('status userId orderNumber editHistory');
+
+        // Перевіряємо, чи існує замовлення
+        if (!order) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "Замовлення не знайдено" 
+            });
+        }
+
+        // Перевіряємо, чи замовлення належить користувачу (якщо це не адмін)
+        if (user.role !== 'admin' && order.userId.toString() !== user._id.toString()) {
+            return res.status(403).json({ 
+                success: false, 
+                message: "Ви не маєте доступу до цього замовлення" 
+            });
+        }
+
+        // Формуємо відповідь з основним статусом та історією змін статусу
+        const statusHistory = order.editHistory
+            .filter(item => item.type === 'status_change')
+            .map(item => ({
+                date: item.date,
+                changedBy: item.editedBy.name,
+                oldStatus: item.oldStatus,
+                newStatus: item.newStatus,
+                reason: item.reason || null
+            }));
+
+        res.json({
+            success: true,
+            data: {
+                orderNumber: order.orderNumber,
+                currentStatus: order.status,
+                statusHistory: statusHistory,
+                cancellationReason: order.cancellationReason || null
+            }
+        });
+
+    } catch (error) {
+        console.error('Помилка при отриманні статусу замовлення:', error);
+        res.status(500).json({
+            success: false,
+            message: "Сталася помилка при отриманні статусу замовлення"
+        });
+    }
+};
+
+export default getOrderStatus;
+
+export { placeOrder, verifyOrder, userOrders, listOrders, updateOrderStatus, cancelOrder, updateOrder, cancelOrderForUser, getOrderStatus }

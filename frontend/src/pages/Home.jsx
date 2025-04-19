@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Hero from "../components/Hero"
 import Categories from "../components/Categories"
 import ProductDisplay from '../components/ProductDisplay';
+import DiscountedProductsPage from '../pages/DiscountedProductsPage';
 
 const Home = () => {
 
@@ -12,6 +13,7 @@ const Home = () => {
             <Hero />
             <Categories category={category} setCategory={setCategory} />
             <ProductDisplay category={category} />
+            <DiscountedProductsPage category={category} />
         </>
     );
 };

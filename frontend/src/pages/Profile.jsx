@@ -15,7 +15,7 @@ const Profile = () => {
         firstName: "",
         secondName: "",
         middleName: "",
-        email: "", // Не редагується
+        email: "",
         phoneNumber: "",
         birthDate: "",
         region: "",
