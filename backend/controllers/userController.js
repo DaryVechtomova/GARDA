@@ -256,7 +256,7 @@ const editEmployee = async (req, res) => {
         if (!updatedEmployee) {
             return res.status(404).json({ success: false, message: "Співробітника не знайдено" });
         }
-        res.json({ success: true, message: "Співробітника успішно додано", data: updatedEmployee });
+        res.json({ success: true, message: "Співробітника успішно оновлено", data: updatedEmployee });
     } catch (error) {
         console.log(error);
         res.json({ success: false, message: "Помилка сервера" });

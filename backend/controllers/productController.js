@@ -134,27 +134,37 @@ const removeProduct = async (req, res) => {
         }
 
 
-        // Тепер можна безпечно використовувати моделі
-        const invoicesWithProduct = await invoiceModel.find({ // Використовуємо імпортовану модель
+        const invoicesWithProduct = await invoiceModel.find({
             "products.product": productId,
             status: { $ne: "скасована" }
         });
 
-        const ordersWithProduct = await orderModel.find({ // Використовуємо імпортовану модель
+        if (invoicesWithProduct.length > 0) {
+            return res.status(409).json({
+                success: false,
+                message: "Не можна видаляти товари, які є в накладних"
+            });
+        }
+
+        const ordersWithProduct = await orderModel.find({
             "items.productId": productId,
             status: { $ne: "скасоване замовлення" }
         });
 
-
-        if (invoicesWithProduct.length > 0 || ordersWithProduct.length > 0) {
-            // ВАЖЛИВО: Надішліть відповідний статус помилки (наприклад, 409 Conflict або 400 Bad Request)
-            return res.status(409).json({ // <--- Змінено статус
+        if (ordersWithProduct.length > 0) {
+            return res.status(409).json({
                 success: false,
-                message: "Не можна видаляти товари, які є в накладних і замовленнях"
+                message: "Не можна видаляти товари, які є в замовленнях"
             });
         }
 
         const product = await productModel.findById(productId);
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: "Товар не знайдено"
+            });
+        }
 
         // Видаляємо всі зображення товару з папки uploads
         if (product.images && product.images.length > 0) {
@@ -198,11 +208,18 @@ const editProduct = async (req, res) => {
 
 
     // Перевірка обов'язкових полів
-    if (!name) {
-        return res.status(400).json({ success: false, message: "Будь ласка, введіть назву товару" });
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+        return res.status(400).json({
+            success: false,
+            message: "Будь ласка, введіть назву товару"
+        });
     }
-    if (!description) {
-        return res.status(400).json({ success: false, message: "Будь ласка, введіть опис товару" });
+
+    if (!description || typeof description !== 'string' || description.trim() === '') {
+        return res.status(400).json({
+            success: false,
+            message: "Будь ласка, введіть опис товару"
+        });
     }
     if (!price || price <= 0) {
         return res.status(400).json({ success: false, message: "Ціна має бути більше 0" });
@@ -210,8 +227,11 @@ const editProduct = async (req, res) => {
     if (!category || category === "Оберіть категорію") {
         return res.status(400).json({ success: false, message: "Будь ласка, оберіть категорію товару" });
     }
-    if (!colors) {
-        return res.status(400).json({ success: false, message: "Будь ласка, введіть колір товару" });
+    if (!colors || typeof colors !== 'string' || colors.trim() === '') {
+        return res.status(400).json({
+            success: false,
+            message: "Будь ласка, введіть колір товару"
+        });
     }
 
     const existingProduct = await isProductDuplicate(name, colors);
@@ -238,7 +258,7 @@ const editProduct = async (req, res) => {
         }
 
         // Якщо нові зображення завантажено
-        if (req.files && req.files.length > 0) {
+        if (req.files && req.files.length > 0 || req.body.existingImages) {
             const newImages = req.files.map((file) => file.filename);
             updateData.images = [...product.images, ...newImages];
         }
@@ -303,6 +323,13 @@ const removeDiscount = async (req, res) => {
 const editDiscount = async (req, res) => {
     const { id } = req.params;
     const { discount } = req.body;
+
+    if (isNaN(discount)) {
+        return res.status(400).json({
+            success: false,
+            message: "Знижка повинна бути числом"
+        });
+    }
 
     // Перевірка, чи знижка в межах допустимого діапазону (0-100%)
     if (discount < 0 || discount > 100) {

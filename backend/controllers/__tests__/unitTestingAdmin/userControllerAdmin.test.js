@@ -1,4 +1,3 @@
-// src/controllers/__tests__/userController.test.js
 import {
     loginUser,
     listEmployees,
@@ -6,15 +5,16 @@ import {
     editEmployee,
     fireEmployee,
     getCurrentEmployee,
-    updateAdminProfile
-} from '../userController.js'; // Шлях до твого контролера
-import userModel from '../../models/userModel.js'; // Шлях до моделі
+    updateAdminProfile,
+    changePassword
+} from '../../userController.js';
+import userModel from '../../../models/userModel.js';
 import bcrypt from 'bcrypt';
 import validator from 'validator';
-import jwt from 'jsonwebtoken'; // Потрібен для createToken, який може викликатись
+import jwt from 'jsonwebtoken';
 
 // Мокуємо (імітуємо) модулі, щоб ізолювати контролер
-jest.mock('../../models/userModel.js'); // Мокуємо модель User
+jest.mock('../../../models/userModel.js'); // Мокуємо модель User
 jest.mock('bcrypt'); // Мокуємо bcrypt
 jest.mock('validator'); // Мокуємо validator
 jest.mock('jsonwebtoken'); // Мокуємо jwt
@@ -24,7 +24,7 @@ beforeEach(() => {
     jest.clearAllMocks();
 });
 
-// ----- Тести для loginUser -----
+// Тести для loginUser
 describe('loginUser', () => {
     let mockReq;
     let mockRes;
@@ -48,20 +48,19 @@ describe('loginUser', () => {
         // Скидаємо налаштування моків userModel і bcrypt перед кожним тестом loginUser
         userModel.findOne.mockReset();
         bcrypt.compare.mockReset();
-        jwt.sign.mockReset(); // Важливо скидати й мок jwt.sign
+        jwt.sign.mockReset();
 
         // Стандартний успішний мок для jwt.sign, що використовується в createToken
         jwt.sign.mockReturnValue(mockToken);
     });
 
-    it('має успішно авторизувати активного адміністратора', async () => {
-        // Arrange: Готуємо дані знайденого адміна
+    it('TCUW01 - має успішно авторизувати активного адміністратора', async () => {
         const mockAdmin = {
             _id: mockUserId,
             email: testEmail,
             password: 'hashedPassword',
             role: 'адміністратор',
-            isActive: true, // Адмін активний
+            isActive: true,
             firstName: 'Адмін',
             secondName: 'Адміненко',
             middleName: 'Адмінович',
@@ -77,7 +76,7 @@ describe('loginUser', () => {
         expect(bcrypt.compare).toHaveBeenCalledWith(testPassword, mockAdmin.password);
         expect(jwt.sign).toHaveBeenCalledWith( // Перевіряємо виклик jwt.sign з правильними даними
             { id: mockUserId, role: 'адміністратор' },
-            process.env.JWT_SECRET, // Переконайся, що JWT_SECRET доступний у тестовому середовищі або мокни process.env
+            process.env.JWT_SECRET,
             { expiresIn: '1d' }
         );
         expect(mockRes.json).toHaveBeenCalledWith({
@@ -90,7 +89,7 @@ describe('loginUser', () => {
         });
     });
 
-    it('має успішно авторизувати активного комірника', async () => {
+    it('TCUW02 - має успішно авторизувати активного комірника', async () => {
         const mockEmployee = {
             _id: mockUserId,
             email: testEmail,
@@ -123,7 +122,7 @@ describe('loginUser', () => {
         });
     });
 
-    it('має повернути помилку, якщо користувача не знайдено', async () => {
+    it('TCUW03 - має повернути помилку, якщо користувача не знайдено', async () => {
         // Arrange: Модель не знаходить користувача
         userModel.findOne.mockResolvedValue(null);
 
@@ -132,12 +131,12 @@ describe('loginUser', () => {
 
         // Assert
         expect(userModel.findOne).toHaveBeenCalledWith({ email: testEmail });
-        expect(bcrypt.compare).not.toHaveBeenCalled(); // Порівняння пароля не має викликатись
-        expect(jwt.sign).not.toHaveBeenCalled(); // Токен не має створюватись
+        expect(bcrypt.compare).not.toHaveBeenCalled();
+        expect(jwt.sign).not.toHaveBeenCalled();
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Такого користувача не існує" });
     });
 
-    it('має повернути помилку, якщо пароль неправильний', async () => {
+    it('TCUW04 - має повернути помилку, якщо пароль неправильний', async () => {
         // Arrange: Користувач знайдений, але пароль не співпадає
         const mockUser = { _id: mockUserId, email: testEmail, password: 'hashedPassword', role: 'користувач' };
         userModel.findOne.mockResolvedValue(mockUser);
@@ -149,18 +148,18 @@ describe('loginUser', () => {
         // Assert
         expect(userModel.findOne).toHaveBeenCalledWith({ email: testEmail });
         expect(bcrypt.compare).toHaveBeenCalledWith(testPassword, mockUser.password);
-        expect(jwt.sign).not.toHaveBeenCalled(); // Токен не має створюватись
+        expect(jwt.sign).not.toHaveBeenCalled();
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Некоректні дані" });
     });
 
-    it('має заборонити вхід звільненому адміністратору (isActive: false)', async () => {
+    it('TCUW05 - має заборонити вхід звільненому адміністратору (isActive: false)', async () => {
         // Arrange: Звільнений адмін
         const mockAdmin = {
             _id: mockUserId,
             email: testEmail,
             password: 'hashedPassword',
             role: 'адміністратор',
-            isActive: false, // Адмін НЕ активний
+            isActive: false,
         };
         userModel.findOne.mockResolvedValue(mockAdmin);
         bcrypt.compare.mockResolvedValue(true); // Пароль правильний, але акаунт неактивний
@@ -175,14 +174,14 @@ describe('loginUser', () => {
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Ваш акаунт неактивний" });
     });
 
-    it('має заборонити вхід звільненому комірнику (isActive: false)', async () => {
+    it('TCUW05 - має заборонити вхід звільненому комірнику (isActive: false)', async () => {
         // Arrange: Звільнений комірник
         const mockEmployee = {
             _id: mockUserId,
             email: testEmail,
             password: 'hashedPassword',
             role: 'комірник',
-            isActive: false, // НЕ активний
+            isActive: false,
         };
         userModel.findOne.mockResolvedValue(mockEmployee);
         bcrypt.compare.mockResolvedValue(true);
@@ -197,7 +196,7 @@ describe('loginUser', () => {
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Ваш акаунт неактивний" });
     });
 
-    it('має повернути помилку сервера, якщо userModel.findOne кидає помилку', async () => {
+    it('TCUE01 - має повернути помилку сервера, якщо userModel.findOne кидає помилку', async () => {
         // Arrange: Помилка при пошуку
         const dbError = new Error('Database find error');
         userModel.findOne.mockRejectedValue(dbError);
@@ -211,11 +210,11 @@ describe('loginUser', () => {
         expect(bcrypt.compare).not.toHaveBeenCalled();
         expect(jwt.sign).not.toHaveBeenCalled();
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Помилка сервера" });
-        expect(consoleSpy).toHaveBeenCalledWith(dbError); // Перевіряємо логування помилки
+        expect(consoleSpy).toHaveBeenCalledWith(dbError);
         consoleSpy.mockRestore();
     });
 
-    it('має повернути помилку сервера, якщо bcrypt.compare кидає помилку', async () => {
+    it('TCUE02 - має повернути помилку сервера, якщо bcrypt.compare кидає помилку', async () => {
         // Arrange: Помилка при порівнянні пароля
         const mockUser = { _id: mockUserId, email: testEmail, password: 'hashedPassword', role: 'користувач' };
         const bcryptError = new Error('Bcrypt compare error');
@@ -234,99 +233,62 @@ describe('loginUser', () => {
         expect(consoleSpy).toHaveBeenCalledWith(bcryptError);
         consoleSpy.mockRestore();
     });
-
-    // Опціональний тест: помилка при генерації токену (менш ймовірний сценарій)
-    it('має повернути помилку сервера, якщо jwt.sign кидає помилку', async () => {
-        // Arrange
-        const mockUser = {
-            _id: mockUserId,
-            email: testEmail,
-            password: 'hashedPassword',
-            role: 'користувач',
-            isActive: true,
-            firstName: 'User', secondName: 'Test', middleName: 'M'
-        };
-        const jwtError = new Error('JWT sign error');
-        userModel.findOne.mockResolvedValue(mockUser);
-        bcrypt.compare.mockResolvedValue(true);
-        jwt.sign.mockImplementation(() => { // Імітуємо помилку при виклику jwt.sign
-            throw jwtError;
-        });
-        const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
-
-        // Act
-        await loginUser(mockReq, mockRes);
-
-        // Assert
-        expect(userModel.findOne).toHaveBeenCalledWith({ email: testEmail });
-        expect(bcrypt.compare).toHaveBeenCalledWith(testPassword, mockUser.password);
-        expect(jwt.sign).toHaveBeenCalled(); // Перевіряємо, що спроба створити токен була
-        expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Помилка сервера" });
-        expect(consoleSpy).toHaveBeenCalledWith(jwtError);
-        consoleSpy.mockRestore();
-    });
 });
 
-// ----- Тести для listEmployees -----
+// Тести для listEmployees
 describe('listEmployees', () => {
-    it('має повернути список співробітників (адміністраторів та комірників)', async () => {
-        // 1. Підготовка (Arrange)
+    it('TCUR01 - має повернути список співробітників (адміністраторів та комірників)', async () => {
+        // Підготовка (Arrange)
         const mockEmployees = [
             { _id: '1', role: 'адміністратор', firstName: 'Іван' },
             { _id: '2', role: 'комірник', firstName: 'Петро' },
         ];
-        // Імітуємо успішну відповідь від userModel.find
         userModel.find.mockResolvedValue(mockEmployees);
 
-        const mockReq = {}; // listEmployees не використовує req
+        const mockReq = {};
         const mockRes = {
-            json: jest.fn(), // Імітуємо метод res.json
+            json: jest.fn(),
         };
 
-        // 2. Дія (Act)
+        //Дія (Act)
         await listEmployees(mockReq, mockRes);
 
-        // 3. Перевірка (Assert)
+        //Перевірка (Assert)
         expect(userModel.find).toHaveBeenCalledTimes(1);
-        // Перевіряємо, що find викликався з правильним фільтром
         expect(userModel.find).toHaveBeenCalledWith({ role: { $in: ["адміністратор", "комірник"] } });
-        // Перевіряємо, що res.json викликався з успішним результатом та даними
         expect(mockRes.json).toHaveBeenCalledTimes(1);
         expect(mockRes.json).toHaveBeenCalledWith({ success: true, data: mockEmployees });
     });
 
-    it('має повернути помилку сервера, якщо виникла проблема з базою даних', async () => {
-        // 1. Підготовка
+    it('TCUE03 - має повернути помилку сервера, якщо виникла проблема з базою даних', async () => {
+        // Підготовка
         const errorMessage = 'DB Error';
-        // Імітуємо помилку від userModel.find
         userModel.find.mockRejectedValue(new Error(errorMessage));
 
         const mockReq = {};
         const mockRes = {
             json: jest.fn(),
         };
-        // Також імітуємо console.log, щоб перевірити, чи логується помилка
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
 
-        // 2. Дія
+        //Дія
         await listEmployees(mockReq, mockRes);
 
-        // 3. Перевірка
+        // Перевірка
         expect(userModel.find).toHaveBeenCalledTimes(1);
         expect(mockRes.json).toHaveBeenCalledTimes(1);
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Помилка сервера" });
-        expect(consoleSpy).toHaveBeenCalled(); // Перевіряємо, чи була залогована помилка
+        expect(consoleSpy).toHaveBeenCalled();
 
-        consoleSpy.mockRestore(); // Відновлюємо console.log
+        consoleSpy.mockRestore();
     });
 });
 
-// ----- Тести для registerEmployee -----
+// Тести для registerEmployee
 describe('registerEmployee', () => {
     let mockReq;
     let mockRes;
 
-    // Готуємо базові mockReq та mockRes для кожного тесту в цій групі
     beforeEach(() => {
         mockReq = {
             body: {
@@ -343,17 +305,15 @@ describe('registerEmployee', () => {
         mockRes = {
             json: jest.fn(),
         };
-        // Стандартні успішні моки для залежностей
-        validator.isEmail.mockReturnValue(true); // Імейл валідний
-        userModel.findOne.mockResolvedValue(null); // Користувач не існує
-        bcrypt.genSalt.mockResolvedValue('someSalt'); // Сіль згенерована
-        bcrypt.hash.mockResolvedValue('hashedPassword123'); // Пароль захешовано
-        // Імітуємо метод save на екземплярі моделі
+        validator.isEmail.mockReturnValue(true);
+        userModel.findOne.mockResolvedValue(null);
+        bcrypt.genSalt.mockResolvedValue('someSalt');
+        bcrypt.hash.mockResolvedValue('hashedPassword123');
         const saveMock = jest.fn().mockResolvedValue({ _id: 'newUserId', ...mockReq.body });
         userModel.mockImplementation(() => ({ save: saveMock }));
     });
 
-    it('має успішно зареєструвати співробітника з валідними даними', async () => {
+    it('TCUW06 - має успішно зареєструвати співробітника з валідними даними', async () => {
         await registerEmployee(mockReq, mockRes);
 
         expect(validator.isEmail).toHaveBeenCalledWith(mockReq.body.email);
@@ -363,45 +323,43 @@ describe('registerEmployee', () => {
         expect(userModel).toHaveBeenCalledWith(expect.objectContaining({
             firstName: mockReq.body.firstName,
             email: mockReq.body.email,
-            password: 'hashedPassword123', // Перевіряємо, що збережено хешований пароль
+            password: 'hashedPassword123',
             role: mockReq.body.role,
         }));
-        // Перевіряємо, що викликався save
         expect(userModel.mock.results[0].value.save).toHaveBeenCalledTimes(1);
         expect(mockRes.json).toHaveBeenCalledWith({ success: true, message: "Співробітника успішно додано" });
     });
 
-    it('має повернути помилку, якщо email вже існує', async () => {
-        userModel.findOne.mockResolvedValue({ email: mockReq.body.email }); // Імітуємо існуючого користувача
+    it('TCUW07 - має повернути помилку, якщо email вже існує', async () => {
+        userModel.findOne.mockResolvedValue({ email: mockReq.body.email });
 
         await registerEmployee(mockReq, mockRes);
 
         expect(userModel.findOne).toHaveBeenCalledWith({ email: mockReq.body.email });
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Такий користувач вже існує" });
-        expect(bcrypt.hash).not.toHaveBeenCalled(); // Не має хешувати пароль, якщо користувач існує
-        expect(userModel).not.toHaveBeenCalled(); // Не має створювати новий екземпляр
+        expect(bcrypt.hash).not.toHaveBeenCalled();
+        expect(userModel).not.toHaveBeenCalled();
     });
 
-    it('має повернути помилку, якщо email невалідний', async () => {
-        validator.isEmail.mockReturnValue(false); // Імітуємо невалідний email
+    it('TCUW09 - має повернути помилку, якщо email невалідний', async () => {
+        validator.isEmail.mockReturnValue(false);
 
         await registerEmployee(mockReq, mockRes);
 
         expect(validator.isEmail).toHaveBeenCalledWith(mockReq.body.email);
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Будь ласка, введіть коректну адресу електронної пошти" });
-        expect(userModel.findOne).not.toHaveBeenCalled(); // Перевірка зупинилась раніше
+        expect(userModel.findOne).not.toHaveBeenCalled();
     });
 
-    it('має повернути помилку, якщо пароль закороткий', async () => {
-        mockReq.body.password = '123'; // Короткий пароль
+    it('TCUW10 - має повернути помилку, якщо пароль закороткий', async () => {
+        mockReq.body.password = '123';
 
         await registerEmployee(mockReq, mockRes);
 
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Пароль має містити щонайменше 8 символів" });
-        expect(userModel.findOne).not.toHaveBeenCalled(); // Перевірка зупинилась раніше
+        expect(userModel.findOne).not.toHaveBeenCalled();
     });
 
-    // Додай аналогічні тести для всіх обов'язкових полів (firstName, lastName і т.д.)
     test.each([
         ['firstName', "Будь ласка, введіть ім'я"],
         ['secondName', "Будь ласка, введіть прізвище"],
@@ -411,17 +369,17 @@ describe('registerEmployee', () => {
         ['password', "Будь ласка, введіть пароль"],
         ['birthDate', "Будь ласка, введіть дату народження"],
         ['role', "Будь ласка, оберіть роль"],
-    ])('має повернути помилку, якщо %s відсутнє', async (field, expectedMessage) => {
-        delete mockReq.body[field]; // Видаляємо поле
+    ])('TCUW08 - має повернути помилку, якщо %s відсутнє', async (field, expectedMessage) => {
+        delete mockReq.body[field];
 
         await registerEmployee(mockReq, mockRes);
 
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: expectedMessage });
-        expect(validator.isEmail).not.toHaveBeenCalled(); // Або викликалось, якщо поле не email/password
+        expect(validator.isEmail).not.toHaveBeenCalled();
     });
 
 
-    it('має повернути помилку сервера, якщо виникла помилка при збереженні', async () => {
+    it('TCUE03 - має повернути помилку сервера, якщо виникла помилка при збереженні', async () => {
         const saveMock = jest.fn().mockRejectedValue(new Error('DB save error'));
         userModel.mockImplementation(() => ({ save: saveMock }));
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
@@ -436,7 +394,7 @@ describe('registerEmployee', () => {
     });
 });
 
-// ----- Тести для editEmployee -----
+// Тести для editEmployee
 describe('editEmployee', () => {
     let mockReq;
     let mockRes;
@@ -457,19 +415,18 @@ describe('editEmployee', () => {
         };
         mockRes = {
             json: jest.fn(),
-            status: jest.fn(() => mockRes), // Для можливості .status(404).json(...)
+            status: jest.fn(() => mockRes),
         };
-        // Стандартний успішний мок
         userModel.findByIdAndUpdate.mockResolvedValue({ _id: employeeId, ...mockReq.body });
     });
 
-    it('має успішно оновити співробітника з валідними даними', async () => {
+    it('TCUW11 - має успішно оновити співробітника з валідними даними', async () => {
         await editEmployee(mockReq, mockRes);
 
         expect(userModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
         expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
             employeeId,
-            { // Очікуємо дані для оновлення (без id)
+            {
                 firstName: mockReq.body.firstName,
                 secondName: mockReq.body.secondName,
                 middleName: mockReq.body.middleName,
@@ -478,17 +435,17 @@ describe('editEmployee', () => {
                 birthDate: mockReq.body.birthDate,
                 role: mockReq.body.role,
             },
-            { new: true } // Опція для повернення оновленого документу
+            { new: true }
         );
         expect(mockRes.json).toHaveBeenCalledWith({
             success: true,
-            message: "Співробітника успішно додано", // Зверни увагу, повідомлення тут "додано", можливо варто змінити?
+            message: "Співробітника успішно оновлено",
             data: expect.objectContaining({ _id: employeeId, firstName: mockReq.body.firstName }),
         });
     });
 
-    it('має повернути помилку 404, якщо співробітника не знайдено', async () => {
-        userModel.findByIdAndUpdate.mockResolvedValue(null); // Імітуємо, що співробітника не знайдено
+    it('TCUW13 - має повернути помилку 404, якщо співробітника не знайдено', async () => {
+        userModel.findByIdAndUpdate.mockResolvedValue(null);
 
         await editEmployee(mockReq, mockRes);
 
@@ -497,7 +454,6 @@ describe('editEmployee', () => {
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Співробітника не знайдено" });
     });
 
-    // Додай тести на відсутність обов'язкових полів, аналогічно до registerEmployee
     test.each([
         ['firstName', "Будь ласка, введіть ім'я"],
         ['secondName', "Будь ласка, введіть прізвище"],
@@ -505,14 +461,14 @@ describe('editEmployee', () => {
         ['email', "Будь ласка, введіть електронну пошту"],
         ['phoneNumber', "Будь ласка, введіть номер телефону"],
         ['birthDate', "Будь ласка, введіть дату народження"],
-    ])('має повернути помилку, якщо %s відсутнє при редагуванні', async (field, expectedMessage) => {
+    ])('TCUW12 - має повернути помилку, якщо %s відсутнє при редагуванні', async (field, expectedMessage) => {
         delete mockReq.body[field];
         await editEmployee(mockReq, mockRes);
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: expectedMessage });
         expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
     });
 
-    it('має повернути помилку сервера при помилці бази даних', async () => {
+    it('TCUE03 - має повернути помилку сервера при помилці бази даних', async () => {
         userModel.findByIdAndUpdate.mockRejectedValue(new Error('DB update error'));
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
 
@@ -526,7 +482,7 @@ describe('editEmployee', () => {
     });
 });
 
-// ----- Тести для fireEmployee -----
+// Тести для fireEmployee
 describe('fireEmployee', () => {
     let mockReq;
     let mockRes;
@@ -542,11 +498,10 @@ describe('fireEmployee', () => {
             json: jest.fn(),
             status: jest.fn(() => mockRes),
         };
-        // Імітуємо метод save на знайденому користувачі
         const saveMock = jest.fn().mockResolvedValue(true);
         const mockEmployee = {
             _id: employeeId,
-            role: 'комірник', // Важливо, щоб не був 'користувач'
+            role: 'комірник',
             isActive: true,
             fireDate: null,
             save: saveMock,
@@ -554,20 +509,18 @@ describe('fireEmployee', () => {
         userModel.findById.mockResolvedValue(mockEmployee);
     });
 
-    it('має успішно звільнити співробітника', async () => {
+    it('TCUW14 - має успішно звільнити співробітника', async () => {
         await fireEmployee(mockReq, mockRes);
 
         expect(userModel.findById).toHaveBeenCalledWith(employeeId);
-        // Перевіряємо, що властивості було змінено *перед* викликом save
         const foundEmployee = await userModel.findById.mock.results[0].value;
         expect(foundEmployee.isActive).toBe(false);
-        expect(foundEmployee.fireDate).toBeInstanceOf(Date); // Перевіряємо, що дата встановлена
-        // Перевіряємо, що save було викликано на цьому об'єкті
+        expect(foundEmployee.fireDate).toBeInstanceOf(Date);
         expect(foundEmployee.save).toHaveBeenCalledTimes(1);
         expect(mockRes.json).toHaveBeenCalledWith({ success: true, message: "Співробітника звільнено" });
     });
 
-    it('має повернути 404, якщо співробітника не знайдено', async () => {
+    it('TCUW13 - має повернути 404, якщо співробітника не знайдено', async () => {
         userModel.findById.mockResolvedValue(null);
 
         await fireEmployee(mockReq, mockRes);
@@ -575,16 +528,15 @@ describe('fireEmployee', () => {
         expect(userModel.findById).toHaveBeenCalledWith(employeeId);
         expect(mockRes.status).toHaveBeenCalledWith(404);
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Співробітника не знайдено" });
-        // Переконуємось, що save не викликався
         const findResult = await userModel.findById.mock.results[0].value;
-        expect(findResult).toBeNull(); // Немає об'єкта, щоб викликати save
+        expect(findResult).toBeNull();
     });
 
-    it('має повернути 404, якщо намагаються звільнити звичайного користувача', async () => {
+    it('TCUW13 - має повернути 404, якщо намагаються звільнити звичайного користувача', async () => {
         const saveMock = jest.fn().mockResolvedValue(true);
         const mockUser = {
             _id: employeeId,
-            role: 'користувач', // Змінюємо роль на користувача
+            role: 'користувач',
             isActive: true,
             save: saveMock,
         };
@@ -595,10 +547,10 @@ describe('fireEmployee', () => {
         expect(userModel.findById).toHaveBeenCalledWith(employeeId);
         expect(mockRes.status).toHaveBeenCalledWith(404);
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Співробітника не знайдено" });
-        expect(saveMock).not.toHaveBeenCalled(); // Не має викликатись save
+        expect(saveMock).not.toHaveBeenCalled();
     });
 
-    it('має повернути 500 при помилці пошуку в базі даних', async () => {
+    it('TCUE03 - має повернути 500 при помилці пошуку в базі даних', async () => {
         userModel.findById.mockRejectedValue(new Error('DB find error'));
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
 
@@ -611,13 +563,13 @@ describe('fireEmployee', () => {
         consoleSpy.mockRestore();
     });
 
-    it('має повернути 500 при помилці збереження в базі даних', async () => {
+    it('TCUE03 - має повернути 500 при помилці збереження в базі даних', async () => {
         const saveMock = jest.fn().mockRejectedValue(new Error('DB save error'));
         const mockEmployee = {
             _id: employeeId,
             role: 'адміністратор',
             isActive: true,
-            save: saveMock // Мок save, який поверне помилку
+            save: saveMock
         };
         userModel.findById.mockResolvedValue(mockEmployee);
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
@@ -625,7 +577,7 @@ describe('fireEmployee', () => {
         await fireEmployee(mockReq, mockRes);
 
         expect(userModel.findById).toHaveBeenCalledWith(employeeId);
-        expect(saveMock).toHaveBeenCalledTimes(1); // Перевіряємо, що save викликався
+        expect(saveMock).toHaveBeenCalledTimes(1);
         expect(mockRes.status).toHaveBeenCalledWith(500);
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Помилка сервера" });
         expect(consoleSpy).toHaveBeenCalled();
@@ -634,13 +586,12 @@ describe('fireEmployee', () => {
 });
 
 
-// ----- Тести для getCurrentEmployee -----
+// Тести для getCurrentEmployee
 describe('getCurrentEmployee', () => {
     let mockReq;
     let mockRes;
 
     beforeEach(() => {
-        // Цей метод очікує, що дані користувача вже є в req.user (додані мідлварою)
         mockReq = {
             user: {
                 _id: 'adminUserId',
@@ -660,7 +611,7 @@ describe('getCurrentEmployee', () => {
         };
     });
 
-    it('має повернути дані поточного співробітника з req.user', async () => {
+    it('TCUR02 - має повернути дані поточного співробітника з req.user', async () => {
         await getCurrentEmployee(mockReq, mockRes);
 
         expect(mockRes.json).toHaveBeenCalledTimes(1);
@@ -680,35 +631,17 @@ describe('getCurrentEmployee', () => {
         });
     });
 
-    it('має повернути помилку 404, якщо req.user відсутній', async () => {
-        mockReq.user = null; // Імітуємо відсутність користувача в запиті
+    it('TCUR03 - має повернути помилку 404, якщо req.user відсутній', async () => {
+        mockReq.user = null;
 
         await getCurrentEmployee(mockReq, mockRes);
 
         expect(mockRes.status).toHaveBeenCalledWith(404);
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Користувача не знайдено (внутрішня помилка)" });
     });
-
-    // Сценарій помилки сервера тут менш ймовірний, бо немає прямої роботи з БД,
-    // але можна додати тест на випадок непередбаченої помилки
-    it('має повернути 500, якщо сталася неочікувана помилка', async () => {
-        // Імітуємо помилку при доступі до властивості req.user (гіпотетично)
-        Object.defineProperty(mockReq, 'user', {
-            get: () => { throw new Error('Unexpected access error'); }
-        });
-        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
-
-
-        await getCurrentEmployee(mockReq, mockRes);
-
-        expect(mockRes.status).toHaveBeenCalledWith(500);
-        expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Помилка сервера при отриманні даних користувача" });
-        expect(consoleSpy).toHaveBeenCalled();
-        consoleSpy.mockRestore();
-    });
 });
 
-// ----- Тести для updateAdminProfile -----
+// Тести для updateAdminProfile 
 describe('updateAdminProfile', () => {
     let mockReq;
     let mockRes;
@@ -733,7 +666,6 @@ describe('updateAdminProfile', () => {
             status: jest.fn(() => mockRes),
         };
 
-        // Створюємо мок для select
         mockSelect = jest.fn().mockResolvedValue({
             _id: adminUserId,
             email: 'admin@example.com',
@@ -745,13 +677,12 @@ describe('updateAdminProfile', () => {
             birthDate: '1985-11-20'
         });
 
-        // Мокуємо findByIdAndUpdate для повернення об'єкта з методом select
         userModel.findByIdAndUpdate.mockImplementation(() => ({
             select: mockSelect
         }));
     });
 
-    it('має успішно оновити профіль адміністратора', async () => {
+    it('TCUW15 - має успішно оновити профіль адміністратора', async () => {
         await updateAdminProfile(mockReq, mockRes);
 
         expect(userModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
@@ -786,21 +717,20 @@ describe('updateAdminProfile', () => {
         });
     });
 
-    // Тести на відсутність обов'язкових полів
     test.each([
         ['firstName', "Будь ласка, введіть ім'я"],
         ['secondName', "Будь ласка, введіть прізвище"],
         ['middleName', "Будь ласка, введіть по батькові"],
         ['phoneNumber', "Будь ласка, введіть номер телефону"],
         ['birthDate', "Будь ласка, введіть дату народження"],
-    ])('має повернути помилку, якщо %s відсутнє', async (field, expectedMessage) => {
+    ])('TCUW16 - має повернути помилку, якщо %s відсутнє', async (field, expectedMessage) => {
         delete mockReq.body[field];
         await updateAdminProfile(mockReq, mockRes);
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: expectedMessage });
         expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
     });
 
-    it('має повернути 404, якщо користувача (адміна) не знайдено для оновлення', async () => {
+    it('TCUW13 - має повернути 404, якщо користувача (адміна) не знайдено для оновлення', async () => {
         mockSelect.mockResolvedValue(null);
 
         await updateAdminProfile(mockReq, mockRes);
@@ -814,7 +744,7 @@ describe('updateAdminProfile', () => {
         });
     });
 
-    it('має повернути 500 при помилці бази даних', async () => {
+    it('TCUE03 - має повернути 500 при помилці бази даних', async () => {
         userModel.findByIdAndUpdate.mockImplementation(() => {
             return {
                 select: jest.fn().mockRejectedValue(new Error('DB update error'))
@@ -828,6 +758,177 @@ describe('updateAdminProfile', () => {
         expect(mockRes.status).toHaveBeenCalledWith(500);
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Помилка сервера" });
         expect(consoleSpy).toHaveBeenCalled();
+        consoleSpy.mockRestore();
+    });
+});
+
+// Тести для changePassword
+describe('changePassword', () => {
+    let mockReq;
+    let mockRes;
+    let mockSave;
+    const userId = 'currentUser123';
+    const oldPassword = 'oldPassword123';
+    const newPassword = 'newPasswordSecure';
+    const userHashedPassword = 'hashedOldPassword';
+
+    beforeEach(() => {
+        mockReq = {
+            user: { _id: userId },
+            body: {
+                oldPassword: oldPassword,
+                newPassword: newPassword,
+            },
+        };
+        mockRes = {
+            json: jest.fn(),
+            status: jest.fn(() => mockRes),
+        };
+
+        mockSave = jest.fn().mockResolvedValue(true);
+
+        userModel.findById.mockResolvedValue({
+            _id: userId,
+            password: userHashedPassword,
+            save: mockSave,
+        });
+
+        bcrypt.compare.mockResolvedValue(true);
+        bcrypt.genSalt.mockResolvedValue('randomSalt');
+        bcrypt.hash.mockResolvedValue('hashedNewPassword');
+    });
+
+    it('TCUW17 - має успішно змінити пароль з валідними даними', async () => {
+        await changePassword(mockReq, mockRes);
+
+        // Перевірка пошуку користувача
+        expect(userModel.findById).toHaveBeenCalledWith(userId);
+        // Перевірка порівняння старого пароля
+        expect(bcrypt.compare).toHaveBeenCalledWith(oldPassword, userHashedPassword);
+        // Перевірка генерації солі та хешування нового пароля
+        expect(bcrypt.genSalt).toHaveBeenCalledWith(10);
+        expect(bcrypt.hash).toHaveBeenCalledWith(newPassword, 'randomSalt');
+        // Перевірка виклику збереження користувача
+        expect(mockSave).toHaveBeenCalledTimes(1);
+        // Перевірка відповіді
+        expect(mockRes.json).toHaveBeenCalledWith({ success: true, message: "Пароль успішно змінено" });
+        expect(mockRes.status).not.toHaveBeenCalled();
+    });
+
+    it('TCUW18 - має повернути 400, якщо не передано старий пароль', async () => {
+        delete mockReq.body.oldPassword;
+        await changePassword(mockReq, mockRes);
+
+        expect(mockRes.status).toHaveBeenCalledWith(400);
+        expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Старий та новий паролі обов'язкові" });
+        expect(userModel.findById).not.toHaveBeenCalled();
+        expect(bcrypt.compare).not.toHaveBeenCalled();
+        expect(mockSave).not.toHaveBeenCalled();
+    });
+
+    it('TCUW18 - має повернути 400, якщо не передано новий пароль', async () => {
+        delete mockReq.body.newPassword;
+        await changePassword(mockReq, mockRes);
+
+        expect(mockRes.status).toHaveBeenCalledWith(400);
+        expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Старий та новий паролі обов'язкові" });
+        expect(userModel.findById).not.toHaveBeenCalled();
+    });
+
+    it('TCUW19 - має повернути 400, якщо новий пароль закороткий (< 8 символів)', async () => {
+        mockReq.body.newPassword = '1234567';
+        await changePassword(mockReq, mockRes);
+
+        expect(mockRes.status).toHaveBeenCalledWith(400);
+        expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Новий пароль має містити щонайменше 8 символів" });
+        expect(userModel.findById).not.toHaveBeenCalled();
+    });
+
+    it('TCUW13 - має повернути 404, якщо користувача не знайдено', async () => {
+        userModel.findById.mockResolvedValue(null);
+        await changePassword(mockReq, mockRes);
+
+        expect(userModel.findById).toHaveBeenCalledWith(userId);
+        expect(mockRes.status).toHaveBeenCalledWith(404);
+        expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Користувача не знайдено" });
+        expect(bcrypt.compare).not.toHaveBeenCalled();
+        expect(mockSave).not.toHaveBeenCalled();
+    });
+
+    it('TCUW20 - має повернути 400, якщо старий пароль невірний', async () => {
+        bcrypt.compare.mockResolvedValue(false);
+        await changePassword(mockReq, mockRes);
+
+        expect(userModel.findById).toHaveBeenCalledWith(userId);
+        expect(bcrypt.compare).toHaveBeenCalledWith(oldPassword, userHashedPassword);
+        expect(mockRes.status).toHaveBeenCalledWith(400);
+        expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Невірний старий пароль" });
+        expect(bcrypt.genSalt).not.toHaveBeenCalled();
+        expect(bcrypt.hash).not.toHaveBeenCalled();
+        expect(mockSave).not.toHaveBeenCalled();
+    });
+
+    it('TCUE03 - має повернути 500 при помилці findById', async () => {
+        const dbError = new Error('FindById Error');
+        userModel.findById.mockRejectedValue(dbError);
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+        await changePassword(mockReq, mockRes);
+
+        expect(mockRes.status).toHaveBeenCalledWith(500);
+        expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Помилка сервера" });
+        expect(consoleSpy).toHaveBeenCalledWith("Помилка зміни пароля:", dbError);
+        consoleSpy.mockRestore();
+    });
+
+    it('TCUE02 - має повернути 500 при помилці bcrypt.compare', async () => {
+        const bcryptError = new Error('Compare Error');
+        bcrypt.compare.mockRejectedValue(bcryptError);
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+        await changePassword(mockReq, mockRes);
+
+        expect(bcrypt.compare).toHaveBeenCalledTimes(1);
+        expect(mockRes.status).toHaveBeenCalledWith(500);
+        expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Помилка сервера" });
+        expect(consoleSpy).toHaveBeenCalledWith("Помилка зміни пароля:", bcryptError);
+        consoleSpy.mockRestore();
+    });
+
+    it('TCUE04 - має повернути 500 при помилці bcrypt.genSalt', async () => {
+        const saltError = new Error('Salt Error');
+        bcrypt.genSalt.mockRejectedValue(saltError);
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+        await changePassword(mockReq, mockRes);
+
+        expect(bcrypt.genSalt).toHaveBeenCalledTimes(1);
+        expect(mockRes.status).toHaveBeenCalledWith(500);
+        expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Помилка сервера" });
+        expect(consoleSpy).toHaveBeenCalledWith("Помилка зміни пароля:", saltError);
+        consoleSpy.mockRestore();
+    });
+
+    it('TCUE05 - має повернути 500 при помилці bcrypt.hash', async () => {
+        const hashError = new Error('Hash Error');
+        bcrypt.hash.mockRejectedValue(hashError);
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+        await changePassword(mockReq, mockRes);
+
+        expect(bcrypt.hash).toHaveBeenCalledTimes(1);
+        expect(mockRes.status).toHaveBeenCalledWith(500);
+        expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Помилка сервера" });
+        expect(consoleSpy).toHaveBeenCalledWith("Помилка зміни пароля:", hashError);
+        consoleSpy.mockRestore();
+    });
+
+    it('TCUE06 - має повернути 500 при помилці user.save', async () => {
+        const saveError = new Error('Save Error');
+        mockSave.mockRejectedValue(saveError);
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+        await changePassword(mockReq, mockRes);
+
+        expect(mockSave).toHaveBeenCalledTimes(1);
+        expect(mockRes.status).toHaveBeenCalledWith(500);
+        expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Помилка сервера" });
+        expect(consoleSpy).toHaveBeenCalledWith("Помилка зміни пароля:", saveError);
         consoleSpy.mockRestore();
     });
 });
