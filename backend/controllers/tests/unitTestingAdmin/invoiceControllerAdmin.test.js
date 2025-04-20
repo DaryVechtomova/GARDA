@@ -78,7 +78,7 @@ describe('addInvoice', () => {
         };
     });
 
-    it('TCIW01 - має успішно додати накладну з валідними даними', async () => {
+    it('TCIC01 - має успішно додати накладну з валідними даними', async () => {
         await addInvoice(mockReq, mockRes);
 
         expect(supplierModel.findById).toHaveBeenCalledWith(mockSupplierId);
@@ -112,7 +112,7 @@ describe('addInvoice', () => {
         }));
     });
 
-    it('TCIW02 - має повернути 400, якщо не ідентифіковано користувача', async () => {
+    it('TCIC02 - має повернути 400, якщо не ідентифіковано користувача', async () => {
         mockReq.user = null;
         await addInvoice(mockReq, mockRes);
         expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -121,9 +121,10 @@ describe('addInvoice', () => {
     });
 
     test.each([
-        ['TCIW03', 'supplier', "Будь ласка, оберіть постачальника", undefined],
-        ['TCIW04', 'products', "Будь ласка, додайте товари до накладної", []],
-        ['TCIW05', 'totalAmount', "Загальна сума накладної некоректна", -10],
+        ['TCIE03', 'supplier', "Будь ласка, оберіть постачальника", undefined],
+        ['TCIE04', 'products', "Будь ласка, додайте товари до накладної", []],
+        ['TCIE05', 'totalAmount', "Загальна сума накладної некоректна", -10],
+        ['TCIE05', 'totalAmount', "Загальна сума накладної некоректна", undefined],
     ])('%s - має повернути 400, якщо поле "%s" відсутнє або некоректне', async (testId, field, message, value) => {
         const testReq = {
             ...mockReq,
@@ -150,7 +151,7 @@ describe('addInvoice', () => {
         mockRes.json.mockClear();
     });
 
-    it('TCIW06 - має повернути 404, якщо постачальника не знайдено', async () => {
+    it('TCIE06 - має повернути 404, якщо постачальника не знайдено', async () => {
         supplierModel.findById.mockResolvedValue(null);
         await addInvoice(mockReq, mockRes);
         expect(supplierModel.findById).toHaveBeenCalledWith(mockSupplierId);
@@ -159,7 +160,7 @@ describe('addInvoice', () => {
         expect(mockInvoiceSave).not.toHaveBeenCalled();
     });
 
-    it('TCIW07 - має повернути 404, якщо один з товарів не знайдено', async () => {
+    it('TCIE07 - має повернути 404, якщо один з товарів не знайдено', async () => {
         productModel.findById.mockImplementation(id => {
             if (id === mockProductId1) return Promise.resolve(mockProduct1);
             return Promise.resolve(null);
@@ -171,7 +172,7 @@ describe('addInvoice', () => {
         expect(mockInvoiceSave).not.toHaveBeenCalled();
     });
 
-    it('TCIW08 - має повернути 400, якщо розмір товару не знайдено', async () => {
+    it('TCIE08 - має повернути 400, якщо розмір товару не знайдено', async () => {
         mockReq.body.products[0].size = 'XL';
         await addInvoice(mockReq, mockRes);
         expect(productModel.findById).toHaveBeenCalledTimes(1);
@@ -180,7 +181,7 @@ describe('addInvoice', () => {
         expect(mockInvoiceSave).not.toHaveBeenCalled();
     });
 
-    it('TCIW09 - має повернути 500, якщо сталася помилка збереження накладної', async () => {
+    it('TCIE09 - має повернути 500, якщо сталася помилка збереження накладної', async () => {
         const dbError = new Error('Invoice Save Error');
         mockInvoiceSave.mockRejectedValue(dbError);
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
@@ -192,7 +193,7 @@ describe('addInvoice', () => {
         consoleSpy.mockRestore();
     });
 
-    it('має коректно згенерувати перший номер INV-000001', async () => {
+    it('TCIE10 - має коректно згенерувати перший номер INV-000001', async () => {
         const mockSort = jest.fn().mockResolvedValue(null);
         invoiceModel.findOne.mockImplementation(() => ({ sort: mockSort }));
 
@@ -226,7 +227,7 @@ describe('fetchInvoices', () => {
         }));
     });
 
-    it('TCIR01 - має успішно повернути список накладних з populate', async () => {
+    it('TCIS01 - має успішно повернути список накладних з populate', async () => {
         await fetchInvoices(mockReq, mockRes);
 
         expect(invoiceModel.find).toHaveBeenCalledWith({});
@@ -235,7 +236,7 @@ describe('fetchInvoices', () => {
         expect(mockRes.json).toHaveBeenCalledWith({ success: true, data: expect.any(Array) });
     });
 
-    it('TCIR02 - має повернути 500 при помилці populate', async () => {
+    it('TCIS02 - має повернути 500 при помилці populate', async () => {
         const dbError = new Error('Populate Error');
         mockPopulateProduct.mockRejectedValue(dbError);
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
@@ -352,7 +353,7 @@ describe('editInvoice', () => {
         }));
     });
 
-    it('TCIW10 - має успішно оновити накладну та записати зміни', async () => {
+    it('TCIM01 - має успішно оновити накладну та записати зміни', async () => {
         await editInvoice(mockReq, mockRes);
 
         expect(invoiceModel.findById).toHaveBeenCalledWith(invoiceId);
@@ -404,7 +405,7 @@ describe('editInvoice', () => {
         });
     });
 
-    it('TCIW11 - має повернути 400, якщо не ідентифіковано редактора', async () => {
+    it('TCIM02 - має повернути 400, якщо не ідентифіковано редактора', async () => {
         mockReq.user = null;
         await editInvoice(mockReq, mockRes);
         expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -412,7 +413,7 @@ describe('editInvoice', () => {
         expect(invoiceModel.findByIdAndUpdate).not.toHaveBeenCalled();
     });
 
-    it('TCIW12 - має повернути 404, якщо накладну не знайдено', async () => {
+    it('TCIM03 - має повернути 404, якщо накладну не знайдено', async () => {
         mockPopulateProductForFindById.mockResolvedValue(null);
         invoiceModel.findById.mockImplementation(() => ({
             populate: mockPopulateProductForFindById
@@ -424,7 +425,7 @@ describe('editInvoice', () => {
         expect(invoiceModel.findByIdAndUpdate).not.toHaveBeenCalled();
     });
 
-    it('TCIW13 - має повернути 500 при помилці оновлення в БД', async () => {
+    it('TCIM04 - має повернути 500 при помилці оновлення в БД', async () => {
         const dbError = new Error('Update Error');
         invoiceModel.findByIdAndUpdate.mockImplementation(() => ({
             populate: () => ({
@@ -460,7 +461,7 @@ describe('getInvoiceById', () => {
         invoiceModel.findById.mockImplementation(() => ({ populate: mockPopulateSupplier }));
     });
 
-    it('TCIR03 - має успішно повернути накладну за ID', async () => {
+    it('TCIG01 - має успішно повернути накладну за ID', async () => {
         await getInvoiceById(mockReq, mockRes);
 
         expect(invoiceModel.findById).toHaveBeenCalledWith(invoiceId);
@@ -469,14 +470,14 @@ describe('getInvoiceById', () => {
         expect(mockRes.json).toHaveBeenCalledWith({ success: true, data: expect.objectContaining({ _id: invoiceId }) });
     });
 
-    it('TCIR04 - має повернути 404, якщо накладну не знайдено', async () => {
+    it('TCIG02 - має повернути 404, якщо накладну не знайдено', async () => {
         mockPopulateProduct.mockResolvedValue(null);
         await getInvoiceById(mockReq, mockRes);
         expect(mockRes.status).toHaveBeenCalledWith(404);
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Накладна не знайдена" });
     });
 
-    it('TCIR05 - має повернути 500 при помилці бази даних', async () => {
+    it('TCIG03 - має повернути 500 при помилці бази даних', async () => {
         const dbError = new Error('FindById Error');
         mockPopulateProduct.mockRejectedValue(dbError);
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
@@ -538,7 +539,7 @@ describe('completeInvoice', () => {
         });
     });
 
-    it('TCIW14 - має успішно виконати накладну та оновити кількість товарів', async () => {
+    it('TCIX01 - має успішно виконати накладну та оновити кількість товарів', async () => {
         await completeInvoice(mockReq, mockRes);
 
         expect(invoiceModel.findById).toHaveBeenCalledWith(invoiceId);
@@ -557,7 +558,7 @@ describe('completeInvoice', () => {
         }));
     });
 
-    it('TCIW15 - має повернути 404, якщо накладну не знайдено', async () => {
+    it('TCIX02 - має повернути 404, якщо накладну не знайдено', async () => {
         invoiceModel.findById.mockResolvedValue(null);
         await completeInvoice(mockReq, mockRes);
         expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -565,7 +566,7 @@ describe('completeInvoice', () => {
         expect(productModel.findById).not.toHaveBeenCalled();
     });
 
-    it('TCIW16 - має повернути 400, якщо накладна не активна', async () => {
+    it('TCIX03 - має повернути 400, якщо накладна не активна', async () => {
         mockInvoice.status = 'виконана';
         invoiceModel.findById.mockResolvedValue(mockInvoice);
         await completeInvoice(mockReq, mockRes);
@@ -574,7 +575,7 @@ describe('completeInvoice', () => {
         expect(productModel.findById).not.toHaveBeenCalled();
     });
 
-    it('TCIW17 - має повернути 404, якщо товар з накладної не знайдено', async () => {
+    it('TCIX04 - має повернути 404, якщо товар з накладної не знайдено', async () => {
         productModel.findById.mockImplementation(id => {
             if (id === 'p1') return Promise.resolve(null);
             return Promise.resolve(mockProduct2);
@@ -586,7 +587,7 @@ describe('completeInvoice', () => {
         expect(mockInvoiceSave).not.toHaveBeenCalled();
     });
 
-    it('TCIW18 - має повернути 400, якщо розмір товару не знайдено', async () => {
+    it('TCIX05 - має повернути 400, якщо розмір товару не знайдено', async () => {
         mockInvoice.products[0].size = 'XL';
         await completeInvoice(mockReq, mockRes);
         expect(productModel.findById).toHaveBeenCalledTimes(1);
@@ -596,7 +597,7 @@ describe('completeInvoice', () => {
         expect(mockInvoiceSave).not.toHaveBeenCalled();
     });
 
-    it('TCIW19 - має повернути 500 при помилці збереження товару', async () => {
+    it('TCIX06 - має повернути 500 при помилці збереження товару', async () => {
         const productSaveError = new Error('Product Save Error');
         mockProduct1Save.mockRejectedValue(productSaveError);
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
@@ -609,7 +610,7 @@ describe('completeInvoice', () => {
         consoleSpy.mockRestore();
     });
 
-    it('TCIW20 - має повернути 500 при помилці збереження накладної', async () => {
+    it('TCIX07 - має повернути 500 при помилці збереження накладної', async () => {
         const invoiceSaveError = new Error('Invoice Save Error');
         mockInvoiceSave.mockRejectedValue(invoiceSaveError);
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });

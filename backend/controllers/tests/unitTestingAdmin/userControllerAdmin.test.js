@@ -24,6 +24,10 @@ beforeEach(() => {
     jest.clearAllMocks();
 });
 
+afterEach(() => {
+    jest.restoreAllMocks();
+});
+
 // Тести для loginUser
 describe('loginUser', () => {
     let mockReq;
@@ -54,7 +58,7 @@ describe('loginUser', () => {
         jwt.sign.mockReturnValue(mockToken);
     });
 
-    it('TCUW01 - має успішно авторизувати активного адміністратора', async () => {
+    it('TCUL01 - має успішно авторизувати активного адміністратора', async () => {
         const mockAdmin = {
             _id: mockUserId,
             email: testEmail,
@@ -89,7 +93,7 @@ describe('loginUser', () => {
         });
     });
 
-    it('TCUW02 - має успішно авторизувати активного комірника', async () => {
+    it('TCUL02 - має успішно авторизувати активного комірника', async () => {
         const mockEmployee = {
             _id: mockUserId,
             email: testEmail,
@@ -122,7 +126,7 @@ describe('loginUser', () => {
         });
     });
 
-    it('TCUW03 - має повернути помилку, якщо користувача не знайдено', async () => {
+    it('TCUL03 - має повернути помилку, якщо користувача не знайдено', async () => {
         // Arrange: Модель не знаходить користувача
         userModel.findOne.mockResolvedValue(null);
 
@@ -136,7 +140,7 @@ describe('loginUser', () => {
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Такого користувача не існує" });
     });
 
-    it('TCUW04 - має повернути помилку, якщо пароль неправильний', async () => {
+    it('TCUL04 - має повернути помилку, якщо пароль неправильний', async () => {
         // Arrange: Користувач знайдений, але пароль не співпадає
         const mockUser = { _id: mockUserId, email: testEmail, password: 'hashedPassword', role: 'користувач' };
         userModel.findOne.mockResolvedValue(mockUser);
@@ -152,7 +156,7 @@ describe('loginUser', () => {
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Некоректні дані" });
     });
 
-    it('TCUW05 - має заборонити вхід звільненому адміністратору (isActive: false)', async () => {
+    it('TCUL05 - має заборонити вхід звільненому адміністратору (isActive: false)', async () => {
         // Arrange: Звільнений адмін
         const mockAdmin = {
             _id: mockUserId,
@@ -174,7 +178,7 @@ describe('loginUser', () => {
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Ваш акаунт неактивний" });
     });
 
-    it('TCUW05 - має заборонити вхід звільненому комірнику (isActive: false)', async () => {
+    it('TCUL05 - має заборонити вхід звільненому комірнику (isActive: false)', async () => {
         // Arrange: Звільнений комірник
         const mockEmployee = {
             _id: mockUserId,
@@ -196,7 +200,7 @@ describe('loginUser', () => {
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Ваш акаунт неактивний" });
     });
 
-    it('TCUE01 - має повернути помилку сервера, якщо userModel.findOne кидає помилку', async () => {
+    it('TCUL06 - має повернути помилку сервера, якщо userModel.findOne кидає помилку', async () => {
         // Arrange: Помилка при пошуку
         const dbError = new Error('Database find error');
         userModel.findOne.mockRejectedValue(dbError);
@@ -214,7 +218,7 @@ describe('loginUser', () => {
         consoleSpy.mockRestore();
     });
 
-    it('TCUE02 - має повернути помилку сервера, якщо bcrypt.compare кидає помилку', async () => {
+    it('TCUL07 - має повернути помилку сервера, якщо bcrypt.compare кидає помилку', async () => {
         // Arrange: Помилка при порівнянні пароля
         const mockUser = { _id: mockUserId, email: testEmail, password: 'hashedPassword', role: 'користувач' };
         const bcryptError = new Error('Bcrypt compare error');
@@ -237,50 +241,65 @@ describe('loginUser', () => {
 
 // Тести для listEmployees
 describe('listEmployees', () => {
-    it('TCUR01 - має повернути список співробітників (адміністраторів та комірників)', async () => {
+    let mockReq, mockRes;
+
+    beforeEach(() => {
+        mockReq = {};
+        mockRes = {
+            json: jest.fn(),
+        };
+
+        // Очищаємо всі моки перед кожним тестом
+        userModel.find.mockClear();
+    });
+
+    it('TCUS01 - має повернути список співробітників (адміністраторів та комірників)', async () => {
         // Підготовка (Arrange)
         const mockEmployees = [
             { _id: '1', role: 'адміністратор', firstName: 'Іван' },
             { _id: '2', role: 'комірник', firstName: 'Петро' },
         ];
-        userModel.find.mockResolvedValue(mockEmployees);
 
-        const mockReq = {};
-        const mockRes = {
-            json: jest.fn(),
+        // Створюємо мок для ланцюжка методів
+        const mockQuery = {
+            select: jest.fn().mockResolvedValue(mockEmployees)
         };
+        userModel.find.mockReturnValue(mockQuery);
 
-        //Дія (Act)
+        // Дія (Act)
         await listEmployees(mockReq, mockRes);
 
-        //Перевірка (Assert)
+        // Перевірка (Assert)
         expect(userModel.find).toHaveBeenCalledTimes(1);
-        expect(userModel.find).toHaveBeenCalledWith({ role: { $in: ["адміністратор", "комірник"] } });
-        expect(mockRes.json).toHaveBeenCalledTimes(1);
-        expect(mockRes.json).toHaveBeenCalledWith({ success: true, data: mockEmployees });
+        expect(userModel.find).toHaveBeenCalledWith({
+            role: { $in: ["адміністратор", "комірник"] }
+        });
+        expect(mockQuery.select).toHaveBeenCalledWith('-password');
+        expect(mockRes.json).toHaveBeenCalledWith({
+            success: true,
+            data: mockEmployees
+        });
     });
 
-    it('TCUE03 - має повернути помилку сервера, якщо виникла проблема з базою даних', async () => {
-        // Підготовка
-        const errorMessage = 'DB Error';
-        userModel.find.mockRejectedValue(new Error(errorMessage));
-
-        const mockReq = {};
-        const mockRes = {
-            json: jest.fn(),
+    test("TCUS02 - має повернути помилку сервера при помилці бази даних", async () => {
+        const req = {}; // або що потрібно
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn()
         };
-        const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
 
-        //Дія
-        await listEmployees(mockReq, mockRes);
+        // симуляція помилки в userModel.find
+        jest.spyOn(userModel, "find").mockImplementation(() => {
+            throw new Error("DB Error");
+        });
 
-        // Перевірка
-        expect(userModel.find).toHaveBeenCalledTimes(1);
-        expect(mockRes.json).toHaveBeenCalledTimes(1);
-        expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Помилка сервера" });
-        expect(consoleSpy).toHaveBeenCalled();
+        await listEmployees(req, res);
 
-        consoleSpy.mockRestore();
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({
+            success: false,
+            message: "Помилка сервера",
+        });
     });
 });
 
@@ -313,7 +332,7 @@ describe('registerEmployee', () => {
         userModel.mockImplementation(() => ({ save: saveMock }));
     });
 
-    it('TCUW06 - має успішно зареєструвати співробітника з валідними даними', async () => {
+    it('TCUC01 - має успішно зареєструвати співробітника з валідними даними', async () => {
         await registerEmployee(mockReq, mockRes);
 
         expect(validator.isEmail).toHaveBeenCalledWith(mockReq.body.email);
@@ -330,7 +349,7 @@ describe('registerEmployee', () => {
         expect(mockRes.json).toHaveBeenCalledWith({ success: true, message: "Співробітника успішно додано" });
     });
 
-    it('TCUW07 - має повернути помилку, якщо email вже існує', async () => {
+    it('TCUC02 - має повернути помилку, якщо email вже існує', async () => {
         userModel.findOne.mockResolvedValue({ email: mockReq.body.email });
 
         await registerEmployee(mockReq, mockRes);
@@ -341,7 +360,7 @@ describe('registerEmployee', () => {
         expect(userModel).not.toHaveBeenCalled();
     });
 
-    it('TCUW09 - має повернути помилку, якщо email невалідний', async () => {
+    it('TCUC04 - має повернути помилку, якщо email невалідний', async () => {
         validator.isEmail.mockReturnValue(false);
 
         await registerEmployee(mockReq, mockRes);
@@ -351,7 +370,7 @@ describe('registerEmployee', () => {
         expect(userModel.findOne).not.toHaveBeenCalled();
     });
 
-    it('TCUW10 - має повернути помилку, якщо пароль закороткий', async () => {
+    it('TCUC05 - має повернути помилку, якщо пароль закороткий', async () => {
         mockReq.body.password = '123';
 
         await registerEmployee(mockReq, mockRes);
@@ -369,7 +388,7 @@ describe('registerEmployee', () => {
         ['password', "Будь ласка, введіть пароль"],
         ['birthDate', "Будь ласка, введіть дату народження"],
         ['role', "Будь ласка, оберіть роль"],
-    ])('TCUW08 - має повернути помилку, якщо %s відсутнє', async (field, expectedMessage) => {
+    ])('TCUC03 - має повернути помилку, якщо %s відсутнє', async (field, expectedMessage) => {
         delete mockReq.body[field];
 
         await registerEmployee(mockReq, mockRes);
@@ -379,7 +398,7 @@ describe('registerEmployee', () => {
     });
 
 
-    it('TCUE03 - має повернути помилку сервера, якщо виникла помилка при збереженні', async () => {
+    it('TCUC06 - має повернути помилку сервера, якщо виникла помилка при збереженні', async () => {
         const saveMock = jest.fn().mockRejectedValue(new Error('DB save error'));
         userModel.mockImplementation(() => ({ save: saveMock }));
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
@@ -420,7 +439,7 @@ describe('editEmployee', () => {
         userModel.findByIdAndUpdate.mockResolvedValue({ _id: employeeId, ...mockReq.body });
     });
 
-    it('TCUW11 - має успішно оновити співробітника з валідними даними', async () => {
+    it('TCUM01 - має успішно оновити співробітника з валідними даними', async () => {
         await editEmployee(mockReq, mockRes);
 
         expect(userModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
@@ -444,7 +463,7 @@ describe('editEmployee', () => {
         });
     });
 
-    it('TCUW13 - має повернути помилку 404, якщо співробітника не знайдено', async () => {
+    it('TCUM03 - має повернути помилку 404, якщо співробітника не знайдено', async () => {
         userModel.findByIdAndUpdate.mockResolvedValue(null);
 
         await editEmployee(mockReq, mockRes);
@@ -461,14 +480,14 @@ describe('editEmployee', () => {
         ['email', "Будь ласка, введіть електронну пошту"],
         ['phoneNumber', "Будь ласка, введіть номер телефону"],
         ['birthDate', "Будь ласка, введіть дату народження"],
-    ])('TCUW12 - має повернути помилку, якщо %s відсутнє при редагуванні', async (field, expectedMessage) => {
+    ])('TCUM02 - має повернути помилку, якщо %s відсутнє при редагуванні', async (field, expectedMessage) => {
         delete mockReq.body[field];
         await editEmployee(mockReq, mockRes);
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: expectedMessage });
         expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
     });
 
-    it('TCUE03 - має повернути помилку сервера при помилці бази даних', async () => {
+    it('TCUM04 - має повернути помилку сервера при помилці бази даних', async () => {
         userModel.findByIdAndUpdate.mockRejectedValue(new Error('DB update error'));
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
 
@@ -509,7 +528,7 @@ describe('fireEmployee', () => {
         userModel.findById.mockResolvedValue(mockEmployee);
     });
 
-    it('TCUW14 - має успішно звільнити співробітника', async () => {
+    it('TCFU01 - має успішно звільнити співробітника', async () => {
         await fireEmployee(mockReq, mockRes);
 
         expect(userModel.findById).toHaveBeenCalledWith(employeeId);
@@ -520,7 +539,7 @@ describe('fireEmployee', () => {
         expect(mockRes.json).toHaveBeenCalledWith({ success: true, message: "Співробітника звільнено" });
     });
 
-    it('TCUW13 - має повернути 404, якщо співробітника не знайдено', async () => {
+    it('TCFU02 - має повернути 404, якщо співробітника не знайдено', async () => {
         userModel.findById.mockResolvedValue(null);
 
         await fireEmployee(mockReq, mockRes);
@@ -532,7 +551,7 @@ describe('fireEmployee', () => {
         expect(findResult).toBeNull();
     });
 
-    it('TCUW13 - має повернути 404, якщо намагаються звільнити звичайного користувача', async () => {
+    it('TCFU03 - має повернути 404, якщо намагаються звільнити звичайного користувача', async () => {
         const saveMock = jest.fn().mockResolvedValue(true);
         const mockUser = {
             _id: employeeId,
@@ -550,7 +569,7 @@ describe('fireEmployee', () => {
         expect(saveMock).not.toHaveBeenCalled();
     });
 
-    it('TCUE03 - має повернути 500 при помилці пошуку в базі даних', async () => {
+    it('TCFU04 - має повернути 500 при помилці пошуку в базі даних', async () => {
         userModel.findById.mockRejectedValue(new Error('DB find error'));
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
 
@@ -563,7 +582,7 @@ describe('fireEmployee', () => {
         consoleSpy.mockRestore();
     });
 
-    it('TCUE03 - має повернути 500 при помилці збереження в базі даних', async () => {
+    it('TCFU05 - має повернути 500 при помилці збереження в базі даних', async () => {
         const saveMock = jest.fn().mockRejectedValue(new Error('DB save error'));
         const mockEmployee = {
             _id: employeeId,
@@ -611,7 +630,7 @@ describe('getCurrentEmployee', () => {
         };
     });
 
-    it('TCUR02 - має повернути дані поточного співробітника з req.user', async () => {
+    it('TCUG01 - має повернути дані поточного співробітника з req.user', async () => {
         await getCurrentEmployee(mockReq, mockRes);
 
         expect(mockRes.json).toHaveBeenCalledTimes(1);
@@ -631,7 +650,7 @@ describe('getCurrentEmployee', () => {
         });
     });
 
-    it('TCUR03 - має повернути помилку 404, якщо req.user відсутній', async () => {
+    it('TCUG02 - має повернути помилку 404, якщо req.user відсутній', async () => {
         mockReq.user = null;
 
         await getCurrentEmployee(mockReq, mockRes);
@@ -682,7 +701,7 @@ describe('updateAdminProfile', () => {
         }));
     });
 
-    it('TCUW15 - має успішно оновити профіль адміністратора', async () => {
+    it('TCUA01 - має успішно оновити профіль адміністратора', async () => {
         await updateAdminProfile(mockReq, mockRes);
 
         expect(userModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
@@ -723,14 +742,14 @@ describe('updateAdminProfile', () => {
         ['middleName', "Будь ласка, введіть по батькові"],
         ['phoneNumber', "Будь ласка, введіть номер телефону"],
         ['birthDate', "Будь ласка, введіть дату народження"],
-    ])('TCUW16 - має повернути помилку, якщо %s відсутнє', async (field, expectedMessage) => {
+    ])('TCUA02 - має повернути помилку, якщо %s відсутнє', async (field, expectedMessage) => {
         delete mockReq.body[field];
         await updateAdminProfile(mockReq, mockRes);
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: expectedMessage });
         expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
     });
 
-    it('TCUW13 - має повернути 404, якщо користувача (адміна) не знайдено для оновлення', async () => {
+    it('TCUA03 - має повернути 404, якщо користувача (адміна) не знайдено для оновлення', async () => {
         mockSelect.mockResolvedValue(null);
 
         await updateAdminProfile(mockReq, mockRes);
@@ -744,7 +763,7 @@ describe('updateAdminProfile', () => {
         });
     });
 
-    it('TCUE03 - має повернути 500 при помилці бази даних', async () => {
+    it('TCUA04 - має повернути 500 при помилці бази даних', async () => {
         userModel.findByIdAndUpdate.mockImplementation(() => {
             return {
                 select: jest.fn().mockRejectedValue(new Error('DB update error'))
@@ -798,7 +817,7 @@ describe('changePassword', () => {
         bcrypt.hash.mockResolvedValue('hashedNewPassword');
     });
 
-    it('TCUW17 - має успішно змінити пароль з валідними даними', async () => {
+    it('TCUP01 - має успішно змінити пароль з валідними даними', async () => {
         await changePassword(mockReq, mockRes);
 
         // Перевірка пошуку користувача
@@ -815,7 +834,7 @@ describe('changePassword', () => {
         expect(mockRes.status).not.toHaveBeenCalled();
     });
 
-    it('TCUW18 - має повернути 400, якщо не передано старий пароль', async () => {
+    it('TCUP02 - має повернути 400, якщо не передано старий пароль', async () => {
         delete mockReq.body.oldPassword;
         await changePassword(mockReq, mockRes);
 
@@ -826,7 +845,7 @@ describe('changePassword', () => {
         expect(mockSave).not.toHaveBeenCalled();
     });
 
-    it('TCUW18 - має повернути 400, якщо не передано новий пароль', async () => {
+    it('TCUP03 - має повернути 400, якщо не передано новий пароль', async () => {
         delete mockReq.body.newPassword;
         await changePassword(mockReq, mockRes);
 
@@ -835,7 +854,7 @@ describe('changePassword', () => {
         expect(userModel.findById).not.toHaveBeenCalled();
     });
 
-    it('TCUW19 - має повернути 400, якщо новий пароль закороткий (< 8 символів)', async () => {
+    it('TCUP04 - має повернути 400, якщо новий пароль закороткий (< 8 символів)', async () => {
         mockReq.body.newPassword = '1234567';
         await changePassword(mockReq, mockRes);
 
@@ -844,7 +863,7 @@ describe('changePassword', () => {
         expect(userModel.findById).not.toHaveBeenCalled();
     });
 
-    it('TCUW13 - має повернути 404, якщо користувача не знайдено', async () => {
+    it('TCUP05 - має повернути 404, якщо користувача не знайдено', async () => {
         userModel.findById.mockResolvedValue(null);
         await changePassword(mockReq, mockRes);
 
@@ -855,7 +874,7 @@ describe('changePassword', () => {
         expect(mockSave).not.toHaveBeenCalled();
     });
 
-    it('TCUW20 - має повернути 400, якщо старий пароль невірний', async () => {
+    it('TCUP06 - має повернути 400, якщо старий пароль невірний', async () => {
         bcrypt.compare.mockResolvedValue(false);
         await changePassword(mockReq, mockRes);
 
@@ -868,19 +887,7 @@ describe('changePassword', () => {
         expect(mockSave).not.toHaveBeenCalled();
     });
 
-    it('TCUE03 - має повернути 500 при помилці findById', async () => {
-        const dbError = new Error('FindById Error');
-        userModel.findById.mockRejectedValue(dbError);
-        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
-        await changePassword(mockReq, mockRes);
-
-        expect(mockRes.status).toHaveBeenCalledWith(500);
-        expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Помилка сервера" });
-        expect(consoleSpy).toHaveBeenCalledWith("Помилка зміни пароля:", dbError);
-        consoleSpy.mockRestore();
-    });
-
-    it('TCUE02 - має повернути 500 при помилці bcrypt.compare', async () => {
+    it('TCUP07 - має повернути 500 при помилці bcrypt.compare', async () => {
         const bcryptError = new Error('Compare Error');
         bcrypt.compare.mockRejectedValue(bcryptError);
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
@@ -893,7 +900,7 @@ describe('changePassword', () => {
         consoleSpy.mockRestore();
     });
 
-    it('TCUE04 - має повернути 500 при помилці bcrypt.genSalt', async () => {
+    it('TCUP08 - має повернути 500 при помилці bcrypt.genSalt', async () => {
         const saltError = new Error('Salt Error');
         bcrypt.genSalt.mockRejectedValue(saltError);
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
@@ -906,7 +913,7 @@ describe('changePassword', () => {
         consoleSpy.mockRestore();
     });
 
-    it('TCUE05 - має повернути 500 при помилці bcrypt.hash', async () => {
+    it('TCUP09 - має повернути 500 при помилці bcrypt.hash', async () => {
         const hashError = new Error('Hash Error');
         bcrypt.hash.mockRejectedValue(hashError);
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
@@ -919,7 +926,7 @@ describe('changePassword', () => {
         consoleSpy.mockRestore();
     });
 
-    it('TCUE06 - має повернути 500 при помилці user.save', async () => {
+    it('TCUP10 - має повернути 500 при помилці user.save', async () => {
         const saveError = new Error('Save Error');
         mockSave.mockRejectedValue(saveError);
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });

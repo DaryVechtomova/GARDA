@@ -46,7 +46,7 @@ describe('addSupplier', () => {
         };
     });
 
-    it('TCSW01 - має успішно додати постачальника з валідними даними', async () => {
+    it('TCSC01 - має успішно додати постачальника з валідними даними', async () => {
         await addSupplier(mockReq, mockRes);
 
         expect(supplierModel.findOne).toHaveBeenCalledWith({ companyName: 'ТестПостач' });
@@ -67,7 +67,7 @@ describe('addSupplier', () => {
         expect(mockRes.json).toHaveBeenCalledWith({ success: true, message: "Постачальника додано" });
     });
 
-    it('TCSW02 - має повернути 400, якщо компанія з такою назвою вже існує', async () => {
+    it('TCSC02 - має повернути 400, якщо компанія з такою назвою вже існує', async () => {
         supplierModel.findOne.mockResolvedValue({ _id: 'existingId' });
         await addSupplier(mockReq, mockRes);
         expect(supplierModel.findOne).toHaveBeenCalledTimes(1);
@@ -78,16 +78,16 @@ describe('addSupplier', () => {
 
     // Тести на валідацію обов'язкових полів
     test.each([
-        ['companyName', 'Будь ласка, введіть назву компанії'],
-        ['contactPerson', 'Будь ласка, введіть контактну особу'],
-        ['email', 'Будь ласка, введіть email'],
-        ['phone', 'Будь ласка, введіть телефон'],
-        ['address', 'Будь ласка, введіть адресу'],
-        ['city', 'Будь ласка, введіть місто'],
-        ['country', 'Будь ласка, введіть країну'],
-        ['productType', 'Будь ласка, оберіть тип продукції'],
-        ['status', 'Будь ласка, оберіть статус'],
-    ])('TCSW03 - має повернути 400, якщо відсутнє поле "%s"', async (field, message) => {
+        ['companyName', 'Будь ласка, введіть назву компанії', 'TCSE03'],
+        ['contactPerson', 'Будь ласка, введіть контактну особу', 'TCSE03'],
+        ['email', 'Будь ласка, введіть email', 'TCSE03'],
+        ['phone', 'Будь ласка, введіть телефон', 'TCSE03'],
+        ['address', 'Будь ласка, введіть адресу', 'TCSE03'],
+        ['city', 'Будь ласка, введіть місто', 'TCSE03'],
+        ['country', 'Будь ласка, введіть країну', 'TCSE03'],
+        ['productType', 'Будь ласка, оберіть тип продукції', 'TCSE04'],
+        ['status', 'Будь ласка, оберіть статус', 'TCSE05'],
+    ])('%s - має повернути 400, якщо відсутнє поле "%s"', async (field, message, testId) => {
         delete mockReq.body[field];
         await addSupplier(mockReq, mockRes);
         expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -95,21 +95,21 @@ describe('addSupplier', () => {
         expect(mockSave).not.toHaveBeenCalled();
     });
 
-    it('TCSW04 - має повернути 400, якщо productType не обрано', async () => {
+    it('TCSE04 - має повернути 400, якщо productType не обрано', async () => {
         mockReq.body.productType = "Оберіть тип продукції";
         await addSupplier(mockReq, mockRes);
         expect(mockRes.status).toHaveBeenCalledWith(400);
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Будь ласка, оберіть тип продукції" });
     });
 
-    it('TCSW05 - має повернути 400, якщо status не обрано', async () => {
+    it('TCSE05 - має повернути 400, якщо status не обрано', async () => {
         mockReq.body.status = "Оберіть статус";
         await addSupplier(mockReq, mockRes);
         expect(mockRes.status).toHaveBeenCalledWith(400);
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Будь ласка, оберіть статус" });
     });
 
-    it('TCSW06 - має повернути 500, якщо сталася помилка збереження', async () => {
+    it('TCSE06 - має повернути 500, якщо сталася помилка збереження', async () => {
         const dbError = new Error('DB Save Error');
         mockSave.mockRejectedValue(dbError);
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
@@ -132,7 +132,7 @@ describe('fetchSuppliers', () => {
         mockRes = { json: jest.fn() };
     });
 
-    it('TCSR01 - має успішно повернути список постачальників', async () => {
+    it('TCSS01 - має успішно повернути список постачальників', async () => {
         const mockSuppliers = [
             { _id: 's1', companyName: 'Постач 1' },
             { _id: 's2', companyName: 'Постач 2' },
@@ -145,7 +145,7 @@ describe('fetchSuppliers', () => {
         expect(mockRes.json).toHaveBeenCalledWith({ success: true, data: mockSuppliers });
     });
 
-    it('TCSR02 - має повернути помилку 500, якщо find кидає помилку', async () => {
+    it('TCSS02 - має повернути помилку 500, якщо find кидає помилку', async () => {
         const dbError = new Error('DB Find Error');
         supplierModel.find.mockRejectedValue(dbError);
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
@@ -173,7 +173,7 @@ describe('removeSupplier', () => {
         supplierModel.findByIdAndDelete.mockResolvedValue({ _id: supplierId });
     });
 
-    it('TCSW07 - має успішно видалити постачальника, якщо немає накладних', async () => {
+    it('TCSD01 - має успішно видалити постачальника, якщо немає накладних', async () => {
         await removeSupplier(mockReq, mockRes);
 
         expect(supplierModel.findById).toHaveBeenCalledWith(supplierId);
@@ -183,7 +183,7 @@ describe('removeSupplier', () => {
         expect(mockRes.json).toHaveBeenCalledWith({ success: true, message: "Постачальника видалено" });
     });
 
-    it('TCSW08 - має повернути 404, якщо постачальника не знайдено', async () => {
+    it('TCSD02 - має повернути 404, якщо постачальника не знайдено', async () => {
         supplierModel.findById.mockResolvedValue(null); // Не знайдено
         await removeSupplier(mockReq, mockRes);
         expect(supplierModel.findById).toHaveBeenCalledWith(supplierId);
@@ -193,7 +193,7 @@ describe('removeSupplier', () => {
         expect(supplierModel.findByIdAndDelete).not.toHaveBeenCalled();
     });
 
-    it('TCSW09 - має повернути 400, якщо у постачальника є накладні', async () => {
+    it('TCSD03 - має повернути 400, якщо у постачальника є накладні', async () => {
         invoiceModel.find.mockResolvedValue([{ _id: 'inv1' }]); // Знайдено накладні
         await removeSupplier(mockReq, mockRes);
         expect(supplierModel.findById).toHaveBeenCalledWith(supplierId);
@@ -203,7 +203,7 @@ describe('removeSupplier', () => {
         expect(supplierModel.findByIdAndDelete).not.toHaveBeenCalled();
     });
 
-    it('TCSW10 - має повернути 500, якщо сталася помилка при пошуку постачальника', async () => {
+    it('TCSD04 - має повернути 500, якщо сталася помилка при пошуку постачальника', async () => {
         const dbError = new Error('FindById Error');
         supplierModel.findById.mockRejectedValue(dbError);
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
@@ -214,7 +214,7 @@ describe('removeSupplier', () => {
         consoleSpy.mockRestore();
     });
 
-    it('має повернути 500, якщо сталася помилка при пошуку накладних', async () => {
+    it('TCSD05 - має повернути 500, якщо сталася помилка при пошуку накладних', async () => {
         const dbError = new Error('Invoice Find Error');
         invoiceModel.find.mockRejectedValue(dbError);
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
@@ -225,7 +225,7 @@ describe('removeSupplier', () => {
         consoleSpy.mockRestore();
     });
 
-    it('має повернути 500, якщо сталася помилка при видаленні постачальника', async () => {
+    it('TCSD06 - має повернути 500, якщо сталася помилка при видаленні постачальника', async () => {
         const dbError = new Error('Delete Error');
         supplierModel.findByIdAndDelete.mockRejectedValue(dbError);
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
@@ -292,7 +292,7 @@ describe('editSupplier', () => {
         });
     });
 
-    it('TCSW11 - має успішно оновити постачальника без зміни статусу', async () => {
+    it('TCSE01 - має успішно оновити постачальника без зміни статусу', async () => {
         await editSupplier(mockReq, mockRes);
 
         expect(supplierModel.findOne).toHaveBeenCalledWith({ companyName: 'Нова Компанія', _id: { $ne: supplierId } });
@@ -319,7 +319,7 @@ describe('editSupplier', () => {
         }));
     });
 
-    it('TCSW12 - має не скинути cooperationEndDate при зміні статусу з "завершений" на "активний"', async () => {
+    it('TCSE02 - має не скинути cooperationEndDate при зміні статусу з "завершений" на "активний"', async () => {
         mockExistingSupplier.status = 'завершений';
         const originalDate = new Date();
         mockExistingSupplier.cooperationEndDate = originalDate;
@@ -354,7 +354,7 @@ describe('editSupplier', () => {
         expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
     });
 
-    it('TCSW13 - має повернути 400, якщо знайдено дублікат компанії (інший ID)', async () => {
+    it('TCSEM03 - має повернути 400, якщо знайдено дублікат компанії (інший ID)', async () => {
         supplierModel.findOne.mockResolvedValue({ _id: 'anotherId' }); // Знайдено дублікат
         await editSupplier(mockReq, mockRes);
         expect(supplierModel.findOne).toHaveBeenCalledTimes(1);
@@ -367,7 +367,7 @@ describe('editSupplier', () => {
         ['companyName', 'Будь ласка, введіть назву компанії'],
         ['contactPerson', 'Будь ласка, введіть контактну особу'],
         ['email', 'Будь ласка, введіть email'],
-    ])('TCSW14 - має повернути 400 при редагуванні, якщо відсутнє поле "%s"', async (field, message) => {
+    ])('TCSE04 - має повернути 400 при редагуванні, якщо відсутнє поле "%s"', async (field, message) => {
         delete mockReq.body[field];
         await editSupplier(mockReq, mockRes);
         expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -375,7 +375,7 @@ describe('editSupplier', () => {
         expect(supplierModel.findByIdAndUpdate).not.toHaveBeenCalled();
     });
 
-    it('TCSW15 - має повернути 404, якщо постачальника не знайдено (findById)', async () => {
+    it('TCSE05 - має повернути 404, якщо постачальника не знайдено (findById)', async () => {
         supplierModel.findById.mockResolvedValue(null);
         await editSupplier(mockReq, mockRes);
         expect(supplierModel.findOne).toHaveBeenCalledTimes(1);
@@ -385,7 +385,7 @@ describe('editSupplier', () => {
         expect(supplierModel.findByIdAndUpdate).not.toHaveBeenCalled();
     });
 
-    it('TCSW16 - має повернути 500 при помилці findByIdAndUpdate', async () => {
+    it('TCSE06 - має повернути 500 при помилці findByIdAndUpdate', async () => {
         const dbError = new Error('Update Error');
         supplierModel.findByIdAndUpdate.mockRejectedValue(dbError);
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });

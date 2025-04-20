@@ -1,4 +1,4 @@
-import path from "path";
+//import path from "path";
 import mongoose from 'mongoose';
 import { syncBuiltinESMExports } from "module";
 import productModel from "../models/productModel.js";
@@ -6,9 +6,30 @@ import invoiceModel from "../models/invoiceModel.js";
 import orderModel from "../models/orderModel.js";
 import fs from "fs"
 
+const path = require('path');
+
+const BASE_DIR = path.resolve(__dirname, '..');
+
+// Визначаємо ім'я папки завантажень
+// ПЕРЕВІРКА ТЕСТОВОГО СЕРЕДОВИЩА: process.env.NODE_ENV часто встановлюється Jest на 'test'
+const UPLOAD_FOLDER_NAME = process.env.NODE_ENV === 'test' ? 'test-uploads' : 'uploads';
+
+// Повний абсолютний шлях до папки завантажень
+const UPLOAD_DIR_ABSOLUTE = path.join(BASE_DIR, UPLOAD_FOLDER_NAME);
+console.log(`[Controller] Using UPLOAD_DIR: ${UPLOAD_DIR_ABSOLUTE} (NODE_ENV: ${process.env.NODE_ENV})`); // Додано NODE_ENV для ясності
+
+// Переконаємось, що папка існує
+if (!fs.existsSync(UPLOAD_DIR_ABSOLUTE)) {
+    try {
+        fs.mkdirSync(UPLOAD_DIR_ABSOLUTE, { recursive: true });
+    } catch (err) {
+        console.error(`[Controller] Failed to create upload directory: ${UPLOAD_DIR_ABSOLUTE}`, err);
+    }
+}
 // Функція для перевірки наявності дублікатів розмірів
-const hasDuplicateSizes = (sizes) => {
-    const sizeValues = sizes.map((size) => size.size);
+const hasDuplicateSizes = (sizesArray) => {
+    if (!Array.isArray(sizesArray)) return false; // Захист
+    const sizeValues = sizesArray.map((size) => size.size);
     const uniqueSizes = new Set(sizeValues);
     return sizeValues.length !== uniqueSizes.size;
 };
@@ -37,6 +58,7 @@ const addProduct = async (req, res) => {
     } = req.body;
 
     const images = req.files.map((file) => file.filename);
+    let sizesData = req.body.sizes;
 
     // Перевірка обов'язкових полів
     if (!name) {
@@ -57,15 +79,45 @@ const addProduct = async (req, res) => {
     if (!images || images.length === 0) {
         return res.status(400).json({ success: false, message: "Будь ласка, завантажте хоча б одне зображення товару" });
     }
+    if (!Array.isArray(sizesData)) {
+        // Можливо, дані прийшли в іншому форматі (напр. від старого тесту)?
+        // Спробуємо розпарсити як JSON, якщо це рядок - АЛЕ ЦЕ КОСТИЛЬ ДЛЯ ТЕСТУ
+        if (typeof sizesData === 'string') {
+            try {
+                sizesData = JSON.parse(sizesData);
+                if (!Array.isArray(sizesData)) { // Перевірка після парсингу
+                    return res.status(400).json({ success: false, message: "Некоректний формат поля sizes після JSON парсингу" });
+                }
+            } catch (e) {
+                return res.status(400).json({ success: false, message: "Некоректний JSON формат для поля sizes" });
+            }
+        } else {
+            // Якщо це не масив і не рядок, що парситься, то це помилка
+            console.warn("Отримано некоректний тип для 'sizes':", typeof sizesData, sizesData);
+            return res.status(400).json({ success: false, message: "Некоректний формат даних для поля sizes" });
+        }
+    }
 
-    const existingProduct = await isProductDuplicate(name, colors);
-    if (existingProduct) {
-        return res.status(400).json({ success: false, message: "Товар з такою назвою та кольором вже існує" });
+    // Тепер sizesData має бути масивом
+    if (!sizesData || sizesData.length === 0) {
+        return res.status(400).json({ success: false, message: "Необхідно вказати хоча б один розмір" });
+    }
+
+    // Валідація самих даних розмірів (чи є size і quantity)
+    for (const item of sizesData) {
+        if (!item.size || item.quantity === undefined || item.quantity === null || Number(item.quantity) < 0) {
+            return res.status(400).json({ success: false, message: `Будь ласка, введіть хоча б один розмір` });
+        }
+        item.quantity = Number(item.quantity);
     }
 
     // Перевірка на дублікати розмірів
-    if (sizes && hasDuplicateSizes(sizes)) {
-        return res.status(400).json({ success: false, message: "Дублікати розмірів не допускаються. Виправте, будь ласка." });
+    if (hasDuplicateSizes(sizesData)) {
+        return res.status(400).json({ success: false, message: "Розміри товару не повинні дублюватись" });
+    }
+    const existingProduct = await isProductDuplicate(name, colors);
+    if (existingProduct) {
+        return res.status(400).json({ success: false, message: "Товар з такою назвою та кольором вже існує" });
     }
 
     // Створення нового товару
@@ -168,13 +220,30 @@ const removeProduct = async (req, res) => {
 
         // Видаляємо всі зображення товару з папки uploads
         if (product.images && product.images.length > 0) {
-            product.images.forEach(image => {
-                const imagePath = path.join("uploads", image);
-                if (fs.existsSync(imagePath)) {
-                    fs.unlinkSync(imagePath); // Видаляємо файл
-                    console.log(`Видалено зображення: ${imagePath}`);
-                }
+            const deletePromises = product.images.map(image => {
+                return new Promise((resolve) => {
+                    const imagePath = path.join(UPLOAD_DIR_ABSOLUTE, image);
+
+                    fs.access(imagePath, fs.constants.F_OK, (err) => {
+                        if (err) {
+                            console.warn(`Файл не знайдено: ${imagePath}`);
+                            return resolve(false);
+                        }
+
+                        fs.unlink(imagePath, (unlinkErr) => {
+                            if (unlinkErr) {
+                                console.error(`Помилка видалення файлу ${imagePath}:`, unlinkErr);
+                                return resolve(false);
+                            }
+                            console.log(`Успішно видалено зображення: ${imagePath}`);
+                            resolve(true);
+                        });
+                    });
+                });
             });
+
+            // Чекаємо завершення всіх операцій видалення
+            await Promise.all(deletePromises);
         }
 
         // Видаляємо товар з бази даних
@@ -204,8 +273,8 @@ const editProduct = async (req, res) => {
         technique,
         fabric,
         colors,
+        existingImages // This should come from req.body
     } = req.body;
-
 
     // Перевірка обов'язкових полів
     if (!name || typeof name !== 'string' || name.trim() === '') {
@@ -257,43 +326,79 @@ const editProduct = async (req, res) => {
             return res.status(404).json({ success: false, message: "Товар не знайдено" });
         }
 
-        // Якщо нові зображення завантажено
-        if (req.files && req.files.length > 0 || req.body.existingImages) {
-            const newImages = req.files.map((file) => file.filename);
-            updateData.images = [...product.images, ...newImages];
-        }
+        let currentImages = product.images || [];
+        let finalImages = [...currentImages];
 
-        // Обробка видалених зображень
-        if (req.body.existingImages) {
-            const existingImages = JSON.parse(req.body.existingImages);
+        // 1. Handle new uploaded files
+        const newUploadedFiles = req.files ? req.files.map((file) => file.filename) : [];
 
-            // Видалення фото, які були видалені на фронті
-            const imagesToRemove = product.images.filter((image) => !existingImages.includes(image));
+        // 2. Handle existing images that should be kept
+        let keptExistingImages = [];
+        if (existingImages) {
+            try {
+                // If existingImages is a string (JSON), parse it
+                keptExistingImages = typeof existingImages === 'string'
+                    ? JSON.parse(existingImages)
+                    : existingImages;
+
+                if (!Array.isArray(keptExistingImages)) {
+                    keptExistingImages = [];
+                }
+            } catch (e) {
+                console.error("Error parsing existingImages:", e);
+                keptExistingImages = [];
+            }
+
+            // Determine which images to remove (present in current but not in keptExistingImages)
+            const imagesToRemove = currentImages.filter((img) => !keptExistingImages.includes(img));
+
+            // Delete the files from server
             imagesToRemove.forEach((image) => {
-                const imagePath = path.join("uploads", image);
-                if (fs.existsSync(imagePath)) {
-                    fs.unlinkSync(imagePath);
+                const imagePath = path.join(UPLOAD_DIR_ABSOLUTE, image);
+                try {
+                    if (fs.existsSync(imagePath)) {
+                        fs.unlinkSync(imagePath);
+                        console.log(`Deleted old image: ${imagePath}`);
+                    }
+                } catch (unlinkErr) {
+                    console.error(`Error deleting file ${imagePath}:`, unlinkErr);
                 }
             });
 
-            // Оновлення списку зображень
-            if (req.files && req.files.length > 0) {
-                updateData.images = [...existingImages, ...req.files.map((file) => file.filename)];
-            } else {
-                updateData.images = existingImages;
-            }
+            // Combine kept existing images with new uploaded ones
+            finalImages = [...keptExistingImages, ...newUploadedFiles];
+        } else if (newUploadedFiles.length > 0) {
+            // If no existing images specified but new files uploaded, just append them
+            finalImages = [...currentImages, ...newUploadedFiles];
         }
 
-        const updatedProduct = await productModel.findByIdAndUpdate(id, updateData, { new: true });
+        // Only update images if they changed
+        if (JSON.stringify(finalImages) !== JSON.stringify(currentImages)) {
+            updateData.images = finalImages;
+        }
+
+        const updatedProduct = await productModel.findByIdAndUpdate(
+            id,
+            updateData,
+            { new: true }
+        );
 
         if (!updatedProduct) {
             return res.status(404).json({ success: false, message: "Товар не знайдено" });
         }
 
-        res.json({ success: true, message: "Товар оновлено", data: updatedProduct });
+        res.json({
+            success: true,
+            message: "Товар оновлено",
+            data: updatedProduct
+        });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ success: false, message: "Помилка при редагуванні товару", error: error.message });
+        res.status(500).json({
+            success: false,
+            message: "Помилка при редагуванні товару",
+            error: error.message
+        });
     }
 };
 
@@ -354,7 +459,7 @@ const editDiscount = async (req, res) => {
     }
 };
 
-const getProductById = async(req, res)=>{
+const getProductById = async (req, res) => {
     try {
         const product = await productModel.findById(req.params.id);
         if (!product) {
@@ -371,13 +476,13 @@ const listDiscountedProducts = async (req, res) => {
     try {
         // Знаходимо товари, де знижка більше 0
         const products = await productModel.find({ discount: { $gt: 0 } });
-        
+
         // Додаємо поле discountedPrice для кожного товару
         const productsWithDiscount = products.map((product) => ({
             ...product.toObject(),
             discountedPrice: getDiscountedPrice(product.price, product.discount),
         }));
-        
+
         res.json({ success: true, data: productsWithDiscount });
     } catch (error) {
         console.log(error);
@@ -388,14 +493,14 @@ const listDiscountedProducts = async (req, res) => {
 const checkProductAvailability = async (req, res) => {
     try {
         const productId = req.params.id;
-        
+
         // Знаходимо товар за ID
         const product = await productModel.findById(productId);
-        
+
         if (!product) {
-            return res.status(404).json({ 
-                success: false, 
-                message: "Товар не знайдено" 
+            return res.status(404).json({
+                success: false,
+                message: "Товар не знайдено"
             });
         }
 
@@ -406,7 +511,7 @@ const checkProductAvailability = async (req, res) => {
         if (product.sizes && product.sizes.length > 0) {
             // Для товарів з розмірами
             availabilityDetails.sizes = [];
-            
+
             product.sizes.forEach(size => {
                 if (size.quantity > 0) {
                     available = true;
@@ -429,8 +534,8 @@ const checkProductAvailability = async (req, res) => {
             availabilityDetails.quantity = product.quantity || 0;
         }
 
-        res.json({ 
-            success: true, 
+        res.json({
+            success: true,
             data: {
                 productId: product._id,
                 name: product.name,
@@ -438,11 +543,11 @@ const checkProductAvailability = async (req, res) => {
                 details: availabilityDetails
             }
         });
-        
+
     } catch (error) {
         console.error(error);
-        res.status(500).json({ 
-            success: false, 
+        res.status(500).json({
+            success: false,
             message: "Помилка при перевірці наявності товару",
             error: error.message
         });

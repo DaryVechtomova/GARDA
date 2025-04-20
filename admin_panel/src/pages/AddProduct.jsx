@@ -21,7 +21,7 @@ const Add = () => {
         colors: "",
     });
     // Змінив початкове значення кількості на 1
-    const [sizes, setSizes] = useState([{ size: "", quantity: "1" }]);
+    const [sizes, setSizes] = useState([{ size: "", quantity: "0" }]);
     const fileInputRef = useRef(null); // Реф для скидання значення інпуту файлів
 
     // Список стандартних розмірів
@@ -51,7 +51,7 @@ const Add = () => {
     // Додавання нового поля для розміру/кількості
     const addSizeField = () => {
         // Додаємо новий рядок з порожнім розміром та кількістю 1
-        setSizes([...sizes, { size: "", quantity: "1" }]);
+        setSizes([...sizes, { size: "", quantity: "0" }]);
     };
 
     // Видалення поля для розміру/кількості
@@ -125,7 +125,7 @@ const Add = () => {
                     name: "", description: "", price: "", category: "Для жінок",
                     threads: "", cut: "", technique: "", fabric: "", colors: "",
                 });
-                setSizes([{ size: "", quantity: "1" }]); // Повертаємо до одного рядка
+                setSizes([{ size: "", quantity: "0" }]); // Повертаємо до одного рядка
                 setImages([]); // Очищаємо прев'ю зображень
                 // Скидаємо значення input type="file" остаточно
                 if (fileInputRef.current) {
@@ -304,9 +304,10 @@ const Add = () => {
                                         type="number"
                                         name="quantity"
                                         placeholder="К-сть"
-                                        value={sizeItem.quantity}
-                                        onChange={(e) => handleSizeChange(index, e)}
-                                        min="0" // Дозволяємо 0
+                                        value={0}
+                                        onChange={(e) => { }}
+                                        min="0"
+                                        readOnly
                                         className="border border-gray-300 rounded-md py-1.5 px-2 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out text-sm w-full"
                                     />
                                 </div>

@@ -1,3 +1,8 @@
 module.exports = {
-    setupFiles: ['./jest.setup.js']
+    testEnvironment: 'node',
+    transform: {
+        '^.+\\.jsx?$': 'babel-jest',
+    },
+    setupFiles: ['./jest.setup.js'],
+    maxWorkers: 1,
 };

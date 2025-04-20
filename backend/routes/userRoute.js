@@ -15,7 +15,8 @@ userRouter.post("/register-employee", authMiddleware, strictAdminMiddleware, reg
 userRouter.post("/edit-employee", authMiddleware, strictAdminMiddleware, editEmployee)
 userRouter.get("/edit-employee/:id", authMiddleware, strictAdminMiddleware, async (req, res) => {
     try {
-        const employee = await userModel.findById(req.params.id);
+        const employee = await userModel.findById(req.params.id)
+            .select('-password');
         if (!employee) {
             return res.json({ success: false, message: "Користувача не знайдено" });
         }
@@ -30,7 +31,8 @@ userRouter.post("/fire-employee", authMiddleware, strictAdminMiddleware, fireEmp
 
 userRouter.get("/details/:id", authMiddleware, strictAdminMiddleware, async (req, res) => {
     try {
-        const user = await userModel.findById(req.params.id);
+        const user = await userModel.findById(req.params.id)
+            .select('-password');
         if (!user) {
             return res.json({ success: false, message: "Користувача не знайдено" });
         }

@@ -1,5 +1,5 @@
 import express from "express"
-import { 
+import {
     addProduct,
     listProduct,
     removeProduct,
@@ -9,22 +9,27 @@ import {
     getProductById,
     listDiscountedProducts,
     checkProductAvailability
-} 
-from "../controllers/productController.js"
+}
+    from "../controllers/productController.js"
 import productModel from "../models/productModel.js"
 import multer from "multer"
 import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
-
+import path from 'path';
 const productRouter = express.Router();
 
 // Image storage engine
 const storage = multer.diskStorage({
-    destination: "uploads",
+    destination: (req, res, cb) => {
+        // Використовуємо окрему папку для тестів, якщо це тестовий режим
+        const uploadDir = process.env.NODE_ENV === 'test'
+            ? path.join(__dirname, '..', 'test-uploads')
+            : 'uploads';
+        cb(null, uploadDir);
+    },
     filename: (req, file, cb) => {
-        return cb(null, `${Date.now()}${file.originalname}`)
-
+        return cb(null, `${Date.now()}${file.originalname}`);
     }
-})
+});
 
 const upload = multer({
     storage: storage,

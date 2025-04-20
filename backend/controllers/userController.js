@@ -132,8 +132,11 @@ const listEmployees = async (req, res) => {
             .select('-password');
         res.json({ success: true, data: employees });
     } catch (error) {
-        console.log(error);
-        res.json({ success: false, message: "Помилка сервера" });
+        console.log(error); // <-- має бути саме Error, а не error.message
+        return res.status(500).json({
+            success: false,
+            message: "Помилка сервера",
+        });
     }
 };
 

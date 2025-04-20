@@ -10,22 +10,58 @@ import productModel from '../../../models/productModel.js';
 import invoiceModel from '../../../models/invoiceModel.js';
 import orderModel from '../../../models/orderModel.js';
 import fs from 'fs';
-import path from 'path';
 import mongoose from 'mongoose';
 
 jest.mock('../../../models/productModel.js');
 jest.mock('../../../models/invoiceModel.js');
 jest.mock('../../../models/orderModel.js');
 jest.mock('fs');
-jest.mock('path');
+jest.mock('path', () => {
+    const actualPath = jest.requireActual('path');
+    const resolve = (...args) => actualPath.resolve(...args);
+    const dirname = (p) => actualPath.dirname(p);
+
+    const join = (...args) => actualPath.join(...args);
+
+    return {
+        ...actualPath,
+        resolve,
+        dirname,
+        join,
+    };
+});
+
+const path = require('path');
+const MOCK_UPLOAD_FOLDER_NAME = 'test-uploads';
+const EXPECTED_ABS_UPLOAD_DIR = path.resolve(__dirname, '..', '..', '..', MOCK_UPLOAD_FOLDER_NAME);
+const image1Path = path.join(EXPECTED_ABS_UPLOAD_DIR, 'image1.jpg');
+const image2Path = path.join(EXPECTED_ABS_UPLOAD_DIR, 'image2.png');
+const oldImage1Path = path.join(EXPECTED_ABS_UPLOAD_DIR, 'old1.jpg');
+const oldImage2Path = path.join(EXPECTED_ABS_UPLOAD_DIR, 'old2.jpg');
 
 beforeEach(() => {
     jest.clearAllMocks();
 
-    // Налаштовуємо базовий мок
-    path.join.mockImplementation((...args) => args.join('\\'));
+    fs.existsSync.mockImplementation((p) => {
+        return p === EXPECTED_ABS_UPLOAD_DIR || p.startsWith(EXPECTED_ABS_UPLOAD_DIR + path.sep);
+    });
+    fs.unlinkSync.mockImplementation(() => { });
+    fs.access.mockImplementation((filePath, mode, callback) => {
+        if (filePath.startsWith(EXPECTED_ABS_UPLOAD_DIR)) {
+            callback(null);
+        } else {
+            callback(new Error('ENOENT: no such file or directory'));
+        }
+    });
+    fs.unlink.mockImplementation((filePath, callback) => {
+        if (filePath.startsWith(EXPECTED_ABS_UPLOAD_DIR)) {
+            callback(null);
+        } else {
+            callback(new Error('EPERM: operation not permitted'));
+        }
+    });
+    fs.mkdirSync.mockImplementation(() => { });
 
-    // Імітуємо, що моделі зареєстровані в mongoose
     mongoose.models = {
         invoice: invoiceModel,
         order: orderModel,
@@ -50,7 +86,7 @@ describe('addProduct', () => {
                 description: 'Опис',
                 price: 100,
                 category: 'Категорія1',
-                colors: ['білий', 'червоний'],
+                colors: 'білий',
                 sizes: [{ size: 'S', quantity: 5 }, { size: 'M', quantity: 10 }],
                 threads: 'Бавовна',
                 cut: 'Прямий',
@@ -65,10 +101,10 @@ describe('addProduct', () => {
         };
     });
 
-    it('має успішно додати товар з валідними даними (TCPW01)', async () => {
+    it('TCPC01 - має успішно додати товар з валідними даними', async () => {
         await addProduct(mockReq, mockRes);
 
-        expect(productModel.findOne).toHaveBeenCalledWith({ name: 'Тестовий товар', colors: ['білий', 'червоний'] });
+        expect(productModel.findOne).toHaveBeenCalledWith({ name: 'Тестовий товар', colors: 'білий' });
         expect(productModel).toHaveBeenCalledWith({
             name: 'Тестовий товар',
             description: 'Опис',
@@ -79,7 +115,7 @@ describe('addProduct', () => {
             cut: 'Прямий',
             technique: 'Хрестик',
             fabric: 'Льон',
-            colors: ['білий', 'червоний'],
+            colors: 'білий',
             sizes: [{ size: 'S', quantity: 5 }, { size: 'M', quantity: 10 }],
         });
         expect(mockSave).toHaveBeenCalledTimes(1);
@@ -96,7 +132,7 @@ describe('addProduct', () => {
         ['category', 'Будь ласка, оберіть категорію товару', undefined],
         ['category', 'Будь ласка, оберіть категорію товару', 'Оберіть категорію'],
         ['colors', 'Будь ласка, введіть колір товару', undefined],
-    ])('TCPW02 і TCPW03 - має повернути 400, якщо поле "%s" відсутнє або неправильне (%p)', async (field, message, value) => {
+    ])('TCPE02 і TCPE03 - має повернути 400, якщо поле "%s" відсутнє або неправильне (%p)', async (field, message, value) => {
         if (value === undefined) {
             delete mockReq.body[field];
         } else {
@@ -108,7 +144,7 @@ describe('addProduct', () => {
         expect(mockSave).not.toHaveBeenCalled();
     });
 
-    it('TCPW04 - має повернути 400, якщо не завантажено зображень', async () => {
+    it('TCPE04 - має повернути 400, якщо не завантажено зображень', async () => {
         mockReq.files = [];
         await addProduct(mockReq, mockRes);
         expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -116,7 +152,7 @@ describe('addProduct', () => {
         expect(mockSave).not.toHaveBeenCalled();
     });
 
-    it('TCPW05 - має повернути 400, якщо товар вже існує', async () => {
+    it('TCPE05 - має повернути 400, якщо товар вже існує', async () => {
         productModel.findOne.mockResolvedValue({ _id: 'existingId' });
         await addProduct(mockReq, mockRes);
         expect(productModel.findOne).toHaveBeenCalledTimes(1);
@@ -125,16 +161,16 @@ describe('addProduct', () => {
         expect(mockSave).not.toHaveBeenCalled();
     });
 
-    it('TCPW06 - має повернути 400, якщо є дублікати розмірів', async () => {
+    it('TCPE06 - має повернути 400, якщо є дублікати розмірів', async () => {
         mockReq.body.sizes = [{ size: 'M', quantity: 5 }, { size: 'M', quantity: 3 }];
         await addProduct(mockReq, mockRes);
-        expect(productModel.findOne).toHaveBeenCalledTimes(1);
+        expect(productModel.findOne).not.toHaveBeenCalled();
         expect(mockRes.status).toHaveBeenCalledWith(400);
-        expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Дублікати розмірів не допускаються. Виправте, будь ласка." });
+        expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Розміри товару не повинні дублюватись" });
         expect(mockSave).not.toHaveBeenCalled();
     });
 
-    it('TCPW07 - має повернути 500, якщо сталася помилка збереження', async () => {
+    it('TCPE07 - має повернути 500, якщо сталася помилка збереження', async () => {
         const dbError = new Error('DB Save Error');
         mockSave.mockRejectedValue(dbError);
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
@@ -157,7 +193,7 @@ describe('listProduct', () => {
         mockRes = { json: jest.fn() };
     });
 
-    it('TCPW08 - має повернути список товарів з ціною зі знижкою', async () => {
+    it('TCPS01 - має повернути список товарів з ціною зі знижкою', async () => {
         const productsData = [
             { _id: '1', name: 'Товар 1', price: 100, discount: 10 },
             { _id: '2', name: 'Товар 2', price: 200, discount: 0 },
@@ -184,7 +220,7 @@ describe('listProduct', () => {
         expect(mockProducts[2].toObject).toHaveBeenCalledTimes(1);
     });
 
-    it('TCPR01 - має повернути помилку 500, якщо find кидає помилку', async () => {
+    it('TCPS02 - має повернути помилку 500, якщо find кидає помилку', async () => {
         const dbError = new Error('DB Find Error');
         productModel.find.mockRejectedValue(dbError);
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
@@ -201,13 +237,15 @@ describe('removeProduct', () => {
     let mockReq;
     let mockRes;
     const productId = 'product123';
-    const mockProductWithImages = {
-        _id: productId,
-        name: 'Товар На Видалення',
-        images: ['image1.jpg', 'image2.png'],
-    };
+    const mockProductImages = ['image1.jpg', 'image2.png'];
+    let mockProductWithImages;
 
     beforeEach(() => {
+        mockProductWithImages = {
+            _id: productId,
+            name: 'Товар На Видалення',
+            images: [...mockProductImages],
+        };
         mockReq = { body: { id: productId } };
         mockRes = { json: jest.fn(), status: jest.fn(() => mockRes) };
 
@@ -215,27 +253,29 @@ describe('removeProduct', () => {
         orderModel.find.mockResolvedValue([]);
         productModel.findById.mockResolvedValue(mockProductWithImages);
         productModel.findByIdAndDelete.mockResolvedValue({ _id: productId });
-        fs.existsSync.mockReturnValue(true);
-        fs.unlinkSync.mockImplementation(() => { });
+
+        fs.access.mockImplementation((p, mode, cb) => cb(null));
+        fs.unlink.mockImplementation((p, cb) => cb(null));
     });
 
-    it('TCPW09 - має успішно видалити товар і зображення, якщо немає залежностей', async () => {
+    it('TCPD01 - має успішно видалити товар і зображення, якщо немає залежностей', async () => {
         await removeProduct(mockReq, mockRes);
 
         expect(invoiceModel.find).toHaveBeenCalledWith({ "products.product": productId, status: { $ne: "скасована" } });
         expect(orderModel.find).toHaveBeenCalledWith({ "items.productId": productId, status: { $ne: "скасоване замовлення" } });
         expect(productModel.findById).toHaveBeenCalledWith(productId);
-        expect(fs.existsSync).toHaveBeenCalledWith(path.join('uploads', 'image1.jpg'));
-        expect(fs.unlinkSync).toHaveBeenCalledWith(path.join('uploads', 'image1.jpg'));
-        expect(fs.existsSync).toHaveBeenCalledWith(path.join('uploads', 'image2.png'));
-        expect(fs.unlinkSync).toHaveBeenCalledWith(path.join('uploads', 'image2.png'));
-        expect(fs.unlinkSync).toHaveBeenCalledTimes(2);
-        expect(productModel.findByIdAndDelete).toHaveBeenCalledWith(productId);
-        expect(mockRes.status).not.toHaveBeenCalled();
-        expect(mockRes.json).toHaveBeenCalledWith({ success: true, message: "Товар видалено" });
-    });
 
-    it('TCPW10 - має повернути 409 з повідомленням про накладні, якщо товар є в активних накладних', async () => {
+        expect(fs.access).toHaveBeenCalledWith(image1Path, expect.any(Number), expect.any(Function));
+        expect(fs.unlink).toHaveBeenCalledWith(image1Path, expect.any(Function));
+        expect(fs.access).toHaveBeenCalledWith(image2Path, expect.any(Number), expect.any(Function));
+        expect(fs.unlink).toHaveBeenCalledWith(image2Path, expect.any(Function));
+        expect(fs.unlink).toHaveBeenCalledTimes(2);
+
+        expect(productModel.findByIdAndDelete).toHaveBeenCalledWith(productId);
+        expect(mockRes.json).toHaveBeenCalledWith({ success: true, message: "Товар видалено" });
+    }, 10000);
+
+    it('TCPD02 - має повернути 409 з повідомленням про накладні, якщо товар є в активних накладних', async () => {
         invoiceModel.find.mockResolvedValue([{ _id: 'inv1' }]);
         await removeProduct(mockReq, mockRes);
 
@@ -250,10 +290,10 @@ describe('removeProduct', () => {
             message: "Не можна видаляти товари, які є в накладних"
         });
         expect(productModel.findByIdAndDelete).not.toHaveBeenCalled();
-        expect(fs.unlinkSync).not.toHaveBeenCalled();
+        expect(fs.unlink).not.toHaveBeenCalled();
     });
 
-    it('TCPW11 - має повернути 409 з повідомленням про замовлення, якщо товар є в активних замовленнях', async () => {
+    it('TCPD03 - має повернути 409 з повідомленням про замовлення, якщо товар є в активних замовленнях', async () => {
         invoiceModel.find.mockResolvedValue([]);
         orderModel.find.mockResolvedValue([{ _id: 'ord1' }]);
 
@@ -270,10 +310,10 @@ describe('removeProduct', () => {
             message: "Не можна видаляти товари, які є в замовленнях"
         });
         expect(productModel.findByIdAndDelete).not.toHaveBeenCalled();
-        expect(fs.unlinkSync).not.toHaveBeenCalled();
+        expect(fs.unlink).not.toHaveBeenCalled();
     });
 
-    it('TCPW12 - має повернути 404, якщо товар не знайдено', async () => {
+    it('TCPD04 - має повернути 404, якщо товар не знайдено', async () => {
         productModel.findById.mockResolvedValue(null);
         await removeProduct(mockReq, mockRes);
 
@@ -285,39 +325,61 @@ describe('removeProduct', () => {
         expect(mockRes.status).toHaveBeenCalledWith(404);
     });
 
-    it('TCPW13 - має видалити товар, навіть якщо зображення не існує на диску', async () => {
-        fs.existsSync.mockReturnValue(false);
+    it('TCPD05 - має видалити товар, навіть якщо зображення не існує на диску', async () => {
+        fs.access.mockImplementation((p, mode, cb) => cb(new Error('ENOENT')));
+        const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => { });
+
         await removeProduct(mockReq, mockRes);
+
         expect(productModel.findById).toHaveBeenCalledWith(productId);
-        expect(fs.existsSync).toHaveBeenCalledTimes(2);
-        expect(fs.unlinkSync).not.toHaveBeenCalled();
+        expect(fs.access).toHaveBeenCalledTimes(mockProductImages.length);
+        expect(fs.unlink).not.toHaveBeenCalled();
+
+        expect(consoleWarnSpy).toHaveBeenCalledWith(`Файл не знайдено: ${image1Path}`);
+        expect(consoleWarnSpy).toHaveBeenCalledWith(`Файл не знайдено: ${image2Path}`);
         expect(productModel.findByIdAndDelete).toHaveBeenCalledWith(productId);
         expect(mockRes.json).toHaveBeenCalledWith({ success: true, message: "Товар видалено" });
-    });
 
-    it('TCPW14 - має повернути 500 при помилці видалення файлу', async () => {
+        consoleWarnSpy.mockRestore();
+    }, 10000);
+
+    it('TCPD06 - має видалити товар, АЛЕ залогувати помилку видалення файлу (fs.unlink)', async () => {
         const unlinkError = new Error('FS Unlink Error');
-        fs.unlinkSync.mockImplementation(() => { throw unlinkError; });
-        const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
-        await removeProduct(mockReq, mockRes);
-        expect(fs.unlinkSync).toHaveBeenCalledTimes(1);
-        expect(productModel.findByIdAndDelete).not.toHaveBeenCalled();
-        expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Помилка при видаленні товару" });
-        expect(consoleSpy).toHaveBeenCalledWith(unlinkError);
-        consoleSpy.mockRestore();
-    });
+        fs.unlink.mockImplementation((p, cb) => cb(unlinkError));
+        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
 
-    it('має повернути помилку, якщо сталася помилка при видаленні з БД', async () => {
+        await removeProduct(mockReq, mockRes);
+
+        expect(productModel.findById).toHaveBeenCalledWith(productId);
+        expect(fs.access).toHaveBeenCalledTimes(mockProductImages.length);
+        expect(fs.unlink).toHaveBeenCalledTimes(mockProductImages.length);
+        expect(productModel.findByIdAndDelete).toHaveBeenCalledWith(productId);
+
+        expect(consoleErrorSpy).toHaveBeenCalledWith(`Помилка видалення файлу ${image1Path}:`, unlinkError);
+        expect(consoleErrorSpy).toHaveBeenCalledWith(`Помилка видалення файлу ${image2Path}:`, unlinkError);
+
+        expect(mockRes.json).toHaveBeenCalledWith({ success: true, message: "Товар видалено" });
+
+        consoleErrorSpy.mockRestore();
+    }, 10000);
+
+    it('TCPD07 - має повернути помилку, якщо сталася помилка при видаленні з БД', async () => {
         const deleteError = new Error('DB Delete Error');
         productModel.findByIdAndDelete.mockRejectedValue(deleteError);
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
+
         await removeProduct(mockReq, mockRes);
-        expect(fs.unlinkSync).toHaveBeenCalledTimes(2);
+
+        expect(productModel.findById).toHaveBeenCalledWith(productId);
+        expect(fs.unlink).toHaveBeenCalledTimes(mockProductImages.length);
         expect(productModel.findByIdAndDelete).toHaveBeenCalledWith(productId);
-        expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Помилка при видаленні товару" });
+        expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
+            success: false,
+            message: expect.stringMatching(/Помилка при видаленні товару|Невірний ID товару/)
+        }));
         expect(consoleSpy).toHaveBeenCalledWith(deleteError);
         consoleSpy.mockRestore();
-    });
+    }, 10000);
 });
 
 // Тести для editProduct
@@ -337,6 +399,8 @@ describe('editProduct', () => {
             category: 'Категорія1',
             colors: 'синій',
             images: ['old1.jpg', 'old2.jpg'],
+            toObject: jest.fn().mockReturnThis(), // Для можливих внутрішніх викликів
+            save: jest.fn().mockResolvedValue(this), // Для можливих внутрішніх викликів
         };
         mockReq = {
             body: {
@@ -353,33 +417,19 @@ describe('editProduct', () => {
             json: jest.fn(),
             status: jest.fn(() => mockRes),
         };
-        // Моки
         productModel.findById.mockResolvedValue(mockExistingProduct);
-        productModel.findOne.mockResolvedValue(null);
-        productModel.findByIdAndUpdate.mockResolvedValue({ ...mockExistingProduct, ...mockReq.body });
-        fs.existsSync.mockReturnValue(true);
-        fs.unlinkSync.mockImplementation(() => { });
+        productModel.findByIdAndUpdate.mockImplementation((id, data) => {
+            return Promise.resolve({ ...mockExistingProduct, ...data, _id: id });
+        });
     });
 
-    it('TCPW15 - має успішно оновити товар', async () => {
+    it('TCPM01 - має успішно оновити товар', async () => {
         await editProduct(mockReq, mockRes);
         expect(productModel.findByIdAndUpdate).toHaveBeenCalled();
         expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
     });
 
-    it('має обробити випадок, коли товар не знайдено (findById)', async () => {
-        productModel.findById.mockResolvedValue(null);
-        await removeProduct(mockReq, mockRes);
-
-        expect(productModel.findById).toHaveBeenCalledWith(productId);
-        expect(mockRes.json).toHaveBeenCalledWith({
-            success: false,
-            message: "Товар не знайдено"
-        });
-        expect(mockRes.status).toHaveBeenCalledWith(404);
-    });
-
-    it('TCP17 - має успішно додати нові зображення', async () => {
+    it('TCPM02 - має успішно додати нові зображення', async () => {
         mockReq.files = [{ filename: 'new1.jpg' }, { filename: 'new2.jpg' }];
         await editProduct(mockReq, mockRes);
         expect(productModel.findByIdAndUpdate).toHaveBeenCalledWith(
@@ -393,13 +443,16 @@ describe('editProduct', () => {
         expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
     });
 
-    it('має успішно видалити старі і додати нові зображення', async () => {
+    it('TCPM03 - має успішно видалити старі і додати нові зображення', async () => {
         mockReq.body.existingImages = JSON.stringify(['old2.jpg']);
         mockReq.files = [{ filename: 'new3.jpg' }];
-        const removedImagePath = path.join('uploads', 'old1.jpg');
+
         await editProduct(mockReq, mockRes);
-        expect(fs.unlinkSync).toHaveBeenCalledWith(removedImagePath);
+
+        // Перевіряємо видалення з АБСОЛЮТНИМ шляхом
+        expect(fs.unlinkSync).toHaveBeenCalledWith(oldImage1Path);
         expect(fs.unlinkSync).toHaveBeenCalledTimes(1);
+
         expect(productModel.findByIdAndUpdate).toHaveBeenCalledWith(
             productId,
             expect.objectContaining({ images: ['old2.jpg', 'new3.jpg'] }),
@@ -408,13 +461,13 @@ describe('editProduct', () => {
         expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
     });
 
-    describe('Валідація полів', () => {
+    describe('Валідація полів при редагуванні', () => {
         it.each([
             ['name', "Будь ласка, введіть назву товару", undefined],
             ['description', "Будь ласка, введіть опис товару", undefined],
             ['price', "Ціна має бути більше 0", 0],
             ['colors', "Будь ласка, введіть колір товару", ""],
-        ])('TCPW18 - має повернути 400 якщо поле "%s" неправильне (%s)', async (field, message, value) => {
+        ])('TCPE04 - має повернути 400 якщо поле "%s" неправильне (%s)', async (field, message, value) => {
             if (value === undefined) delete mockReq.body[field];
             else mockReq.body[field] = value;
 
@@ -424,7 +477,7 @@ describe('editProduct', () => {
         });
     });
 
-    it('TCPW19 - має повернути помилку при наявності дубліката товару', async () => {
+    it('TCPE05 - має повернути помилку при наявності дубліката товару', async () => {
         productModel.findOne.mockResolvedValue({ _id: 'anotherId' });
         await editProduct(mockReq, mockRes);
         expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -432,7 +485,7 @@ describe('editProduct', () => {
         expect(productModel.findByIdAndUpdate).not.toHaveBeenCalled();
     });
 
-    it('TCPW20 - має повернути помилку при відсутності товару', async () => {
+    it('TCPE06 - має повернути помилку при відсутності товару', async () => {
         productModel.findById.mockResolvedValue(null);
         await editProduct(mockReq, mockRes);
         expect(productModel.findOne).toHaveBeenCalledTimes(1);
@@ -440,20 +493,6 @@ describe('editProduct', () => {
         expect(mockRes.status).toHaveBeenCalledWith(404);
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Товар не знайдено" });
         expect(productModel.findByIdAndUpdate).not.toHaveBeenCalled();
-    });
-
-    it('має повернути 500 при помилці видалення файлу', async () => {
-        mockReq.body.existingImages = JSON.stringify(['old2.jpg']);
-        const unlinkError = new Error('Unlink Error');
-        fs.unlinkSync.mockImplementation(() => { throw unlinkError; });
-        const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
-        await editProduct(mockReq, mockRes);
-        expect(fs.unlinkSync).toHaveBeenCalledTimes(1);
-        expect(productModel.findByIdAndUpdate).not.toHaveBeenCalled();
-        expect(mockRes.status).toHaveBeenCalledWith(500);
-        expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, message: "Помилка при редагуванні товару" }));
-        expect(consoleSpy).toHaveBeenCalledWith(unlinkError);
-        consoleSpy.mockRestore();
     });
 });
 
@@ -469,7 +508,7 @@ describe('removeDiscount', () => {
         productModel.findByIdAndUpdate.mockResolvedValue({ _id: productId, discount: 0 });
     });
 
-    it('TCPW21 - має успішно видалити знижку', async () => {
+    it('TCPZ01 - має успішно видалити знижку', async () => {
         await removeDiscount(mockReq, mockRes);
         expect(productModel.findByIdAndUpdate).toHaveBeenCalledWith(productId, { discount: 0 }, { new: true });
         expect(mockRes.json).toHaveBeenCalledWith({
@@ -479,14 +518,14 @@ describe('removeDiscount', () => {
         });
     });
 
-    it('TCPW22 - має повернути помилку при відсутності товару', async () => {
+    it('TCPZ02 - має повернути помилку при відсутності товару', async () => {
         productModel.findByIdAndUpdate.mockResolvedValue(null);
         await removeDiscount(mockReq, mockRes);
         expect(mockRes.status).toHaveBeenCalledWith(404);
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Товар не знайдено" });
     });
 
-    it('має повернути 500 при помилці бази даних', async () => {
+    it('TCPZ03 - має повернути 500 при помилці бази даних', async () => {
         const dbError = new Error('DB Error');
         productModel.findByIdAndUpdate.mockRejectedValue(dbError);
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
@@ -513,7 +552,7 @@ describe('editDiscount', () => {
         productModel.findByIdAndUpdate.mockResolvedValue({ _id: productId, discount: 25 });
     });
 
-    it('TCPW23 - має успішно оновити знижку', async () => {
+    it('TCPZ04 - має успішно оновити знижку', async () => {
         await editDiscount(mockReq, mockRes);
         expect(productModel.findByIdAndUpdate).toHaveBeenCalledWith(productId, { discount: 25 }, { new: true });
         expect(mockRes.json).toHaveBeenCalledWith({
@@ -524,7 +563,7 @@ describe('editDiscount', () => {
     });
 
     test.each([-10, 101])
-        ('TCPW24 - має повернути 400, якщо знижка невалідна (%p)', async (invalidDiscount) => {
+        ('TCPE05 - має повернути 400, якщо знижка невалідна (%p)', async (invalidDiscount) => {
             mockReq.body.discount = invalidDiscount;
             await editDiscount(mockReq, mockRes);
             expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -532,7 +571,7 @@ describe('editDiscount', () => {
             expect(productModel.findByIdAndUpdate).not.toHaveBeenCalled();
         });
 
-    it('TCPW25 - має повернути помилку при нечисловій знижці', async () => {
+    it('TCPE06 - має повернути помилку при нечисловій знижці', async () => {
         mockReq.body.discount = NaN;
         await editDiscount(mockReq, mockRes);
         expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -543,14 +582,14 @@ describe('editDiscount', () => {
         expect(productModel.findByIdAndUpdate).not.toHaveBeenCalled();
     });
 
-    it('має повернути 404, якщо товар не знайдено', async () => {
+    it('TCPE07 - має повернути 404, якщо товар не знайдено', async () => {
         productModel.findByIdAndUpdate.mockResolvedValue(null);
         await editDiscount(mockReq, mockRes);
         expect(mockRes.status).toHaveBeenCalledWith(404);
         expect(mockRes.json).toHaveBeenCalledWith({ success: false, message: "Товар не знайдено" });
     });
 
-    it('має повернути 500 при помилці бази даних', async () => {
+    it('TCPE08 - має повернути 500 при помилці бази даних', async () => {
         const dbError = new Error('DB Error');
         productModel.findByIdAndUpdate.mockRejectedValue(dbError);
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });

@@ -24,7 +24,7 @@ describe('getReviewsForAdmin', () => {
         };
     });
 
-    it('TCRR01- має успішно повернути всі відгуки для товару з повною інформацією користувача', async () => {
+    it('TCRS01- має успішно повернути всі відгуки для товару з повною інформацією користувача', async () => {
         // Arrange
         const mockReviews = [
             { _id: 'r1', product: productId, comment: 'Review 1', user: { _id: 'u1', firstName: 'Іван', secondName: 'Петренко', email: 'ivan@a.com' }, isVisible: true },
@@ -45,7 +45,7 @@ describe('getReviewsForAdmin', () => {
         expect(mockRes.json).toHaveBeenCalledWith({ success: true, data: mockReviews });
     });
 
-    it('TCRR02 - має повернути порожній масив, якщо відгуків немає', async () => {
+    it('TCRS02 - має повернути порожній масив, якщо відгуків немає', async () => {
         // Arrange
         const mockPopulate = jest.fn().mockResolvedValue([]);
         Review.find.mockImplementation(() => ({ populate: mockPopulate }));
@@ -60,7 +60,7 @@ describe('getReviewsForAdmin', () => {
         expect(mockRes.json).toHaveBeenCalledWith({ success: true, data: [] });
     });
 
-    it('TCRR03 - має повернути 500 при помилці бази даних', async () => {
+    it('TCRS03 - має повернути 500 при помилці бази даних', async () => {
         // Arrange
         const dbError = new Error('DB Populate Error');
         const mockPopulate = jest.fn().mockRejectedValue(dbError);
@@ -104,7 +104,7 @@ describe('deleteReview (hide)', () => {
         Review.findById.mockResolvedValue(mockReview);
     });
 
-    it('TCRW01 - має успішно приховати існуючий відгук (встановити isVisible = false)', async () => {
+    it('TCRE01 - має успішно приховати існуючий відгук (встановити isVisible = false)', async () => {
         // Act
         await deleteReview(mockReq, mockRes);
 
@@ -116,7 +116,7 @@ describe('deleteReview (hide)', () => {
         expect(mockRes.json).toHaveBeenCalledWith({ success: true, message: "Відгук приховано" });
     });
 
-    it('TCRW02 - має повернути 404, якщо відгук не знайдено', async () => {
+    it('TCRE02 - має повернути 404, якщо відгук не знайдено', async () => {
         // Arrange
         Review.findById.mockResolvedValue(null);
 
@@ -130,7 +130,7 @@ describe('deleteReview (hide)', () => {
         expect(mockSave).not.toHaveBeenCalled();
     });
 
-    it('TCRW03 - має повернути 500 при помилці пошуку відгуку (findById)', async () => {
+    it('TCRE03 - має повернути 500 при помилці пошуку відгуку (findById)', async () => {
         // Arrange
         const findError = new Error('FindById DB Error');
         Review.findById.mockRejectedValue(findError);
@@ -148,7 +148,7 @@ describe('deleteReview (hide)', () => {
         consoleSpy.mockRestore();
     });
 
-    it('TCRW04 - має повернути 500 при помилці збереження відгуку (save)', async () => {
+    it('TCRE04 - має повернути 500 при помилці збереження відгуку (save)', async () => {
         // Arrange
         const saveError = new Error('Save DB Error');
         mockSave.mockRejectedValue(saveError);

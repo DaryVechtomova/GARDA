@@ -352,20 +352,29 @@ describe('POST /api/user/fire-employee', () => {
 
     it('TC_INT_USER_11 - має повернути 404, якщо намагаються звільнити звичайного користувача', async () => {
         const userPassword = await hashPassword('userPassword');
-        const regularUser = await User.create({ /* ... дані звичайного користувача ... */ role: 'користувач', email: 'regular@user.com', password: userPassword, phoneNumber: '5000000000' });
+        const regularUser = await User.create({
+            firstName: 'Звичайний',
+            secondName: 'Користувач',
+            middleName: 'Тестович',
+            email: 'regular@user.com',
+            phoneNumber: '5000000000',
+            password: userPassword,
+            role: 'користувач'
+        });
+
         const response = await request(app)
             .post('/api/user/fire-employee')
             .set('Authorization', `Bearer ${adminToken}`)
             .send({ id: regularUser._id });
+
         expect(response.statusCode).toBe(404);
         expect(response.body.success).toBe(false);
         expect(response.body.message).toBe("Співробітника не знайдено");
+
         // Перевірка, що користувач не "звільнений"
         const userAfter = await User.findById(regularUser._id);
         expect(userAfter.isActive).toBe(true); // Має залишитись активним
     });
-
-    // Додай тести на 401 і 403
 });
 
 // --- GET /api/user/details/:id ---
@@ -391,7 +400,6 @@ describe('GET /api/user/details/:id', () => {
         expect(response.body.success).toBe(false);
         expect(response.body.message).toBe("Користувача не знайдено");
     });
-    // Додай тести на 401 і 403
 });
 
 
@@ -462,8 +470,6 @@ describe('PUT /api/user/update-profile', () => {
         const response = await request(app).put('/api/user/update-profile').send(profileUpdateData);
         expect(response.statusCode).toBe(401);
     });
-
-    // Тест на 404 тут менш доречний, бо ID береться з валідного токена
 });
 
 // --- POST /api/user/change-password --- (Зміна пароля адміна)

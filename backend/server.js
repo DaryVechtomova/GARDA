@@ -27,7 +27,11 @@ connectDB();
 // api endpoints
 
 app.use("/api/product", productRouter)
-app.use("/images", express.static('uploads'))
+if (process.env.NODE_ENV === 'test') {
+    app.use("/test-images", express.static('test-uploads'));
+} else {
+    app.use("/images", express.static('uploads'));
+}
 app.use("/api/user", userRouter)
 app.use("/api/cart", cartRouter)
 app.use("/api/order", orderRouter)

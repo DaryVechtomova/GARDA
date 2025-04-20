@@ -35,7 +35,7 @@ describe('listOrders', () => {
         };
     });
 
-    it('TCOR01 - має успішно повернути список усіх замовлень', async () => {
+    it('TCOS01 - має успішно повернути список усіх замовлень', async () => {
         const mockOrders = [
             { _id: 'order1', orderNumber: 123, status: 'Нове замовлення' },
             { _id: 'order2', orderNumber: 456, status: 'В обробці' },
@@ -48,7 +48,7 @@ describe('listOrders', () => {
         expect(mockRes.json).toHaveBeenCalledWith({ success: true, data: mockOrders });
     });
 
-    it('TCOR02 - має повернути помилку, якщо сталася помилка БД', async () => {
+    it('TCOS02 - має повернути помилку, якщо сталася помилка БД', async () => {
         const dbError = new Error('DB Find Error');
         orderModel.find.mockRejectedValue(dbError);
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
@@ -92,7 +92,7 @@ describe('updateOrderStatus', () => {
         orderModel.findByIdAndUpdate.mockResolvedValue({ ...mockOrder, status: mockReq.body.status });
     });
 
-    it('TCOW01 - має успішно оновити статус замовлення', async () => {
+    it('TCOU01 - має успішно оновити статус замовлення', async () => {
         await updateOrderStatus(mockReq, mockRes);
 
         expect(orderModel.findById).toHaveBeenCalledWith(orderId);
@@ -122,7 +122,7 @@ describe('updateOrderStatus', () => {
         }));
     });
 
-    it('TCOW02 - має повернути 404, якщо замовлення не знайдено', async () => {
+    it('TCOU02 - має повернути 404, якщо замовлення не знайдено', async () => {
         orderModel.findById.mockResolvedValue(null);
 
         await updateOrderStatus(mockReq, mockRes);
@@ -133,7 +133,7 @@ describe('updateOrderStatus', () => {
         expect(orderModel.findByIdAndUpdate).not.toHaveBeenCalled();
     });
 
-    it('TCOW03 - має повернути 500 при помилці оновлення в БД', async () => {
+    it('TCOU03 - має повернути 500 при помилці оновлення в БД', async () => {
         const dbError = new Error('Update Error');
         orderModel.findByIdAndUpdate.mockRejectedValue(dbError);
 
@@ -190,7 +190,7 @@ describe('cancelOrder', () => {
         productModel.findByIdAndUpdate.mockResolvedValue(true);
     });
 
-    it('TCOW04 - має успішно скасувати "Нове замовлення"', async () => {
+    it('TCOC01 - має успішно скасувати "Нове замовлення" (без повернення товару)', async () => {
         await cancelOrder(mockReq, mockRes);
 
         expect(orderModel.findById).toHaveBeenCalledWith(orderId);
@@ -220,7 +220,7 @@ describe('cancelOrder', () => {
         }));
     });
 
-    it('TCOW05 - має успішно скасувати замовлення "В обробці" і повернути товар', async () => {
+    it('TCOC02 - має успішно скасувати замовлення "В обробці" і повернути товар', async () => {
         orderModel.findById.mockResolvedValue(mockOrderProcessing);
 
         await cancelOrder(mockReq, mockRes);
@@ -236,7 +236,7 @@ describe('cancelOrder', () => {
         expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
     });
 
-    it('має повернути 404, якщо замовлення не знайдено', async () => {
+    it('TCOE03 - має повернути 404, якщо замовлення не знайдено', async () => {
         orderModel.findById.mockResolvedValue(null);
         await cancelOrder(mockReq, mockRes);
         expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -244,7 +244,7 @@ describe('cancelOrder', () => {
         expect(orderModel.findByIdAndUpdate).not.toHaveBeenCalled();
     });
 
-    it('TCOW06 - має повернути 400, якщо статус замовлення не дозволяє скасування', async () => {
+    it('TCOE04 - має повернути 400, якщо статус замовлення не дозволяє скасування', async () => {
         mockOrderNew.status = 'Доставлено';
         orderModel.findById.mockResolvedValue(mockOrderNew);
         await cancelOrder(mockReq, mockRes);
@@ -256,7 +256,7 @@ describe('cancelOrder', () => {
         expect(orderModel.findByIdAndUpdate).not.toHaveBeenCalled();
     });
 
-    it('TCOW07 - має повернути 500 при помилці скасування замовлення', async () => {
+    it('TCOE06 - має повернути 500 при помилці скасування замовлення', async () => {
         const dbError = new Error('Update Error');
         orderModel.findByIdAndUpdate.mockRejectedValue(dbError);
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
@@ -271,7 +271,7 @@ describe('cancelOrder', () => {
         consoleSpy.mockRestore();
     });
 
-    it('TCOW07 - має повернути 500 при помилці повернення товару на склад', async () => {
+    it('TCOE05 - має повернути 500 при помилці повернення товару на склад', async () => {
         orderModel.findById.mockResolvedValue(mockOrderProcessing);
         const productError = new Error('Product Update Error');
         productModel.findByIdAndUpdate.mockRejectedValue(productError);
@@ -331,7 +331,7 @@ describe('updateOrder', () => {
         orderModel.findByIdAndUpdate.mockResolvedValue({ ...mockOrder, ...mockReq.body });
     });
 
-    it('TCOW08 - має успішно оновити замовлення та записати зміни', async () => {
+    it('TCOM01 - має успішно оновити замовлення та записати зміни', async () => {
         await updateOrder(mockReq, mockRes);
 
         expect(orderModel.findById).toHaveBeenCalledWith(orderId);
@@ -368,7 +368,7 @@ describe('updateOrder', () => {
         }));
     });
 
-    it('TCOW09 - має повернути 404, якщо замовлення не знайдено', async () => {
+    it('TCOM02 - має повернути 404, якщо замовлення не знайдено', async () => {
         orderModel.findById.mockResolvedValue(null);
         await updateOrder(mockReq, mockRes);
         expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -376,7 +376,7 @@ describe('updateOrder', () => {
         expect(orderModel.findByIdAndUpdate).not.toHaveBeenCalled();
     });
 
-    it('TCOW10 - має повернути 400, якщо не вказано причину редагування', async () => {
+    it('TCOM03 - має повернути 400, якщо не вказано причину редагування', async () => {
         delete mockReq.body.editReason;
         await updateOrder(mockReq, mockRes);
         expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -384,7 +384,7 @@ describe('updateOrder', () => {
         expect(orderModel.findByIdAndUpdate).not.toHaveBeenCalled();
     });
 
-    it('TCOW11 - має повернути 400, якщо не вдалося ідентифікувати редактора', async () => {
+    it('TCOM04 - має повернути 400, якщо не вдалося ідентифікувати редактора', async () => {
         mockReq.user = null;
         await updateOrder(mockReq, mockRes);
         expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -392,7 +392,7 @@ describe('updateOrder', () => {
         expect(orderModel.findById).not.toHaveBeenCalled();
     });
 
-    it('TCOW12 - має повернути 500 при помилці оновлення в БД', async () => {
+    it('TCOM05 - має повернути 500 при помилці оновлення в БД', async () => {
         const dbError = new Error('Update Error');
         orderModel.findByIdAndUpdate.mockRejectedValue(dbError);
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
