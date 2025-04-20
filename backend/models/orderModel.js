@@ -61,7 +61,7 @@ const orderSchema = new mongoose.Schema({
 
     deliveryDetails: {
         firstName: { type: String, required: true },
-        secondName: { type: String, required: true },
+        lastName: { type: String, required: true },
         middleName: { type: String, required: true },
         email: { type: String, required: true },
         phone: { type: String, required: true },

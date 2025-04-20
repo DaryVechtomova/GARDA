@@ -124,7 +124,7 @@ const placeOrder = async (req, res) => {
                 name: item.name,
                 price: item.price,
                 discount: item.discount,
-                image: item.images[0],
+                image: item.images?.[0] || null,
                 quantity: item.quantity
             })),
             amount,
