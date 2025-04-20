@@ -1,7 +1,20 @@
-import express from "express"
-import { addSupplier, fetchSuppliers, removeSupplier, editSupplier } from "../controllers/supplierController.js"
-import supplierModel from "../models/supplierModel.js"
-import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
+// import express from "express"
+// import { addSupplier, fetchSuppliers, removeSupplier, editSupplier } from "../controllers/supplierController.js"
+// import supplierModel from "../models/supplierModel.js"
+// import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
+
+const express = require("express");
+const {
+    addSupplier,
+    fetchSuppliers,
+    removeSupplier,
+    editSupplier
+} = require("../controllers/supplierController.js");
+const supplierModel = require("../models/supplierModel.js");
+const {
+    authMiddleware,
+    adminMiddleware
+} = require("../middleware/auth.js");
 
 const supplierRouter = express.Router();
 
@@ -34,4 +47,5 @@ supplierRouter.get("/details/:id", authMiddleware, adminMiddleware, async (req, 
     }
 });
 
-export default supplierRouter;
+module.exports = supplierRouter;
+// export default supplierRouter;

@@ -1,6 +1,7 @@
-// middleware/auth.js
-import jwt from 'jsonwebtoken';
-import userModel from '../models/userModel.js'; // Переконайся, що шлях правильний
+// import jwt from 'jsonwebtoken';
+// import userModel from '../models/userModel.js'; // Переконайся, що шлях правильний
+const jwt = require('jsonwebtoken');
+const userModel = require('../models/userModel.js')
 
 const authMiddleware = async (req, res, next) => {
     // 1. Отримуємо токен з Authorization хедера
@@ -91,4 +92,5 @@ const strictAdminMiddleware = (req, res, next) => {
     next();
 };
 
-export { authMiddleware, adminMiddleware, strictAdminMiddleware }; // Експортуємо оновлене middleware
+module.exports = { authMiddleware, adminMiddleware, strictAdminMiddleware };
+//export { authMiddleware, adminMiddleware, strictAdminMiddleware }; // Експортуємо оновлене middleware

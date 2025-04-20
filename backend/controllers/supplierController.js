@@ -1,7 +1,11 @@
-import path from "path";
-import supplierModel from "../models/supplierModel.js";
-import invoiceModel from "../models/invoiceModel.js";
-import fs from "fs";
+// import path from "path";
+// import supplierModel from "../models/supplierModel.js";
+// import invoiceModel from "../models/invoiceModel.js";
+// import fs from "fs";
+const path = require("path");
+const supplierModel = require("../models/supplierModel.js");
+const invoiceModel = require("../models/invoiceModel.js");
+const fs = require("fs");
 
 // Додавання постачальника
 const addSupplier = async (req, res) => {
@@ -170,7 +174,7 @@ const editSupplier = async (req, res) => {
         supplier.cooperationEndDate = new Date();
     }
 
-    if (status === "активний" && supplier.status !== "завершений") {
+    if (status === "активний" && supplier.status == "завершений") {
         supplier.cooperationEndDate = "";
     }
 
@@ -205,4 +209,5 @@ const editSupplier = async (req, res) => {
     }
 };
 
-export { addSupplier, fetchSuppliers, removeSupplier, editSupplier }
+module.exports = { addSupplier, fetchSuppliers, removeSupplier, editSupplier };
+// export { addSupplier, fetchSuppliers, removeSupplier, editSupplier }

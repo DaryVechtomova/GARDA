@@ -1,5 +1,7 @@
-import Review from '../models/reviewModel.js';
-import User from '../models/userModel.js';
+// import Review from '../models/reviewModel.js';
+// import User from '../models/userModel.js';
+const Review = require("../models/reviewModel.js");
+const User = require("../models/userModel.js");
 
 // Створити новий відгук
 const createReview = async (req, res) => {
@@ -16,7 +18,7 @@ const createReview = async (req, res) => {
             });
         }
         if (!userId) {
-             // Це не повинно статись, якщо authMiddleware відпрацював, але про всяк випадок
+            // Це не повинно статись, якщо authMiddleware відпрацював, але про всяк випадок
             console.error('UserId not found in req.user in createReview');
             return res.status(401).json({ success: false, message: 'Помилка авторизації.' });
         }
@@ -102,4 +104,5 @@ const deleteReview = async (req, res) => {
     }
 };
 
-export { createReview, getReviewsForAdmin, getReviewsForUser, deleteReview }
+module.exports = { createReview, getReviewsForAdmin, getReviewsForUser, deleteReview };
+// export { createReview, getReviewsForAdmin, getReviewsForUser, deleteReview }

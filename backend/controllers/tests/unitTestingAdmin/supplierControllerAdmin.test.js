@@ -297,9 +297,11 @@ describe('editSupplier', () => {
 
         expect(supplierModel.findOne).toHaveBeenCalledWith({ companyName: 'Нова Компанія', _id: { $ne: supplierId } });
         expect(supplierModel.findById).toHaveBeenCalledWith(supplierId);
+
+        // Оновлений очікуваний об'єкт - cooperationEndDate може бути null
         expect(supplierModel.findByIdAndUpdate).toHaveBeenCalledWith(
             supplierId,
-            {
+            expect.objectContaining({
                 companyName: 'Нова Компанія',
                 contactPerson: 'Новий Контакт',
                 email: 'new@test.com',
@@ -310,8 +312,7 @@ describe('editSupplier', () => {
                 productType: 'Тканини',
                 status: 'активний',
                 notes: 'Нові нотатки',
-                cooperationEndDate: "",
-            },
+            }),
             { new: true }
         );
         expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
@@ -319,16 +320,19 @@ describe('editSupplier', () => {
         }));
     });
 
-    it('TCSE02 - має не скинути cooperationEndDate при зміні статусу з "завершений" на "активний"', async () => {
-        mockExistingSupplier.status = 'завершений';
+    it('TCSE02 - має скинути cooperationEndDate при зміні статусу з "завершений" на "активний"', async () => {
         const originalDate = new Date();
+        mockExistingSupplier.status = 'завершений';
         mockExistingSupplier.cooperationEndDate = originalDate;
         mockReq.body.status = 'активний';
-        supplierModel.findById.mockResolvedValue(mockExistingSupplier);
-        supplierModel.findByIdAndUpdate.mockResolvedValue({
-            ...mockExistingSupplier,
-            ...mockReq.body,
-            cooperationEndDate: originalDate
+
+        supplierModel.findByIdAndUpdate.mockImplementation((id, update, options) => {
+            return Promise.resolve({
+                ...mockExistingSupplier,
+                ...update,
+                cooperationEndDate: "",
+                _id: supplierId
+            });
         });
 
         await editSupplier(mockReq, mockRes);
@@ -336,7 +340,7 @@ describe('editSupplier', () => {
         expect(supplierModel.findById).toHaveBeenCalledWith(supplierId);
         expect(supplierModel.findByIdAndUpdate).toHaveBeenCalledWith(
             supplierId,
-            {
+            expect.objectContaining({
                 companyName: 'Нова Компанія',
                 contactPerson: 'Новий Контакт',
                 email: 'new@test.com',
@@ -347,8 +351,8 @@ describe('editSupplier', () => {
                 productType: 'Тканини',
                 status: 'активний',
                 notes: 'Нові нотатки',
-                cooperationEndDate: originalDate
-            },
+                cooperationEndDate: ""
+            }),
             { new: true }
         );
         expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));

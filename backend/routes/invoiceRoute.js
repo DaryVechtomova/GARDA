@@ -1,7 +1,22 @@
-import express from "express"
-import { addInvoice, fetchInvoices, editInvoice, getInvoiceById, completeInvoice } from "../controllers/invoiceController.js"
-import invoiceModel from "../models/invoiceModel.js"
-import { authMiddleware, adminMiddleware, strictAdminMiddleware } from '../middleware/auth.js';
+// import express from "express"
+// import { addInvoice, fetchInvoices, editInvoice, getInvoiceById, completeInvoice } from "../controllers/invoiceController.js"
+// import invoiceModel from "../models/invoiceModel.js"
+// import { authMiddleware, adminMiddleware, strictAdminMiddleware } from '../middleware/auth.js';
+
+const express = require("express");
+const {
+    addInvoice,
+    fetchInvoices,
+    editInvoice,
+    getInvoiceById,
+    completeInvoice
+} = require("../controllers/invoiceController.js");
+const invoiceModel = require("../models/invoiceModel.js");
+const {
+    authMiddleware,
+    adminMiddleware,
+    strictAdminMiddleware
+} = require("../middleware/auth.js");
 
 const invoiceRouter = express.Router();
 
@@ -23,4 +38,5 @@ invoiceRouter.get("/edit-invoice/:id", authMiddleware, strictAdminMiddleware, as
 invoiceRouter.get("/details/:id", authMiddleware, strictAdminMiddleware, getInvoiceById);
 invoiceRouter.post("/complete-invoice", authMiddleware, strictAdminMiddleware, completeInvoice);
 
-export default invoiceRouter;
+// export default invoiceRouter;
+module.exports = invoiceRouter;

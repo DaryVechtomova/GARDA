@@ -1,10 +1,17 @@
 //import path from "path";
-import mongoose from 'mongoose';
-import { syncBuiltinESMExports } from "module";
-import productModel from "../models/productModel.js";
-import invoiceModel from "../models/invoiceModel.js";
-import orderModel from "../models/orderModel.js";
-import fs from "fs"
+// import mongoose from 'mongoose';
+// import { syncBuiltinESMExports } from "module";
+// import productModel from "../models/productModel.js";
+// import invoiceModel from "../models/invoiceModel.js";
+// import orderModel from "../models/orderModel.js";
+// import fs from "fs"
+
+const mongoose = require('mongoose');
+const { syncBuiltinESMExports } = require("module");
+const productModel = require("../models/productModel.js");
+const invoiceModel = require("../models/invoiceModel.js");
+const orderModel = require("../models/orderModel.js");
+const fs = require("fs");
 
 const path = require('path');
 
@@ -554,4 +561,5 @@ const checkProductAvailability = async (req, res) => {
     }
 };
 
-export { addProduct, listProduct, removeProduct, editProduct, removeDiscount, editDiscount, getProductById, listDiscountedProducts, checkProductAvailability }
+module.exports = { addProduct, listProduct, removeProduct, editProduct, removeDiscount, editDiscount, getProductById, listDiscountedProducts, checkProductAvailability };
+// export { addProduct, listProduct, removeProduct, editProduct, removeDiscount, editDiscount, getProductById, listDiscountedProducts, checkProductAvailability }

@@ -1,5 +1,6 @@
-import mongoose from "mongoose";
-import { type } from "os";
+// import mongoose from "mongoose";
+// import { type } from "os";
+const mongoose = require("mongoose");
 
 const supplierSchema = new mongoose.Schema({
     companyName: { type: String, required: true },
@@ -18,4 +19,5 @@ const supplierSchema = new mongoose.Schema({
 
 const supplierModel = mongoose.models.supplier || mongoose.model("supplier", supplierSchema);
 
-export default supplierModel;
+module.exports = supplierModel;
+// export default supplierModel;

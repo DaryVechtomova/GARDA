@@ -1,7 +1,11 @@
-import orderModel from "../models/orderModel.js";
-import userModel from "../models/userModel.js";
-import productModel from "../models/productModel.js";
-import Stripe from "stripe"
+// import orderModel from "../models/orderModel.js";
+// import userModel from "../models/userModel.js";
+// import productModel from "../models/productModel.js";
+// import Stripe from "stripe"
+const orderModel = require("../models/orderModel.js");
+const userModel = require("../models/userModel.js");
+const productModel = require("../models/productModel.js");
+const Stripe = require("stripe");
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -429,12 +433,12 @@ const updateOrder = async (req, res) => {
                 items: updateData.items,
                 amount: newAmount,
                 $push: { editHistory: editHistory },
-                status: order.status,
-                payment: order.payment,
-                deliveryMethod: order.deliveryMethod,
-                deliveryDetails: order.deliveryDetails,
-                userId: order.userId,
-                orderNumber: order.orderNumber
+                // status: order.status,
+                // payment: order.payment,
+                // deliveryMethod: order.deliveryMethod,
+                // deliveryDetails: order.deliveryDetails,
+                // userId: order.userId,
+                // orderNumber: order.orderNumber
             },
             { new: true }
         );
@@ -461,7 +465,7 @@ const cancelOrderForUser = async (req, res) => {
 
     try {
         const order = await orderModel.findById(orderId);
-        
+
         // Перевіряємо, чи існує замовлення
         if (!order) {
             return res.status(404).json({ success: false, message: "Замовлення не знайдено" });
@@ -469,9 +473,9 @@ const cancelOrderForUser = async (req, res) => {
 
         // Перевіряємо, чи замовлення належить цьому користувачеві
         if (order.userId.toString() !== user._id.toString()) {
-            return res.status(403).json({ 
-                success: false, 
-                message: "Ви не маєте прав для скасування цього замовлення" 
+            return res.status(403).json({
+                success: false,
+                message: "Ви не маєте прав для скасування цього замовлення"
             });
         }
 
@@ -548,17 +552,17 @@ const getOrderStatus = async (req, res) => {
 
         // Перевіряємо, чи існує замовлення
         if (!order) {
-            return res.status(404).json({ 
-                success: false, 
-                message: "Замовлення не знайдено" 
+            return res.status(404).json({
+                success: false,
+                message: "Замовлення не знайдено"
             });
         }
 
         // Перевіряємо, чи замовлення належить користувачу (якщо це не адмін)
         if (user.role !== 'admin' && order.userId.toString() !== user._id.toString()) {
-            return res.status(403).json({ 
-                success: false, 
-                message: "Ви не маєте доступу до цього замовлення" 
+            return res.status(403).json({
+                success: false,
+                message: "Ви не маєте доступу до цього замовлення"
             });
         }
 
@@ -592,6 +596,21 @@ const getOrderStatus = async (req, res) => {
     }
 };
 
-export default getOrderStatus;
+module.exports = {
+    placeOrder,
+    verifyOrder,
+    userOrders,
+    listOrders,
+    updateOrderStatus,
+    cancelOrder,
+    updateOrder,
+    cancelOrderForUser,
+    getOrderStatus
+};
 
-export { placeOrder, verifyOrder, userOrders, listOrders, updateOrderStatus, cancelOrder, updateOrder, cancelOrderForUser, getOrderStatus }
+// For default export, you can use module.exports directly:
+module.exports.getOrderStatus = getOrderStatus;
+
+// export default getOrderStatus;
+
+// export { placeOrder, verifyOrder, userOrders, listOrders, updateOrderStatus, cancelOrder, updateOrder, cancelOrderForUser, getOrderStatus }

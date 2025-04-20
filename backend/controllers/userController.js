@@ -1,7 +1,11 @@
-import userModel from "../models/userModel.js";
-import jwt from "jsonwebtoken"
-import bcrypt from "bcrypt"
-import validator from "validator"
+// import userModel from "../models/userModel.js";
+// import jwt from "jsonwebtoken"
+// import bcrypt from "bcrypt"
+// import validator from "validator"
+const userModel = require("../models/userModel.js");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const validator = require("validator");
 
 //login user (для всіх)
 const loginUser = async (req, res) => {
@@ -545,4 +549,5 @@ const updateClientProfile = async (req, res) => {
     }
 };
 
-export { loginUser, registerUser, listEmployees, registerEmployee, editEmployee, fireEmployee, getCurrentEmployee, checkUserRole, updateAdminProfile, changePassword, getCurrentUser, updateClientProfile }
+module.exports = { loginUser, registerUser, listEmployees, registerEmployee, editEmployee, fireEmployee, getCurrentEmployee, checkUserRole, updateAdminProfile, changePassword, getCurrentUser, updateClientProfile };
+// export { loginUser, registerUser, listEmployees, registerEmployee, editEmployee, fireEmployee, getCurrentEmployee, checkUserRole, updateAdminProfile, changePassword, getCurrentUser, updateClientProfile }

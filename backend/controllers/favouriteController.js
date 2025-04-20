@@ -1,5 +1,5 @@
-import userModel from "../models/userModel.js";
-
+//import userModel from "../models/userModel.js";
+const userModel = require("../models/userModel.js");
 // add items to user favourite
 const addToFavourite = async (req, res) => {
     try {
@@ -39,12 +39,12 @@ const getFavourite = async (req, res) => {
     try {
         let userData = await userModel.findById(req.body.userId)
         let favourites = await userData.favourites;
-        res.json({ success: true, favourites})
+        res.json({ success: true, favourites })
     } catch (error) {
         console.log(error);
         res.json({ success: false, message: "Помилка" })
     }
 }
 
-
-export { addToFavourite, removeFromFavourite, getFavourite }
+module.exports = { addToFavourite, removeFromFavourite, getFavourite };
+// export { addToFavourite, removeFromFavourite, getFavourite }

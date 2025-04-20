@@ -1,5 +1,23 @@
-import express from "express"
-import {
+// import express from "express"
+// import {
+//     addProduct,
+//     listProduct,
+//     removeProduct,
+//     editProduct,
+//     removeDiscount,
+//     editDiscount,
+//     getProductById,
+//     listDiscountedProducts,
+//     checkProductAvailability
+// }
+//     from "../controllers/productController.js"
+// import productModel from "../models/productModel.js"
+// import multer from "multer"
+// import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
+// import path from 'path';
+
+const express = require("express");
+const {
     addProduct,
     listProduct,
     removeProduct,
@@ -9,12 +27,12 @@ import {
     getProductById,
     listDiscountedProducts,
     checkProductAvailability
-}
-    from "../controllers/productController.js"
-import productModel from "../models/productModel.js"
-import multer from "multer"
-import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
-import path from 'path';
+} = require("../controllers/productController.js");
+const productModel = require("../models/productModel.js");
+const multer = require("multer");
+const { authMiddleware, adminMiddleware } = require('../middleware/auth.js');
+const path = require('path');
+
 const productRouter = express.Router();
 
 // Image storage engine
@@ -87,4 +105,5 @@ productRouter.get('/search', async (req, res) => {
 productRouter.get("/list-discounted-products", listDiscountedProducts)
 productRouter.get("/availability/:id", checkProductAvailability);
 
-export default productRouter;
+module.exports = productRouter;
+// export default productRouter;

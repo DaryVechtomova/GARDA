@@ -331,7 +331,6 @@ const EditSupplier = () => {
                             >
                                 <option value="" disabled>-- Оберіть статус --</option>
                                 <option value="активний">Активний</option>
-                                <option value="на розгляді">На розгляді</option>
                                 <option value="призупинений">Призупинений</option>
                                 <option value="завершений">Завершений</option>
                             </select>
