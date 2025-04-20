@@ -6,13 +6,13 @@ import { app } from '../../../server.js';
 import User from '../../../models/userModel.js';
 
 let server;
-let adminToken; // Токен для аутентифікації адміна
-let adminUserId; // ID створеного адміна
-let employeeId; // ID створеного співробітника для тестів редагування/звільнення
+let adminToken;
+let adminUserId;
+let employeeId;
 const TEST_MONGO_URI = process.env.TEST_MONGO_URI || 'mongodb://localhost:27017/backend_test_db_users';
-const JWT_SECRET = process.env.JWT_SECRET || 'your_fallback_secret_for_tests'; // Важливо!
+const JWT_SECRET = process.env.JWT_SECRET || 'your_fallback_secret_for_tests';
 
-// Функція для хешування пароля (використовуємо ту ж логіку, що й в контролері)
+// Функція для хешування пароля
 const hashPassword = async (password) => {
     const salt = await bcrypt.genSalt(10);
     return await bcrypt.hash(password, salt);

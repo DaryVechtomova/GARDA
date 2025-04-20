@@ -1,16 +1,15 @@
 import request from 'supertest';
 import mongoose from 'mongoose';
-import jwt from 'jsonwebtoken'; // Потрібен для генерації токенів
-import bcrypt from 'bcrypt'; // Потрібен для створення тестових паролів
-import { app } from '../../../server.js'; // Імпортуємо наш Express app
-import Supplier from '../../../models/supplierModel.js'; // Реальна модель постачальника
-import Invoice from '../../../models/invoiceModel.js';   // Реальна модель накладної
-import User from '../../../models/userModel.js';       // Модель користувача для створення адміна
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import { app } from '../../../server.js';
+import Supplier from '../../../models/supplierModel.js';
+import Invoice from '../../../models/invoiceModel.js';
+import User from '../../../models/userModel.js';
 
-// --- Налаштування Тестового Середовища ---
-let adminToken; // Токен для аутентифікації адміна/співробітника
+let adminToken;
 let adminUserId;
-let supplierIdToEdit; // ID створеного постачальника для тестів
+let supplierIdToEdit;
 const TEST_MONGO_URI = process.env.TEST_MONGO_URI || 'mongodb://localhost:27017/backend_test_db_suppliers';
 const JWT_SECRET = process.env.JWT_SECRET || 'your_fallback_secret_for_tests_suppliers';
 
@@ -70,9 +69,7 @@ beforeEach(async () => {
     supplierIdToEdit = testSupplier._id;
 });
 
-// =========================================
-// === Тести для POST /api/suppliers/add-supplier ===
-// =========================================
+// Тести для POST /api/suppliers/add-supplier
 describe('POST /api/suppliers/add-supplier', () => {
     const newSupplierData = {
         companyName: 'Новий Постач Інтегр',
@@ -151,13 +148,9 @@ describe('POST /api/suppliers/add-supplier', () => {
         expect(response.body.success).toBe(false);
         expect(response.body.message).toBe("Будь ласка, оберіть статус");
     });
-
-    // Додай тести на 401 (без токену) і 403 (не адмін/комірник)
 });
 
-// =========================================
-// === Тести для GET /api/suppliers/list-supplier ===
-// =========================================
+// Тести для GET /api/suppliers/list-supplier
 describe('GET /api/suppliers/list-supplier', () => {
     it('TCS13 - має успішно повернути список постачальників (200 OK)', async () => {
         const response = await request(app)
@@ -167,17 +160,12 @@ describe('GET /api/suppliers/list-supplier', () => {
         expect(response.statusCode).toBe(200);
         expect(response.body.success).toBe(true);
         expect(response.body.data).toBeInstanceOf(Array);
-        // Має бути хоча б один постачальник, створений у beforeEach
         expect(response.body.data.length).toBeGreaterThanOrEqual(1);
         expect(response.body.data.some(s => s._id === String(supplierIdToEdit))).toBe(true);
     });
-
-    // Додай тести на 401 і 403
 });
 
-// =========================================
-// === Тести для POST /api/suppliers/remove ===
-// =========================================
+// Тести для POST /api/suppliers/remove
 describe('POST /api/suppliers/remove', () => {
     it('TCS15 - має успішно видалити постачальника без накладних (200 OK)', async () => {
         const response = await request(app)
@@ -207,7 +195,6 @@ describe('POST /api/suppliers/remove', () => {
     });
 
     it('TCS17 - має повернути 400, якщо у постачальника є накладні', async () => {
-        // Створюємо залежну накладну з усіма обов'язковими полями
         await Invoice.create({
             invoiceNumber: 'INV-SUP-TEST-001',
             supplier: supplierIdToEdit,
@@ -216,7 +203,7 @@ describe('POST /api/suppliers/remove', () => {
                 size: 'S',
                 quantity: 1,
                 purchasePrice: 5,
-                pricePerUnit: 5 // Додаємо обов'язкове поле
+                pricePerUnit: 5
             }],
             totalAmount: 5,
             status: 'активна',
@@ -239,19 +226,15 @@ describe('POST /api/suppliers/remove', () => {
         const supplier = await Supplier.findById(supplierIdToEdit);
         expect(supplier).not.toBeNull();
     });
-
-    // Додай тести на 401 і 403
 });
 
-// =========================================
-// === Тести для POST /api/suppliers/edit-supplier ===
-// =========================================
+// Тести для POST /api/suppliers/edit-supplier
 describe('POST /api/suppliers/edit-supplier', () => {
     let editData;
 
     beforeEach(() => {
         editData = {
-            id: String(supplierIdToEdit), // ID постачальника, створеного в beforeEach
+            id: String(supplierIdToEdit),
             companyName: 'Оновлений Постач',
             contactPerson: 'Оновл Контакт',
             email: 'updated.supplier@test.com',
@@ -260,7 +243,7 @@ describe('POST /api/suppliers/edit-supplier', () => {
             city: 'Оновлене Місто',
             country: 'Україна',
             productType: 'одяг',
-            status: 'призупинений', // Змінюємо статус
+            status: 'призупинений',
             notes: 'Оновлені нотатки',
         };
     });
@@ -277,13 +260,13 @@ describe('POST /api/suppliers/edit-supplier', () => {
         expect(response.body.data).toBeDefined();
         expect(response.body.data.companyName).toBe(editData.companyName);
         expect(response.body.data.status).toBe(editData.status);
-        expect(response.body.data.cooperationEndDate).toBeUndefined(); // Не має встановлюватись для 'призупинений'
+        expect(response.body.data.cooperationEndDate).toBeUndefined();
 
         // Перевірка в БД
         const updatedSupplier = await Supplier.findById(supplierIdToEdit);
         expect(updatedSupplier.companyName).toBe(editData.companyName);
         expect(updatedSupplier.status).toBe(editData.status);
-        expect(updatedSupplier.cooperationEndDate).toBeFalsy(); // Має бути null або undefined
+        expect(updatedSupplier.cooperationEndDate).toBeFalsy();
     });
 
     it('TCS22 - має встановити cooperationEndDate при зміні статусу на "завершений"', async () => {
@@ -318,7 +301,6 @@ describe('POST /api/suppliers/edit-supplier', () => {
         expect(response.statusCode).toBe(200);
         expect(response.body.success).toBe(true);
         expect(response.body.data.status).toBe('активний');
-        // У відповіді cooperationEndDate може бути undefined або '', залежно від Mongoose
         expect(response.body.data.cooperationEndDate).toBeFalsy();
 
         // Перевірка в БД
@@ -363,14 +345,10 @@ describe('POST /api/suppliers/edit-supplier', () => {
         expect(response.body.success).toBe(false);
         expect(response.body.message).toBe("Постачальника не знайдено");
     });
-
-    // Додай тести на 401 і 403
 });
 
 
-// =========================================
-// === Тести для GET /api/suppliers/edit-supplier/:id ===
-// =========================================
+// Тести для GET /api/suppliers/edit-supplier/:id
 describe('GET /api/suppliers/edit-supplier/:id', () => {
     it('має успішно повернути дані постачальника для редагування (200 OK)', async () => {
         const response = await request(app)
@@ -393,13 +371,10 @@ describe('GET /api/suppliers/edit-supplier/:id', () => {
         expect(response.body.success).toBe(false);
         expect(response.body.message).toBe("Постачальника не знайдено");
     });
-    // Додай тести на 401 і 403
 });
 
 
-// =========================================
-// === Тести для GET /api/suppliers/details/:id ===
-// =========================================
+// Тести для GET /api/suppliers/details/:id
 describe('GET /api/suppliers/details/:id', () => {
     it('має успішно повернути деталі постачальника (200 OK)', async () => {
         const response = await request(app)
@@ -420,5 +395,4 @@ describe('GET /api/suppliers/details/:id', () => {
         expect(response.body.success).toBe(false);
         expect(response.body.message).toBe("Постачальника не знайдено");
     });
-    // Додай тести на 401 і 403
 });

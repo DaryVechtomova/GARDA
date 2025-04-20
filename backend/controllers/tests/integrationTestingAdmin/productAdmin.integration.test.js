@@ -1,14 +1,14 @@
 import request from 'supertest';
 import mongoose from 'mongoose';
-import jwt from 'jsonwebtoken'; // Потрібен для генерації токенів
-import path from 'path';      // Потрібен для шляхів до файлів
-import fs from 'fs';        // Потрібен для створення/видалення файлів
+import jwt from 'jsonwebtoken';
+import path from 'path';
+import fs from 'fs';
 import bcrypt from 'bcrypt';
 import { app } from '../../../server.js';
-import Product from '../../../models/productModel.js'; // Реальна модель товару
-import Invoice from '../../../models/invoiceModel.js'; // Реальна модель накладної
-import Order from '../../../models/orderModel.js';   // Реальна модель замовлення
-import User from '../../../models/userModel.js';     // Модель користувача для створення адміна
+import Product from '../../../models/productModel.js';
+import Invoice from '../../../models/invoiceModel.js';
+import Order from '../../../models/orderModel.js';
+import User from '../../../models/userModel.js';
 
 // --- Налаштування Тестового Середовища ---
 let adminToken; // Токен для аутентифікації адміна/співробітника
@@ -35,8 +35,6 @@ afterAll(async () => {
     // Закриття з'єднання з БД
     await mongoose.connection.close();
     console.log('Test DB connection closed (Products)');
-    // Можна видалити тестові файли, якщо потрібно
-    // fs.rmdirSync(UPLOAD_DIR, { recursive: true }); // Обережно!
 });
 
 beforeEach(async () => {
@@ -44,7 +42,7 @@ beforeEach(async () => {
     await Product.deleteMany({});
     await Invoice.deleteMany({});
     await Order.deleteMany({});
-    await User.deleteMany({}); // Очищаємо користувачів теж
+    await User.deleteMany({});
 
     // Створення тестового адміністратора/співробітника
     const salt = await bcrypt.genSalt(10);
@@ -56,7 +54,7 @@ beforeEach(async () => {
         email: 'product.admin@test.com',
         phoneNumber: '1234567890',
         password: hashedPassword,
-        role: 'адміністратор', // Або 'комірник', якщо права дозволяють
+        role: 'адміністратор',
         isActive: true,
         birthDate: new Date('1990-01-01'),
     });
@@ -75,7 +73,7 @@ beforeEach(async () => {
     }
 });
 
-// --- Хелпер для створення тестового файлу ---
+// Хелпер для створення тестового файлу
 const createTestFile = (filename, content = 'test content') => {
     if (!fs.existsSync(TEST_UPLOAD_DIR)) {
         fs.mkdirSync(TEST_UPLOAD_DIR, { recursive: true });
@@ -85,9 +83,7 @@ const createTestFile = (filename, content = 'test content') => {
     return filePath;
 };
 
-// =========================================
-// === Тести для POST /api/product/add-product ===
-// =========================================
+// Тести для POST /api/product/add-product
 describe('POST /api/product/add-product', () => {
     let productData;
     let testFilePath1;
@@ -149,7 +145,6 @@ describe('POST /api/product/add-product', () => {
         const response = await request(app)
             .post('/api/product/add-product')
             .set('Authorization', `Bearer ${adminToken}`)
-            // ... (надсилаємо ті ж дані через .field() і .attach()) ...
             .field('name', productData.name)
             .field('description', productData.description)
             .field('price', productData.price)
@@ -197,13 +192,9 @@ describe('POST /api/product/add-product', () => {
         expect(response.body.success).toBe(false);
         expect(response.body.message).toBe("Будь ласка, завантажте хоча б одне зображення товару");
     });
-
-    // Додай тести на 401 (без токену) і 403 (не адмін/комірник)
 });
 
-// =========================================
-// === Тести для POST /api/product/remove-product ===
-// =========================================
+// Тести для POST /api/product/remove-product
 describe('POST /api/product/remove-product', () => {
     let productId;
     let testFilePath;
@@ -353,14 +344,10 @@ describe('POST /api/product/remove-product', () => {
         expect(response.body.success).toBe(false);
         expect(response.body.message).toBe("Товар не знайдено");
     });
-
-    // Додай тести на 401 і 403
 });
 
 
-// =========================================
-// === Тести для POST /api/product/edit-product ===
-// =========================================
+// Тести для POST /api/product/edit-product
 describe('POST /api/product/edit-product', () => {
     let productId;
     let oldFileName1 = 'oldEdit1.png';
@@ -522,13 +509,9 @@ describe('POST /api/product/edit-product', () => {
         expect(response.statusCode).toBe(404);
         expect(response.body.success).toBe(false);
     });
-
-    // Додай тести на 401, 403, відсутність обов'язкових полів
 });
 
-// =========================================
-// === Тести для GET /api/product/edit-product/:id ===
-// =========================================
+// Тести для GET /api/product/edit-product/:id
 describe('GET /api/product/edit-product/:id', () => {
     let productId;
     beforeEach(async () => {
@@ -558,9 +541,7 @@ describe('GET /api/product/edit-product/:id', () => {
     });
 });
 
-// =========================================
-// === Тести для DELETE /api/product/discount/remove/:id ===
-// =========================================
+// Тести для DELETE /api/product/discount/remove/:id
 describe('DELETE /api/product/discount/remove/:id', () => {
     let productId;
     beforeEach(async () => {
@@ -594,9 +575,7 @@ describe('DELETE /api/product/discount/remove/:id', () => {
     });
 });
 
-// =========================================
-// === Тести для PUT /api/product/discount/edit/:id ===
-// =========================================
+// Тести для PUT /api/product/discount/edit/:id
 describe('PUT /api/product/discount/edit/:id', () => {
     let productId;
     beforeEach(async () => {
