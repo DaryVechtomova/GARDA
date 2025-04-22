@@ -606,7 +606,7 @@ describe('POST /api/user/login', () => {
             .post('/api/user/login')
             .send({ email: 'inactive@test.com', password: 'inactivePass' }); // Дані неактивного співробітника
 
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toBe(403);
         expect(response.body.success).toBe(false);
         expect(response.body.message).toBe("Ваш акаунт неактивний");
         expect(response.body.token).toBeUndefined();

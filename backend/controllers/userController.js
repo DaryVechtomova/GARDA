@@ -24,7 +24,10 @@ const loginUser = async (req, res) => {
 
         // Якщо це співробітник і він звільнений, забороняємо вхід
         if (user.role !== "користувач" && !user.isActive) {
-            return res.json({ success: false, message: "Ваш акаунт неактивний" });
+            return res.status(403).json({
+                success: false,
+                message: "Ваш акаунт неактивний"
+            });
         }
 
         const token = createToken(user._id, user.role);
@@ -208,7 +211,7 @@ const registerEmployee = async (req, res) => {
         });
 
         await newEmployee.save();
-        res.json({ success: true, message: "Співробітника успішно додано" });
+        res.json({ success: true, message: "Співробітника успішно додано", data: newEmployee });
     } catch (error) {
         console.log(error);
         res.json({ success: false, message: "Помилка сервера" });
@@ -259,6 +262,18 @@ const editEmployee = async (req, res) => {
     };
 
     try {
+        // Перевірка на дублікат email (крім поточного користувача)
+        const existingUser = await userModel.findOne({
+            email: email,
+            _id: { $ne: id } // Виключаємо поточного користувача з перевірки
+        });
+
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                message: "Користувач з такою електронною поштою вже існує"
+            });
+        }
         const updatedEmployee = await userModel.findByIdAndUpdate(id, updateData, { new: true });
 
         if (!updatedEmployee) {

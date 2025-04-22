@@ -15,7 +15,8 @@ const {
     cancelOrder,
     updateOrder,
     cancelOrderForUser,
-    getOrderStatus
+    getOrderStatus,
+    getOrderDetails
 } = require("../controllers/orderController.js");
 
 const orderRouter = express.Router();
@@ -39,18 +40,7 @@ orderRouter.get("/edit-order/:id", authMiddleware, adminMiddleware, async (req, 
         res.json({ success: false, message: "Помилка при отриманні замовлення" });
     }
 });
-orderRouter.get("/details/:orderId", authMiddleware, adminMiddleware, async (req, res) => {
-    try {
-        const order = await orderModel.findById(req.params.orderId);
-        if (!order) {
-            return res.json({ success: false, message: "Замовлення не знайдено" });
-        }
-        res.json({ success: true, data: order });
-    } catch (error) {
-        console.log(error);
-        res.json({ success: false, message: "Помилка при отриманні замовлення" });
-    }
-});
+orderRouter.get("/details/:orderId", authMiddleware, adminMiddleware, getOrderDetails);
 orderRouter.put("/cancel-order-user/:orderId", authMiddleware, cancelOrderForUser);
 orderRouter.get('/:orderId/status', authMiddleware, getOrderStatus);
 

@@ -139,12 +139,12 @@ const addProduct = async (req, res) => {
         technique,
         fabric,
         colors,
-        sizes,
+        sizes: sizesData,
     });
 
     try {
         await product.save();
-        res.json({ success: true, message: "Товар додано" });
+        res.json({ success: true, message: "Товар додано", data: product });
     } catch (error) {
         console.log(error);
         res.status(500).json({ success: false, message: "Помилка при додаванні товару" });

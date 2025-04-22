@@ -596,6 +596,19 @@ const getOrderStatus = async (req, res) => {
     }
 };
 
+const getOrderDetails = async (req, res) => {
+    try {
+        const order = await orderModel.findById(req.params.orderId);
+        if (!order) {
+            return res.json({ success: false, message: "Замовлення не знайдено" });
+        }
+        res.json({ success: true, data: order });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Помилка при отриманні замовлення" });
+    }
+};
+
 module.exports = {
     placeOrder,
     verifyOrder,
@@ -605,7 +618,8 @@ module.exports = {
     cancelOrder,
     updateOrder,
     cancelOrderForUser,
-    getOrderStatus
+    getOrderStatus,
+    getOrderDetails
 };
 
 // For default export, you can use module.exports directly:

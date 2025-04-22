@@ -152,7 +152,7 @@ describe('POST /api/suppliers/add-supplier', () => {
 
 // Тести для GET /api/suppliers/list-supplier
 describe('GET /api/suppliers/list-supplier', () => {
-    it('TCS13 - має успішно повернути список постачальників (200 OK)', async () => {
+    it('має успішно повернути список постачальників (200 OK)', async () => {
         const response = await request(app)
             .get('/api/suppliers/list-supplier')
             .set('Authorization', `Bearer ${adminToken}`);
@@ -167,7 +167,7 @@ describe('GET /api/suppliers/list-supplier', () => {
 
 // Тести для POST /api/suppliers/remove
 describe('POST /api/suppliers/remove', () => {
-    it('TCS15 - має успішно видалити постачальника без накладних (200 OK)', async () => {
+    it('має успішно видалити постачальника без накладних (200 OK)', async () => {
         const response = await request(app)
             .post('/api/suppliers/remove')
             .set('Authorization', `Bearer ${adminToken}`)
@@ -182,7 +182,7 @@ describe('POST /api/suppliers/remove', () => {
         expect(deletedSupplier).toBeNull();
     });
 
-    it('TCS16 - має повернути 404, якщо ID постачальника не існує', async () => {
+    it('має повернути 404, якщо ID постачальника не існує', async () => {
         const nonExistentId = new mongoose.Types.ObjectId().toString();
         const response = await request(app)
             .post('/api/suppliers/remove')
@@ -194,7 +194,7 @@ describe('POST /api/suppliers/remove', () => {
         expect(response.body.message).toBe("Постачальника не знайдено");
     });
 
-    it('TCS17 - має повернути 400, якщо у постачальника є накладні', async () => {
+    it('має повернути 400, якщо у постачальника є накладні', async () => {
         await Invoice.create({
             invoiceNumber: 'INV-SUP-TEST-001',
             supplier: supplierIdToEdit,
@@ -248,7 +248,7 @@ describe('POST /api/suppliers/edit-supplier', () => {
         };
     });
 
-    it('TCS21 - має успішно оновити постачальника (200 OK)', async () => {
+    it('має успішно оновити постачальника (200 OK)', async () => {
         const response = await request(app)
             .post('/api/suppliers/edit-supplier')
             .set('Authorization', `Bearer ${adminToken}`)
@@ -269,7 +269,7 @@ describe('POST /api/suppliers/edit-supplier', () => {
         expect(updatedSupplier.cooperationEndDate).toBeFalsy();
     });
 
-    it('TCS22 - має встановити cooperationEndDate при зміні статусу на "завершений"', async () => {
+    it('має встановити cooperationEndDate при зміні статусу на "завершений"', async () => {
         const dataWithFinishedStatus = { ...editData, status: 'завершений' };
         const response = await request(app)
             .post('/api/suppliers/edit-supplier')
@@ -288,7 +288,7 @@ describe('POST /api/suppliers/edit-supplier', () => {
         expect(updatedSupplier.cooperationEndDate).toBeInstanceOf(Date);
     });
 
-    it('TCS23 - має скинути cooperationEndDate при зміні статусу з "завершений" на "активний"', async () => {
+    it('має скинути cooperationEndDate при зміні статусу з "завершений" на "активний"', async () => {
         // Спочатку встановлюємо статус "завершений"
         await Supplier.findByIdAndUpdate(supplierIdToEdit, { status: 'завершений', cooperationEndDate: new Date() });
 
@@ -309,7 +309,7 @@ describe('POST /api/suppliers/edit-supplier', () => {
         expect(updatedSupplier.cooperationEndDate).toBeFalsy(); // null або undefined
     });
 
-    it('TCS24 - має повернути 400, якщо назва компанії вже існує в іншого постачальника', async () => {
+    it('має повернути 400, якщо назва компанії вже існує в іншого постачальника', async () => {
         // Створюємо іншого постачальника з такою ж назвою
         await Supplier.create({ companyName: 'НазваДублікат', contactPerson: 'c', email: 'e@d.c', phone: 'p', address: 'a', city: 'c', productType: 'одяг' });
         const response = await request(app)
@@ -322,7 +322,7 @@ describe('POST /api/suppliers/edit-supplier', () => {
         expect(response.body.message).toBe("Компанія з такою назвою вже існує");
     });
 
-    it('TCS25 - має повернути 400, якщо відсутня назва компанії при редагуванні', async () => {
+    it('має повернути 400, якщо відсутня назва компанії при редагуванні', async () => {
         const invalidData = { ...editData };
         delete invalidData.companyName;
         const response = await request(app)
@@ -334,7 +334,7 @@ describe('POST /api/suppliers/edit-supplier', () => {
         expect(response.body.message).toBe("Будь ласка, введіть назву компанії");
     });
 
-    it('TCS26 - має повернути 404, якщо ID постачальника для редагування не існує (findById)', async () => {
+    it('має повернути 404, якщо ID постачальника для редагування не існує (findById)', async () => {
         const nonExistentId = new mongoose.Types.ObjectId().toString();
         const response = await request(app)
             .post('/api/suppliers/edit-supplier')
