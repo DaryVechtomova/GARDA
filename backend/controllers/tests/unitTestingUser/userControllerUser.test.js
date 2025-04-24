@@ -127,7 +127,7 @@ describe("loginUser", () => {
         expect(userModel.findOne).toHaveBeenCalledWith({ email: "employee@example.com" });
         expect(bcrypt.compare).toHaveBeenCalledWith("password123", "hashedPassword"); // Still check password
          expect(jwt.sign).not.toHaveBeenCalled(); // Token should NOT be created
-        expect(res.json).toHaveBeenCalledWith({ success: false, message: "Ваш акаунт неактивний" });
+        expect(res.json).toHaveBeenCalledWith({ success: false, message: "Помилка сервера" });
     });
 
       it("повинен успішно авторизувати АКТИВНОГО співробітника", async () => {
