@@ -74,21 +74,12 @@ afterAll(async () => {
         for (const file of files) {
             fs.unlinkSync(path.join(UPLOAD_DIR_ABSOLUTE, file));
         }
-        // Можна спробувати видалити саму папку, якщо вона порожня
-        // fs.rmdirSync(UPLOAD_DIR_ABSOLUTE);
     } catch (err) {
         console.error('Error cleaning up test upload directory:', err);
     }
 });
 
 beforeEach(async () => {
-    // Очищення колекцій
-    // const collections = mongoose.connection.collections;
-    // for (const key in collections) {
-    //     const collection = collections[key];
-    //     await collection.deleteMany({});
-    // }
-
     // Створення адміна
     const adminPassword = await hashPassword('SysProdAdminPass');
     const admin = await User.create({
@@ -111,22 +102,9 @@ beforeEach(async () => {
 
     const supplier = await Supplier.create({ companyName: 'DepSup', contactPerson: 'c', email: 'e@d.c', phone: 'p', address: 'a', city: 'c', productType: 'одяг' });
     supplierId = supplier._id;
-
-    // Очистка тестової папки uploads перед кожним тестом
-    // try {
-    //     const files = fs.readdirSync(UPLOAD_DIR_ABSOLUTE);
-    //     for (const file of files) {
-    //         try { fs.unlinkSync(path.join(UPLOAD_DIR_ABSOLUTE, file)); } catch (e) { }
-    //     }
-    // } catch (err) {
-    //     console.error('Error cleaning up test upload directory:', err);
-    // }
 });
 
-// =========================================
-// === Системні Тести для Product Controller (Admin) ===
-// =========================================
-
+// Системні Тести для Product Controller (Admin) 
 describe('Системне тестування: Адміністратор - Управління товарами', () => {
 
     // --- Сценарій: Повний цикл CRUD для товару (FR09, FR010, FR011, FR012) ---

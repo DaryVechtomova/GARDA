@@ -303,7 +303,7 @@ const completeInvoice = async (req, res) => {
 
         res.json({
             success: true,
-            message: "Накладу виконано та товари додано на склад",
+            message: "Накладнy виконано та товари додано на склад",
             data: invoice
         });
     } catch (error) {

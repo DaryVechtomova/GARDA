@@ -12,6 +12,10 @@ const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     try {
+        if (!email || !password) {
+            return res.json({ success: false, message: "Некоректні дані" });
+        }
+
         const user = await userModel.findOne({ email });
         if (!user) {
             return res.json({ success: false, message: "Такого користувача не існує" });
@@ -152,6 +156,17 @@ const registerEmployee = async (req, res) => {
     const { firstName, secondName, middleName, email, phoneNumber, password, birthDate, role } = req.body;
 
     try {
+        // Перевірка, чи існує користувач з такою поштою
+        const exists = await userModel.findOne({ email });
+        if (exists) {
+            return res.json({ success: false, message: "Такий користувач вже існує" });
+        }
+
+        // Перевірка довжини пароля
+        if (password.length < 8) {
+            return res.json({ success: false, message: "Пароль має містити щонайменше 8 символів" });
+        }
+
         // Перевірка на обов'язкові поля
         if (!firstName) {
             return res.json({ success: false, message: "Будь ласка, введіть ім'я" });
@@ -183,17 +198,6 @@ const registerEmployee = async (req, res) => {
             return res.json({ success: false, message: "Будь ласка, введіть коректну адресу електронної пошти" });
         }
 
-        // Перевірка довжини пароля
-        if (password.length < 8) {
-            return res.json({ success: false, message: "Пароль має містити щонайменше 8 символів" });
-        }
-
-        // Перевірка, чи існує користувач з такою поштою
-        const exists = await userModel.findOne({ email });
-        if (exists) {
-            return res.json({ success: false, message: "Такий користувач вже існує" });
-        }
-
         // Хешування пароля
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
@@ -211,7 +215,11 @@ const registerEmployee = async (req, res) => {
         });
 
         await newEmployee.save();
-        res.json({ success: true, message: "Співробітника успішно додано", data: newEmployee });
+        res.json({
+            success: true,
+            message: "Співробітника успішно додано",
+            data: newEmployee
+        });
     } catch (error) {
         console.log(error);
         res.json({ success: false, message: "Помилка сервера" });
@@ -279,7 +287,11 @@ const editEmployee = async (req, res) => {
         if (!updatedEmployee) {
             return res.status(404).json({ success: false, message: "Співробітника не знайдено" });
         }
-        res.json({ success: true, message: "Співробітника успішно оновлено", data: updatedEmployee });
+        res.json({
+            success: true,
+            message: "Співробітника успішно оновлено",
+            data: updatedEmployee
+        });
     } catch (error) {
         console.log(error);
         res.json({ success: false, message: "Помилка сервера" });

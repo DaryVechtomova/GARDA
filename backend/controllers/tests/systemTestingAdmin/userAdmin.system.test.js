@@ -84,10 +84,7 @@ beforeEach(async () => {
     regularUserId = regularUser._id;
 });
 
-// =========================================
-// === Системні Тести для User Controller (Admin) ===
-// =========================================
-
+// Системні Тести для User Controller (Admin)
 describe('Системне тестування: Адміністратор - Управління користувачами', () => {
 
     // --- Сценарій: Повний цикл життя співробітника (FR02, FR03, FR04, FR05, FR01) ---
@@ -297,27 +294,6 @@ describe('Системне тестування: Адміністратор - У
             expect(response.body.success).toBe(false);
             expect(response.body.message).toBe("Невірний старий пароль");
         });
-
-        // test('Крок 5 (FR01): Вхід з новим паролем', async () => {
-        //     // Спочатку переконаємося, що пароль дійсно змінився
-        //     const admin = await User.findById(adminUserId);
-        //     const isPasswordCorrect = await bcrypt.compare(passwordChange.newPassword, admin.password);
-        //     console.log(passwordChange.newPassword, admin.password);
-        //     expect(isPasswordCorrect).toBe(true);
-
-        //     const response = await request(app)
-        //         .post('/api/user/login')
-        //         .send({
-        //             email: 'sysadmin@test.com',
-        //             password: passwordChange.newPassword
-        //         });
-
-        //     console.log('Login response:', response.body);
-
-        //     expect(response.statusCode).toBe(200);
-        //     expect(response.body.success).toBe(true);
-        //     expect(response.body.token).toBeDefined();
-        // });
     });
 
     // --- Сценарій: Перевірка прав доступу (NFR03) ---
@@ -462,7 +438,7 @@ describe('Системне тестування: Адміністратор - У
         });
     });
 
-    // --- НОВИЙ Сценарій: Невдале Оновлення Профілю Адміна (FR07, NFR04) ---
+    // Невдале Оновлення Профілю Адміна (FR07, NFR04)
     describe('Сценарій: Невдале оновлення профілю адміна', () => {
         test('Крок 1 (NFR04): Спроба оновити без обов\'язкового поля (secondName)', async () => {
             const invalidData = {
@@ -492,7 +468,7 @@ describe('Системне тестування: Адміністратор - У
         });
     });
 
-    // --- НОВИЙ Сценарій: Невдала Зміна Паролю (FR08, NFR04) ---
+    // Невдала Зміна Паролю (FR08, NFR04)
     describe('Сценарій: Невдала зміна паролю', () => {
         test('Крок 1 (NFR04): Новий пароль закороткий', async () => {
             const response = await request(app)
@@ -522,53 +498,4 @@ describe('Системне тестування: Адміністратор - У
             expect(response.statusCode).toBe(401);
         });
     });
-
-    // // --- Сценарій: Перевірка відсутності пароля у відповідях (select('-password')) ---
-    // describe('Сценарій: Перевірка відсутності пароля у відповідях', () => {
-    //     test('Крок 1: listEmployees не повертає паролі', async () => {
-    //         const response = await request(app)
-    //             .get('/api/user/list-employees')
-    //             .set('Authorization', `Bearer ${adminToken}`);
-    //         expect(response.statusCode).toBe(200);
-    //         expect(response.body.data).toBeInstanceOf(Array);
-    //         if (response.body.data.length > 0) {
-    //             response.body.data.forEach(emp => {
-    //                 expect(emp.password).toBeUndefined();
-    //             });
-    //         }
-    //     });
-
-    //     test('Крок 2: /edit-employee/:id не повертає пароль', async () => {
-    //         const response = await request(app)
-    //             .get(`/api/user/edit-employee/${employeeId}`)
-    //             .set('Authorization', `Bearer ${adminToken}`);
-    //         expect(response.statusCode).toBe(200);
-    //         expect(response.body.success).toBe(true);
-    //         expect(response.body.data.password).toBeUndefined();
-    //     });
-
-    //     test('Крок 3: /details/:id не повертає пароль', async () => {
-    //         const response = await request(app)
-    //             .get(`/api/user/details/${employeeId}`)
-    //             .set('Authorization', `Bearer ${adminToken}`);
-    //         expect(response.statusCode).toBe(200);
-    //         expect(response.body.success).toBe(true);
-    //         expect(response.body.data.password).toBeUndefined();
-    //     });
-
-    //     test('Крок 4: updateAdminProfile не повертає пароль', async () => {
-    //         const profileUpdate = {
-    //             firstName: 'PassCheck', secondName: 'NoPass', middleName: 'N',
-    //             phoneNumber: '7777777777', birthDate: '1989-09-09'
-    //         };
-    //         const response = await request(app)
-    //             .put('/api/user/update-profile')
-    //             .set('Authorization', `Bearer ${adminToken}`)
-    //             .send(profileUpdate);
-    //         expect(response.statusCode).toBe(200);
-    //         expect(response.body.success).toBe(true);
-    //         expect(response.body.updatedUser.password).toBeUndefined();
-    //     });
-    // });
-
 });

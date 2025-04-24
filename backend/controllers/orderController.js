@@ -264,6 +264,10 @@ const cancelOrder = async (req, res) => {
     const editor = req.user; // Отримуємо користувача, який скасовує замовлення
 
     try {
+        if (reason == "") {
+            return res.status(400).json({ success: false, message: "Будь ласка, введіть причину скасування замовлення" });
+        }
+
         const order = await orderModel.findById(orderId);
         if (!order) {
             return res.status(404).json({ success: false, message: "Замовлення не знайдено" });
