@@ -106,9 +106,7 @@ beforeEach(async () => {
     invoiceIdCompleted = invCompleted._id;
 });
 
-// =========================================
-// === Системні Тести для Invoice Controller (Admin) ===
-// =========================================
+// Системні Тести для Invoice Controller (Admin)
 
 describe('Системне тестування: Адміністратор - Управління накладними', () => {
 

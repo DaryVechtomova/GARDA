@@ -78,28 +78,26 @@ beforeEach(async () => {
     const orderNew = await Order.create({
         userId: new mongoose.Types.ObjectId(), orderNumber: 'SYS001', status: 'Нове замовлення',
         items: [{ productId: productId1, name: 'OrderProd 1', price: 100, size: 'S', image: 'i1.jpg', quantity: 1 }, { productId: productId2, name: 'OrderProd 2', price: 50, size: 'L', image: 'i2.jpg', quantity: 2 }],
-        amount: 100, deliveryMethod: 'Самовивіз', deliveryDetails: { firstName: 'FN1', secondName: 'LN1', middleName: 'M1', email: 'e1@t.c', phone: '+380111111111', city: 'Київ' }
+        amount: 100, deliveryMethod: 'Самовивіз', deliveryDetails: { firstName: 'FN1', lastName: 'LN1', middleName: 'M1', email: 'e1@t.c', phone: '+380111111111', city: 'Київ' }
     });
     orderIdNew = orderNew._id;
 
     const orderProcessing = await Order.create({
         userId: new mongoose.Types.ObjectId(), orderNumber: 'SYS002', status: 'В обробці',
         items: [{ productId: productId2, name: 'OrderProd 2', price: 50, size: 'L', image: 'i2.jpg', quantity: 2 }],
-        amount: 100, deliveryMethod: 'Нова Пошта', deliveryDetails: { firstName: 'FN2', secondName: 'LN2', middleName: 'M2', email: 'e2@t.c', phone: '+380222222222', region: 'R2', city: 'C2', departmentNumber: '2' }
+        amount: 100, deliveryMethod: 'Нова Пошта', deliveryDetails: { firstName: 'FN2', lastName: 'LN2', middleName: 'M2', email: 'e2@t.c', phone: '+380222222222', region: 'R2', city: 'C2', departmentNumber: '2' }
     });
     orderIdProcessing = orderProcessing._id;
 
     const orderDelivered = await Order.create({
         userId: new mongoose.Types.ObjectId(), orderNumber: 'SYS003', status: 'Доставлено',
         items: [{ productId: productId1, name: 'OrderProd 1', price: 100, size: 'M', image: 'i1.jpg', quantity: 1 }],
-        amount: 100, deliveryMethod: 'Укрпошта', deliveryDetails: { firstName: 'FN3', secondName: 'LN3', middleName: 'M3', email: 'e3@t.c', phone: '+380333333333', region: 'R3', city: 'C3', postalCode: '12345', street: 'S3', houseNumber: '3' }
+        amount: 100, deliveryMethod: 'Укрпошта', deliveryDetails: { firstName: 'FN3', lastName: 'LN3', middleName: 'M3', email: 'e3@t.c', phone: '+380333333333', region: 'R3', city: 'C3', postalCode: '12345', street: 'S3', houseNumber: '3' }
     });
     orderIdDelivered = orderDelivered._id;
 });
 
-// =========================================
-// === Системні Тести для Order Controller (Admin) ===
-// =========================================
+// Системні Тести для Order Controller (Admin)
 
 describe('Системне тестування: Адміністратор - Управління замовленнями', () => {
 
