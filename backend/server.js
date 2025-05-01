@@ -12,7 +12,11 @@
 // import reviewRouter from './routes/reviewRoute.js';
 // import favouriteRouter from './routes/favouriteRoute.js'
 
-require('dotenv/config.js');
+// Завантажувати dotenv тільки якщо середовище НЕ production
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv/config.js');
+    console.log("!!! Завантажено .env файл (режим розробки) !!!"); // Додаємо лог для ясності
+  }
 const express = require('express');
 const cors = require('cors');
 
