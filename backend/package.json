@@ -5,8 +5,7 @@
   "scripts": {
     "test": "cross-env jest",
     "server": "nodemon server.js",  
-    "start": "node server.js",
-    "build": "npm rebuild bcrypt && npm install"      
+    "start": "node server.js"  
   },
   "author": "",
   "license": "ISC",
