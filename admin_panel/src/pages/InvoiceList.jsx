@@ -10,6 +10,7 @@ function InvoiceList() {
     const [invoices, setInvoices] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
+    const [accessDenied, setAccessDenied] = useState(false);
 
     const fetchInvoices = async () => {
         const token = localStorage.getItem('adminToken');
@@ -18,7 +19,11 @@ function InvoiceList() {
             return;
         }
         try {
-            const response = await axios.get(`${url}/api/invoices/list-invoice`);
+            const response = await axios.get(`${url}/api/invoices/list-invoice`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             if (response.data.success) {
                 const sortedInvoices = response.data.data.sort((a, b) => new Date(b.invoiceDate) - new Date(a.invoiceDate));
                 if (response.data.data.length === 0) {
@@ -31,7 +36,12 @@ function InvoiceList() {
                 toast.error("Помилка завантаження накладних");
             }
         } catch (error) {
-            toast.error("Не вдалося отримати накладні");
+            if (error.response && error.response.status === 403) {
+                // Якщо сервер повернув 403 - доступ заборонено
+                setAccessDenied(true);
+            } else {
+                toast.error("Не вдалося отримати накладні");
+            }
         }
     };
 
@@ -87,6 +97,26 @@ function InvoiceList() {
     }, [statusFilter]);
 
     const filteredAndSearchedInvoices = searchInvoices(filterInvoices(invoices));
+
+    if (accessDenied) {
+        return (
+            <div className="flex flex-col items-center justify-center h-screen">
+                <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-md">
+                    <h2 className="text-2xl font-bold text-[#99120d] mb-4">Доступ заборонено</h2>
+                    <p className="text-gray-700 mb-6">
+                        Ви не маєте необхідних прав для перегляду цієї сторінки.
+                        Будь ласка, зверніться до адміністратора.
+                    </p>
+                    <button
+                        onClick={() => window.location.href = '/'}
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                    >
+                        На головну
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <section className="p-10 w-full bg-primary/20">

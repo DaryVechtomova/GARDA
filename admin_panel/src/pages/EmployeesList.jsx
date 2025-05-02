@@ -13,7 +13,7 @@ function EmployeesList() {
     const [filterRole, setFilterRole] = useState('All');
     const [filterStatus, setFilterStatus] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
-
+    const [accessDenied, setAccessDenied] = useState(false);
     // Отримання списку співробітників
     const fetchEmployees = async () => {
         const token = localStorage.getItem('adminToken');
@@ -22,7 +22,11 @@ function EmployeesList() {
             return;
         }
         try {
-            const response = await axios.get(`${url}/api/user/list-employees`);
+            const response = await axios.get(`${url}/api/user/list-employees`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             if (response.data.success) {
                 if (response.data.data.length === 0) {
                     toast.info("Працівників ще немає");
@@ -34,7 +38,12 @@ function EmployeesList() {
                 toast.error("Помилка завантаження списку співробітників");
             }
         } catch (error) {
-            toast.error("Не вдалося отримати дані");
+            if (error.response && error.response.status === 403) {
+                // Якщо сервер повернув 403 - доступ заборонено
+                setAccessDenied(true);
+            } else {
+                toast.error("Не вдалося отримати дані");
+            }
         }
     };
 
@@ -107,6 +116,26 @@ function EmployeesList() {
     const sortedAndFilteredEmployees = searchEmployees(filterEmployees(employees)).sort((a, b) => {
         return b.isActive - a.isActive;
     });
+
+    if (accessDenied) {
+        return (
+            <div className="flex flex-col items-center justify-center h-screen">
+                <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-md">
+                    <h2 className="text-2xl font-bold text-[#99120d] mb-4">Доступ заборонено</h2>
+                    <p className="text-gray-700 mb-6">
+                        Ви не маєте необхідних прав для перегляду цієї сторінки.
+                        Будь ласка, зверніться до адміністратора.
+                    </p>
+                    <button
+                        onClick={() => window.location.href = '/'}
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                    >
+                        На головну
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <section className="p-10 w-full bg-primary/20">

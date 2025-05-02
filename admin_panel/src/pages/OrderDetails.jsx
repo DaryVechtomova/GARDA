@@ -373,7 +373,7 @@ const OrderDetails = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 print:grid-cols-2 print:gap-4 print:mb-4">
                     <div className="p-4 rounded-md border">
                         <h5 className="text-base font-semibold text-black mb-2">Інформація про клієнта</h5>
-                        <p className="text-sm mb-1"><span className="font-medium text-gray-700">Ім'я:</span> {order.deliveryDetails.firstName} {order.deliveryDetails.secondName}</p>
+                        <p className="text-sm mb-1"><span className="font-medium text-gray-700">Ім'я:</span> {order.deliveryDetails.secondName} {order.deliveryDetails.firstName} {order.deliveryDetails.middleName}</p>
                         <p className="text-sm"><span className="font-medium text-gray-700">Телефон:</span> {order.deliveryDetails.phone}</p>
                         {/* Додати Email, якщо є */}
                         <p className="text-sm"><span className="font-medium text-gray-700">Email:</span> {order.userEmail || 'Не вказано'}</p>
@@ -383,8 +383,10 @@ const OrderDetails = () => {
                         <p className="text-sm mb-1"><span className="font-medium text-gray-700">Спосіб:</span> {order.deliveryMethod}</p>
                         <div className="text-sm">
                             <span className="font-medium text-gray-700">Адреса:</span>{' '}
-                            {order.deliveryMethod === "Нова Пошта" && `${order.deliveryDetails.region}, ${order.deliveryDetails.city}, Відділення №${order.deliveryDetails.warehouse}`}
-                            {order.deliveryMethod === "Укрпошта" && `${order.deliveryDetails.postalCode}, ${order.deliveryDetails.region}, ${order.deliveryDetails.city}, ${order.deliveryDetails.street}, ${order.deliveryDetails.houseNumber}${order.deliveryDetails.apartment ? ', кв. ' + order.deliveryDetails.apartment : ''}`}
+                            {order.deliveryMethod === "Нова Пошта" && `${order.deliveryDetails.region}, ${order.deliveryDetails.city}, Відділення №${order.deliveryDetails.departmentNumber}`}
+
+                            {order.deliveryMethod === "Укрпошта" && `${order.deliveryDetails.region}, ${order.deliveryDetails.city}, ${order.deliveryDetails.street} ${order.deliveryDetails.houseNumber}${order.deliveryDetails.apartment ? ', кв. ' + order.deliveryDetails.apartment : ''}, поштовий індекс: ${order.deliveryDetails.postalCode}`}
+
                             {order.deliveryMethod === "Самовивіз" && `м. ${order.deliveryDetails.city}`}
                         </div>
                         {/* Додати ТТН, якщо є */}

@@ -282,19 +282,21 @@ const EditSupplier = () => {
                         </div>
 
                         {/* Дата завершення співпраці (редагована, якщо статус не 'завершений') */}
-                        <div className="flex flex-col gap-y-1">
-                            <label htmlFor="cooperationEndDate" className='text-sm font-medium text-gray-600'>Дата завершення співпраці</label>
-                            <input
-                                id="cooperationEndDate"
-                                onChange={onChangeHandler}
-                                value={data.cooperationEndDate} // Використовуємо форматовану дату
-                                name="cooperationEndDate"
-                                type="date"
-                                min={data.cooperationStartDate} // Мінімальна дата - дата початку
-                                disabled={isFormDisabled}
-                                className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out disabled:bg-gray-100 disabled:cursor-not-allowed"
-                            />
-                        </div>
+                        {data.status !== "активний" && (
+                            <div className="flex flex-col gap-y-1">
+                                <label htmlFor="cooperationEndDate" className='text-sm font-medium text-gray-600'>Дата завершення співпраці</label>
+                                <input
+                                    id="cooperationEndDate"
+                                    onChange={onChangeHandler}
+                                    value={data.cooperationEndDate}
+                                    name="cooperationEndDate"
+                                    type="date"
+                                    min={data.cooperationStartDate}
+                                    disabled={isFormDisabled}
+                                    className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                />
+                            </div>
+                        )}
 
                         {/* Тип продукції */}
                         <div className="flex flex-col gap-y-1">

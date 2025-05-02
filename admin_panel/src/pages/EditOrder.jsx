@@ -12,6 +12,7 @@ const EditOrder = () => {
     const [loading, setLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [editReason, setEditReason] = useState("");
+    const [customReason, setCustomReason] = useState("");
     const [products, setProducts] = useState([]);
     const [availableQuantities, setAvailableQuantities] = useState({});
     const [itemQuantityErrors, setItemQuantityErrors] = useState({}); // Стан для помилок кількості в таблиці
@@ -33,9 +34,26 @@ const EditOrder = () => {
         "Інша причина" // Можливо, додати поле для коментаря, якщо обрано "Інша"
     ];
 
+    const isOtherReasonSelected = editReason === "Інша причина";
+
+    const handleEditReasonChange = (e) => {
+        setEditReason(e.target.value);
+        if (e.target.value !== "Інша причина") {
+            setCustomReason(""); // Clear custom reason when switching to another option
+        }
+    };
+
+    const getFinalEditReason = () => {
+        return isOtherReasonSelected && customReason.trim()
+            ? `Інша причина: ${customReason.trim()}`
+            : editReason;
+    };
+
     // --- Допоміжні функції ---
     const calculateDiscountedPrice = (price = 0, discount = 0) => {
-        return discount > 0 ? price * (100 - discount) / 100 : price;
+        const numericPrice = Number(price) || 0;
+        const numericDiscount = Number(discount) || 0;
+        return numericDiscount > 0 ? numericPrice * (100 - numericDiscount) / 100 : numericPrice;
     };
 
     // Розрахунок суми (винесено в useCallback)
@@ -186,55 +204,110 @@ const EditOrder = () => {
 
     // --- Додавання товару до замовлення ---
     const addProduct = () => {
-        if (!selectedProduct || !selectedSize) { /* ... валідація ... */ return; }
-        const quantityToAdd = parseInt(selectedQuantity, 10);
-        if (isNaN(quantityToAdd) || quantityToAdd <= 0) { /* ... валідація ... */ return; }
+        // Валідація вибору товару
+        if (!selectedProduct) {
+            toast.error("Будь ласка, оберіть товар");
+            return;
+        }
 
+        // Валідація вибору розміру
+        if (!selectedSize) {
+            toast.error("Будь ласка, оберіть розмір");
+            return;
+        }
+
+        // Валідація кількості
+        const quantityToAdd = parseInt(selectedQuantity, 10);
+        if (isNaN(quantityToAdd) || quantityToAdd <= 0) {
+            toast.error("Будь ласка, введіть коректну кількість (більше 0)");
+            return;
+        }
+
+        // Перевірка наявності товару на складі
         const availableQty = getSelectedAvailableQuantity();
-        if (quantityToAdd > availableQty) { /* ... перевірка стоку ... */ return; }
+        if (quantityToAdd > availableQty) {
+            toast.error(`На складі доступно лише ${availableQty} шт. цього товару`);
+            setAddStockError(`На складі доступно лише ${availableQty} шт.`);
+            return;
+        }
+
+        // Скидаємо помилку про сток, якщо вона була
         setAddStockError("");
 
+        // Пошук інформації про товар
+        const productDetails = products.find(p => p._id === selectedProduct);
+        if (!productDetails) {
+            toast.error("Не вдалося знайти інформацію про обраний товар");
+            return;
+        }
+
+        // Пошук вже існуючого товару в замовленні
         const existingItemIndex = order.items.findIndex(item =>
             !item.removed && item.productId === selectedProduct && item.size === selectedSize
         );
-        const productDetails = products.find(p => p._id === selectedProduct);
-        if (!productDetails) { /* ... перевірка ... */ return; }
 
         let updatedItems;
         if (existingItemIndex > -1) {
+            // Якщо товар вже є в замовленні - оновлюємо кількість
             updatedItems = [...order.items];
             const newQuantity = updatedItems[existingItemIndex].quantity + quantityToAdd;
             const itemAvailable = getAvailableQuantity(selectedProduct, selectedSize);
+
+            // Додаткова перевірка стоку після додавання
             if (newQuantity > itemAvailable) {
                 toast.error(`Загальна кількість (${newQuantity}) перевищує залишок (${itemAvailable}).`);
-                setItemQuantityErrors(prev => ({ ...prev, [`${selectedProduct}-${selectedSize}`]: `На складі: ${itemAvailable}` }));
-                return; // Не оновлюємо
-            } else {
-                // Видаляємо помилку, якщо вона була для цього товару
-                setItemQuantityErrors(prev => {
-                    const newErrors = { ...prev };
-                    delete newErrors[`${selectedProduct}-${selectedSize}`];
-                    return newErrors;
-                });
+                setItemQuantityErrors(prev => ({
+                    ...prev,
+                    [`${selectedProduct}-${selectedSize}`]: `На складі: ${itemAvailable}`
+                }));
+                return;
             }
+
+            // Видаляємо помилку, якщо вона була для цього товару
+            setItemQuantityErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[`${selectedProduct}-${selectedSize}`];
+                return newErrors;
+            });
+
             updatedItems[existingItemIndex].quantity = newQuantity;
-            toast.success(`Кількість "${productDetails.name} (${selectedSize})" оновлено.`);
+            toast.success(`Кількість "${productDetails.name} (${selectedSize})" оновлено до ${newQuantity} шт.`);
         } else {
-            const newItem = { /* ... створення нового товару ... */ };
+            // Якщо товару ще немає в замовленні - додаємо новий
+            const newItem = {
+                productId: selectedProduct,
+                name: productDetails.name,
+                price: productDetails.price,
+                discount: productDetails.discount || 0,
+                size: selectedSize,
+                quantity: quantityToAdd,
+                removed: false,
+                discountedPrice: calculateDiscountedPrice(productDetails.price, productDetails.discount),
+                image: productDetails.images?.[0] || null
+            };
+
             updatedItems = [...order.items, newItem];
-            // Перевіряємо сток для нового товару (хоча вже перевіряли)
+
+            // Додаткова перевірка стоку для нового товару
             if (newItem.quantity > availableQty) {
-                setItemQuantityErrors(prev => ({ ...prev, [`${newItem.productId}-${newItem.size}`]: `На складі: ${availableQty}` }));
+                setItemQuantityErrors(prev => ({
+                    ...prev,
+                    [`${newItem.productId}-${newItem.size}`]: `На складі: ${availableQty}`
+                }));
             }
-            toast.success(`Товар "${newItem.name} (${newItem.size})" додано.`);
+            toast.success(`Товар "${newItem.name} (${newItem.size})" додано у кількості ${quantityToAdd} шт.`);
         }
 
-        setOrder(prev => ({ ...prev, items: updatedItems, amount: calculateTotal(updatedItems) }));
-        // Скидання полів додавання
+        // Оновлюємо замовлення з новим списком товарів та перерахованою сумою
+        setOrder(prev => ({
+            ...prev,
+            items: updatedItems,
+            amount: calculateTotal(updatedItems)
+        }));
+
+        // Скидання полів додавання (крім товару, щоб можна було додати інший розмір)
         setSelectedSize("");
         setSelectedQuantity(1);
-        setAddStockError("");
-        // Можна не скидати selectedProduct для зручності додавання різних розмірів
     };
 
 
@@ -319,7 +392,11 @@ const EditOrder = () => {
 
         updatedItems[index] = { ...item, quantity: newQuantity };
         setOrder(prev => ({ ...prev, items: updatedItems }));
-        recalculateTotalAmount(updatedItems); // Перераховуємо суму
+        setOrder(prev => ({
+            ...prev,
+            items: updatedItems,
+            amount: calculateTotal(updatedItems) // Використовуємо вже існуючу функцію calculateTotal
+        }));
 
         // Якщо значення було некоректним і виправлено на 1, оновлюємо поле вводу
         // Це відбувається асинхронно, тому може не спрацювати ідеально без додаткових ефектів
@@ -360,6 +437,12 @@ const EditOrder = () => {
         e.preventDefault();
         if (isSaving) return; // Запобігання подвійному кліку
 
+        const finalReason = getFinalEditReason();
+        if (!finalReason) {
+            toast.error("Будь ласка, вкажіть причину редагування");
+            return;
+        }
+
         // Фінальна перевірка залишків для всіх АКТИВНИХ товарів
         let canSubmit = true;
         for (const item of order.items) {
@@ -386,7 +469,7 @@ const EditOrder = () => {
                     .filter(item => !item.removed)
                     .map(({ discountedPrice, ...rest }) => rest), // Видаляємо тимчасове поле discountedPrice
                 amount: finalAmount,
-                editReason: editReason,
+                editReason: finalReason,
                 // Передаємо також інші важливі поля, якщо вони є і не мають змінюватись
                 // наприклад: status, payment, address, userId, deliveryDetails etc.
                 ...(order.status && { status: order.status }),
@@ -464,7 +547,7 @@ const EditOrder = () => {
                                     <option value="" disabled>-- Оберіть товар --</option>
                                     {products.map(product => (
                                         <option key={product._id} value={product._id}>
-                                            {product.name} ({product.price.toFixed(2)} грн{product.discount ? ` / -${product.discount}%` : ''})
+                                            {product.name} ({(product.price || 0).toFixed(2)} грн{product.discount ? ` / -${product.discount}%` : ''})
                                         </option>
                                     ))}
                                 </select>
@@ -603,8 +686,8 @@ const EditOrder = () => {
                                                     <td className="p-2 border text-right align-top">
                                                         {item.discount > 0 ? (
                                                             <>
-                                                                <span className="text-xs line-through text-gray-500">{item.price.toFixed(2)}</span><br />
-                                                                <span className="font-medium">{item.discountedPrice.toFixed(2)} грн</span><br />
+                                                                <span className="text-xs line-through text-gray-500">{(item.price || 0).toFixed(2)}</span><br />
+                                                                <span className="font-medium">{(item.discountedPrice || 0).toFixed(2)} грн</span><br />
                                                                 <span className="text-xs text-[#7a0e0a]">(-{item.discount}%)</span>
                                                             </>
                                                         ) : (
@@ -612,7 +695,7 @@ const EditOrder = () => {
                                                         )}
                                                     </td>
                                                     <td className="p-2 border text-right align-top font-medium">
-                                                        {finalItemPrice.toFixed(2)} грн
+                                                        {(finalItemPrice || 0).toFixed(2)} грн
                                                     </td>
                                                     <td className="p-2 border text-center align-middle">
                                                         {item.removed ? (
@@ -676,6 +759,21 @@ const EditOrder = () => {
                                 </option>
                             ))}
                         </select>
+                        {isOtherReasonSelected && (
+                            <div>
+                                <label htmlFor="customReasonInput" className="block mb-1 mt-2 text-sm font-medium text-gray-600">
+                                    Вкажіть причину <span className="text-[#99120d]">*</span>
+                                </label>
+                                <textarea
+                                    id="customReasonInput"
+                                    value={customReason}
+                                    onChange={(e) => setCustomReason(e.target.value)}
+                                    className="w-full border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 min-h-[80px] transition duration-150 ease-in-out bg-white text-sm"
+                                    placeholder="Введіть причину редагування..."
+                                    required={isOtherReasonSelected}
+                                />
+                            </div>
+                        )}
                         {/* Можна додати textarea, якщо обрано "Інша причина" */}
                     </fieldset>
 

@@ -35,23 +35,23 @@ const LoginPopup = ({ setShowLogin }) => {
     const onLogin = async (event) => {
         event.preventDefault();
         let newUrl = url;
-    
+
         if (state === "Login") {
             newUrl += "/api/user/login";
         } else {
             newUrl += "/api/user/register";
         }
-    
+
         try {
             const response = await axios.post(newUrl, data);
-    
+
             if (response.data.success) {
                 toast.success(state === "Login" ? "Успішний вхід!" : "Реєстрація пройшла успішно!");
                 const token = response.data.token;
                 console.log(response.data.token);
                 const role = response.data.role;
                 setShowLogin(false);
-                
+
                 // Затримка для toast, перш ніж перейти
                 setTimeout(() => {
                     if (role === "користувач") {
@@ -83,9 +83,10 @@ const LoginPopup = ({ setShowLogin }) => {
     };
 
     return (
-        <div className='absolute h-full w-full bg-black/40 z-50 flexCenter'>
+        // <div className='absolute h-full w-full bg-black/40 z-50 flexCenter'>
+        <div className='fixed z-50 flexCenter h-full w-full bg-black/40'>
             <ToastContainer />
-            <form onSubmit={onLogin} className='bg-white w-[366px] p-7 rounded-xl shadow-md'>
+            <form onSubmit={onLogin} className='bg-white w-[366px] p-7 rounded-xl shadow-md relative z-50'>
                 <div className='flex justify-between items-baseline'>
                     <h4 className='bold-28'>{state === "Sign Up" ? "Реєстрація" : "Вхід"}</h4>
                     <FaXmark onClick={() => setShowLogin(false)} className='medium-20 text-slate-900/70 cursor-pointer' />
@@ -166,7 +167,7 @@ const LoginPopup = ({ setShowLogin }) => {
                     <p className='text-sm'>Не маєте акаунту? <span onClick={() => setState("Sign Up")} className='text-[#54a5d9] cursor-pointer'>Зареєструватися</span></p>
                 )}
             </form>
-        </div>
+        </div >
     );
 };
 
