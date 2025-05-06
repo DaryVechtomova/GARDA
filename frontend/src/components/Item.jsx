@@ -39,7 +39,7 @@ const Item = ({ product }) => {
                     ◀
                 </button>
                 <Link to={`/product/${product._id}`}>
-                    <img
+                <img
                         src={url+"/images/"+product.images[currentImageIndex]}
                         alt={product.name}
                         style={{
