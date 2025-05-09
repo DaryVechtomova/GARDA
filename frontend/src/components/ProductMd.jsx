@@ -1,9 +1,8 @@
 import React, { useState, useContext, useEffect } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa6"; // Використовуємо FaHeart, якщо потрібно
-import { FaHeart } from "react-icons/fa"; // Додайте імпорт для серця
 import { ShopContext } from "../context/ShopContext";
 import { useNavigate } from "react-router-dom";
-import ArrowIcon from '../assets/design/Arrow.png'; // Переконайтесь, що шлях правильний
+import ArrowIcon from '../assets/design/Arrow.png'; 
 import ProductDescription from '../components/ProductDescription';
 import ProductComments  from '../components/ProductComments';
 
