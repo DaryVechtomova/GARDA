@@ -108,7 +108,7 @@ function Orders() {
         filtered = [...filtered].sort((a, b) => {
             const dateA = new Date(a.date);
             const dateB = new Date(b.date);
-            return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+            return sortOrder === "DESC" ? dateA - dateB : dateB - dateA;
         });
 
         setFilteredOrders(filtered);

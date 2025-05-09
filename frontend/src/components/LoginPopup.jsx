@@ -62,7 +62,7 @@ const LoginPopup = ({ setShowLogin }) => {
                         localStorage.setItem("userMiddleName", response.data.middleName || '');
                         window.dispatchEvent(new Event('storage'));
                         navigate("/profile");
-                    } else if (role === "адміністратор" || role === "комірник") {
+                    } else if (role === "адміністратор" || role === "комірник" || role === "менеджер з продажу") {
                         console.log("admin");
                         const adminPanelUrl = `${adminBaseUrl}/admin_panel?token=${token}`;
                         console.log("Redirecting to:", adminPanelUrl);

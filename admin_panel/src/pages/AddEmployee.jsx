@@ -187,6 +187,7 @@ const AddEmployee = () => {
                                     <option value="" disabled>-- Оберіть роль --</option>
                                     <option value="комірник">Комірник</option>
                                     <option value="адміністратор">Адміністратор</option>
+                                    <option value="менеджер з продажу">Менеджер з продажу</option>
                                     {/* Додайте інші ролі, якщо потрібно */}
                                 </select>
                             </div>

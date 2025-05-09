@@ -16,7 +16,7 @@
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv/config.js');
     console.log("!!! Завантажено .env файл (режим розробки) !!!"); // Додаємо лог для ясності
-  }
+}
 const express = require('express');
 const cors = require('cors');
 
@@ -29,6 +29,7 @@ const supplierRouter = require('./routes/supplierRoute.js');
 const invoiceRouter = require('./routes/invoiceRoute.js');
 const reviewRouter = require('./routes/reviewRoute.js');
 const favouriteRouter = require('./routes/favouriteRoute.js');
+const adminStatsRouter = require('./routes/adminStatsRoute.js');
 const { authMiddleware, adminMiddleware } = require('./middleware/auth.js');
 
 //app config
@@ -57,6 +58,7 @@ app.use("/api/suppliers", supplierRouter)
 app.use("/api/invoices", invoiceRouter)
 app.use("/api/review", reviewRouter)
 app.use("/api/favourite", favouriteRouter)
+app.use("/api/admin-stats", adminStatsRouter)
 
 // Маршрут для адмін-панелі
 // app.get("/admin/dashboard", authMiddleware, adminMiddleware, (req, res) => {

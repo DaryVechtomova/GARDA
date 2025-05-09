@@ -223,6 +223,7 @@ const EditEmployee = () => {
                                     <option value="користувач">Користувач</option>
                                     <option value="адміністратор">Адміністратор</option>
                                     <option value="комірник">Комірник</option>
+                                    <option value="менеджер з продажу">Менеджер з продажу</option>
                                 </select>
                             </div>
 

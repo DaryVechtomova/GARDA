@@ -65,7 +65,7 @@ const authMiddleware = async (req, res, next) => {
 // Middleware для перевірки ролі (адміністратор або комірник)
 // Цей middleware тепер працюватиме, бо authMiddleware встановлює req.user
 const adminMiddleware = (req, res, next) => {
-    const allowedRoles = ["адміністратор", "комірник"];
+    const allowedRoles = ["адміністратор", "комірник", "менеджер з продажу"];
 
     // Перевіряємо, чи req.user існує (має бути встановлено authMiddleware)
     if (!req.user || !req.user.role) {

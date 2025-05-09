@@ -150,6 +150,7 @@ function EmployeesList() {
                         <option value="All">Всі ролі</option>
                         <option value="адміністратор">Адміністратор</option>
                         <option value="комірник">Комірник</option>
+                        <option value="менеджер з продажу">Менеджер з продажу</option>
                     </select>
                     <select
                         onChange={(e) => setFilterStatus(e.target.value)}

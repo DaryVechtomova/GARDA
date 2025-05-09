@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
     cartData: { type: Object, default: {} },
     favourites: { type: Object, default: {} },
     // for employess
-    role: { type: String, enum: ["користувач", "адміністратор", "комірник"], default: "користувач" },
+    role: { type: String, enum: ["користувач", "адміністратор", "комірник", "менеджер з продажу"], default: "користувач" },
     hireDate: { type: Date, default: Date.now }, // Дата прийому на роботу
     fireDate: { type: Date }, // Дата звільнення (null, якщо ще працює)
     isActive: { type: Boolean, default: true } // Визначає, чи співробітник ще працює

@@ -27,6 +27,7 @@ import EditEmployee from "./pages/EditEmployee";
 import EmployeeDetails from "./pages/EmployeeDetails";
 import ProfilePage from './pages/ProfilePage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
+import DashboardPage from "./pages/DashboardPage";
 
 
 const frontendBaseUrl = import.meta.env.VITE_FRONTEND_BASE_URL || 'http://localhost:5173/GARDA';
@@ -95,11 +96,8 @@ const AuthWrapper = ({ children }) => {
     if (urlToken) {
       console.log("AuthWrapper: Знайдено токен в URL. Зберігаємо...");
       currentToken = urlToken;
-      localStorage.setItem("adminToken", currentToken); // Зберігаємо в localStorage адмінки
-      // Очищуємо URL від токена
-      // Використовуємо navigate для зміни URL без перезавантаження, якщо це можливо
-      // navigate(location.pathname, { replace: true });
-      // Або надійніший спосіб для повного очищення:
+      localStorage.setItem("adminToken", currentToken);
+      localStorage.removeItem("adminUserData");
       window.history.replaceState({}, document.title, location.pathname);
     }
 
@@ -127,7 +125,7 @@ const AuthWrapper = ({ children }) => {
 
       console.log("AuthWrapper: Декодована роль:", role);
 
-      if (role === "адміністратор" || role === "комірник") {
+      if (role === "адміністратор" || role === "комірник" || role === "менеджер з продажу") {
         // Роль підходить
         console.log("AuthWrapper: Авторизація успішна.");
         setIsAuthorized(true);
@@ -237,7 +235,7 @@ const AdminLayout = () => {
         <main className="ml-[16%] flex-grow overflow-auto print:ml-0">
           <div>
             <Routes>
-              <Route index element={<ProductList />} />
+              <Route index element={<DashboardPage />} />
               <Route path="add-product" element={<AddProduct />} />
               <Route path="list-product" element={<ProductList />} />
               <Route path="orders" element={<Orders />} />
