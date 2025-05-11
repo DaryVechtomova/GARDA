@@ -111,9 +111,19 @@ const ProductMd = ({ product }) => {
         const sizeToAdd = (product.sizes && product.sizes.length > 0) ? selectedSize : "N/A";
 
         addToCart(product._id, sizeToAdd); // Викликаємо addToCart з ID товару ТА РОЗМІРОМ
-       toast.success(`${product.name} додано до кошика!`); // Можна замінити на toast сповіщення
+        toast.success(`${product.name} додано до кошика!`); // Можна замінити на toast сповіщення
     };
-   
+
+
+
+    // URL віртуальної примірочної (можна винести в конфігураційний файл або .env)
+    const fittingRoomUrl = "http://localhost:5175";
+    const handleTryOn = (event) => {
+        event.preventDefault();
+        window.open(fittingRoomUrl, '_blank');
+    };
+
+
 
     const handleRemoveFromCart = (event) => { event.stopPropagation(); removeFromCart(product._id); }
     const handleAddToCartWrapper = (event) => { // Перейменував, щоб уникнути конфлікту імен, якщо addToCart з контексту використовується напряму
@@ -293,17 +303,29 @@ const ProductMd = ({ product }) => {
                                 if (availableSizes.length > 0) {
                                     // Якщо є доступні розміри, показуємо кнопки
                                     return (
-                                        <div className="size-options-text flex flex-wrap gap-3 max-w-xs sm:max-w-none"> {/* Ваші класи */}
+                                        <div className="size-options-text flex flex-wrap gap-2 sm:gap-3 max-w-full"> {/* Ваші класи */}
                                             {availableSizes.map((sizeObj) => (
                                                 <button
                                                     key={sizeObj.size}
                                                     onClick={() => setSelectedSize(sizeObj.size)}
                                                     className={`
-                                                        min-w-[36px] px-3 py-1.5 border rounded-md text-xs sm:px-4 sm:py-2 sm:text-sm font-medium transition-all duration-150 ease-in-out
-                                                        focus:outline-none focus:ring-2 focus:ring-offset-1
+                                                        min-w-[30px]      // Твоя мінімальна ширина
+                                                        px-1 py-1.5       // Твої менші паддінги для базового розміру
+                                                        border 
+                                                        rounded-md 
+                                                        text-xs           // Твій розмір тексту для базового розміру
+                                                        
+                                                        // Стилі для sm екранів (можна також зменшити, якщо потрібно)
+                                                        sm:min-w-[30px]   // Трохи більша мін. ширина для sm
+                                                        sm:px-2 sm:py-1   // Трохи більші паддінги для sm
+                                                        sm:text-xs        // Можна залишити text-xs або повернути sm:text-sm, якщо вміщається
+
+                                                        font-medium 
+                                                        transition-all duration-150 ease-in-out
+                                                    
                                                         ${selectedSize === sizeObj.size
-                                                            ? 'bg-slate-800 text-white border-slate-800 focus:ring-slate-500'
-                                                            : 'bg-white text-slate-700 border-slate-300 hover:border-slate-500 hover:bg-slate-50 focus:ring-blue-500'}
+                                                            ? 'bg-slate-800 text-white  '
+                                                            : 'bg-white text-slate-700  hover:border-slate-500 hover:bg-slate-50 '}
                                                         hover:shadow-sm 
                                                     `}
                                                     title={`Обрати розмір ${sizeObj.size}`}
@@ -318,7 +340,7 @@ const ProductMd = ({ product }) => {
                                     return (
                                         // Повідомлення виводиться всередині контейнера size-options-text
                                         // щоб зберегти відступи, якщо вони там були
-                                        <div className="size-options-text">
+                                        <div className="size-options-text flex flex-wrap gap-2 sm:gap-3 max-w-full">
                                             <p className="text-sm text-red-600 font-medium">Немає в наявності</p> {/* Червоний колір і жирний шрифт */}
                                         </div>
                                     );
@@ -332,30 +354,39 @@ const ProductMd = ({ product }) => {
                     <button
                         className={`select-size-btn w-full bg-[#54A5D9] hover:bg-[#4389b9] text-white font-medium py-3 rounded-md transition-colors duration-200 text-base`}
                         onClick={handleAddToCartClick} // Викликаємо нашу нову функцію
-                     
+
                     >
                         Додати в кошик
                     </button>
                 </div>
                 <a href="#size-guide" className="size-guide-link">Таблиця розмірів</a> <div className="divider-line"></div>
-                <a href="#try-on" className="try-on-link">Спробувати на собі</a> <div className="divider-line"></div>
-                <div className="product-details-tabs">
-                    <button className={`tab-btn ${activeTab === 'description' ? 'active' : ''}`} onClick={() => setActiveTab('description')} > Про товар </button>
-                    <button className={`tab-btn ${activeTab === 'comments' ? 'active' : ''}`} onClick={() => setActiveTab('comments')} > Коментарі </button>
-                    <div className={`tab-underline ${activeTab === 'description' ? 'visible' : ''}`}></div>
+                <button
+                    onClick={handleTryOn}
+                    className="try-on-link" // Залишай свої класи для стилізації
+                >
+                    Спробувати на собі
+                </button>
+                <div className="divider-line">
+
                 </div>
-                {activeTab === 'description' && (<div className="product-description" style={scrollableStyle} > <ProductDescription product={product} /> </div>)}
-                {activeTab === 'comments' && (
-                    <div className="product-description" style={scrollableStyle}>
-                        {/* Передаємо productId та url */}
-                        <ProductComments productId={product?._id} />
-                        {/* Примітка: url має бути доступним тут, імовірно з ShopContext,
+            
+            <div className="product-details-tabs">
+                <button className={`tab-btn ${activeTab === 'description' ? 'active' : ''}`} onClick={() => setActiveTab('description')} > Про товар </button>
+                <button className={`tab-btn ${activeTab === 'comments' ? 'active' : ''}`} onClick={() => setActiveTab('comments')} > Коментарі </button>
+                <div className={`tab-underline ${activeTab === 'description' ? 'visible' : ''}`}></div>
+            </div>
+            {activeTab === 'description' && (<div className="product-description" style={scrollableStyle} > <ProductDescription product={product} /> </div>)}
+            {activeTab === 'comments' && (
+                <div className="product-description" style={scrollableStyle}>
+                    {/* Передаємо productId та url */}
+                    <ProductComments productId={product?._id} />
+                    {/* Примітка: url має бути доступним тут, імовірно з ShopContext,
              але ProductComments сам дістає його з контексту, тож явно передавати не обов'язково,
              якщо він правильно налаштований в ProductComments */}
-                    </div>
-                )}
-            </div> {/* --- End .product-info --- */}
-        </section>
+                </div>
+            )}
+        </div> {/* --- End .product-info --- */ }
+        </section >
     );
 };
 

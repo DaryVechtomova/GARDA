@@ -372,6 +372,10 @@ const ShopContextProvider = (props) => {
         }
     };
 
+    const clearCart = () => {
+        setCartItems({});
+        console.log("Кошик очищено на фронтенді (в ShopContext)");
+    };
 
 
     const contextValue = {
@@ -391,9 +395,10 @@ const ShopContextProvider = (props) => {
         removeFromWishlist,
         toggleWishlist,
         getTotalCartAmount_WithoutDiscount,
-        userProfileData,         
+        userProfileData,
         loadUserProfile,          // якщо треба перезавантажувати профіль
         updateUserProfileInContext, // <--- Для оновлення з Profile.jsx
+        clearCart,
     };
 
     // const value = {

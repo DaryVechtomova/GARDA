@@ -50,7 +50,11 @@ const orderSchema = new mongoose.Schema({
     status: { type: String, default: "Нове замовлення" },
     cancellationReason: { type: String },
     date: { type: Date, default: Date.now },
-    payment: { type: Boolean, default: false },
+    paymentMethod: { 
+    type: String, 
+    required: true, 
+    enum: ['payNow', 'payOnDelivery'] // Обмежуємо можливі значення
+}, 
     comment: { type: String },
 
     deliveryMethod: {

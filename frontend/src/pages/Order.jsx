@@ -15,6 +15,7 @@ const Order = () => {
     cartItems,
     userProfileData,
     url,
+    clearCart,
   } = useContext(ShopContext);
 
   const [data, setData] = useState({
@@ -34,6 +35,7 @@ const Order = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [paymentMethod, setPaymentMethod] = useState("payNow"); // 'payNow' або 'payOnDelivery'
 
   const onChangeHandler = (e) => {
     const { name, value } = e.target; // Виправлено тут
@@ -97,6 +99,7 @@ const Order = () => {
       userId: token, // Використовуємо токен як ID користувача
       items: orderItems,
       amount: getTotalCartAmount(),
+      paymentMethod: paymentMethod,
       deliveryMethod: data.deliveryMethod,
       deliveryDetails: {
         firstName: data.firstName,
@@ -119,16 +122,26 @@ const Order = () => {
           Authorization: `Bearer ${token}`
         }
       });
+
+
       if (response.data.success) {
-        const { session_url } = response.data;
-        if (response.data.success) {
-          const { session_url, orderNumber: receivedOrderNumber } = response.data; // Отримуємо orderNumber з відповіді
-          toast.success(`Ваше замовлення №${receivedOrderNumber} успішно оформлено!`); // Використовуємо отриманий номер
-          window.location.replace(session_url);
+        const { session_url, orderNumber: receivedOrderNumber, paymentRequired } = response.data;
+
+        toast.success(`Ваше замовлення №${receivedOrderNumber} успішно оформлено!`);
+        if (clearCart) { // Перевіряємо, чи функція існує
+          clearCart();
         }
-        window.location.replace(session_url);
+        if (paymentMethod === "payNow" && paymentRequired && session_url) {
+          window.location.replace(session_url); // Перехід на Stripe, якщо оплата зараз і є URL
+        } else {
+          // Для "оплати при отриманні" або якщо оплата не потрібна (наприклад, сума 0)
+          navigate("/"); // Перехід на головну сторінку
+          // Тут можна також очистити кошик на фронтенді, якщо бекенд цього не робить автоматично
+          // для замовлень з оплатою при отриманні.
+          // if (context && typeof context.clearCart === 'function') { context.clearCart(); }
+        }
       } else {
-        toast.error("Помилка при оформленні замовлення");
+        toast.error(response.data.message || "Помилка при оформленні замовлення");
       }
     } catch (error) {
       toast.error("Сталася помилка при відправці даних");
@@ -172,29 +185,30 @@ const Order = () => {
 
     // Перевірка для Самовивозу
     if (data.deliveryMethod === "Самовивіз") {
-      if (!["Київ", "Львів", "Харків"].includes(data.city)) {
-        newErrors.city =
-          "Самовивіз доступний тільки у Києві, Львові або Харкові";
+      if (!data.city) { // Перевіряємо, чи обрано місто
+        newErrors.city = "Будь ласка, оберіть місто для самовивозу";
+      } else if (!["Київ", "Львів", "Харків"].includes(data.city)) { // Додаткова перевірка, хоча select має обмежувати
+        newErrors.city = "Некоректне місто для самовивозу";
       }
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0; // Повертає true, якщо помилок немає
   };
-   // Функція для очищення номера телефону від форматування
+  // Функція для очищення номера телефону від форматування
   const sanitizePhoneNumber = (phoneNumber) => {
     if (!phoneNumber) return "";
     // Видаляємо всі символи, крім цифр та знаку "+" на початку
-    return phoneNumber.replace(/[^\d+]/g, ""); 
+    return phoneNumber.replace(/[^\d+]/g, "");
     // Або, якщо ти точно знаєш, що завжди буде "+38" і потім цифри, можна так:
     // return "+" + phoneNumber.replace(/\D/g, "").slice(2); // Видаляє все, крім цифр, і бере з 3-го символу (після "38")
     // Або ще простіше, якщо формат з профілю завжди "+38 (XXX) XXX-XX-XX":
     // return phoneNumber.replace(/[()\s-]/g, ""); // Видаляє тільки дужки, пробіли, дефіси
   };
-    // useEffect для автозаповнення форми даними з профілю, КОЛИ userProfileData завантажиться
+  // useEffect для автозаповнення форми даними з профілю, КОЛИ userProfileData завантажиться
   useEffect(() => {
     if (userProfileData) {
-   // Очищаємо номер телефону перед встановленням у стан
+      // Очищаємо номер телефону перед встановленням у стан
       const rawPhoneNumber = userProfileData.phoneNumber ? sanitizePhoneNumber(userProfileData.phoneNumber) : "";
 
       setData((prevData) => ({
@@ -423,15 +437,19 @@ const Order = () => {
           {/* Поля для Самовивозу */}
           {data.deliveryMethod === "Самовивіз" && (
             <>
-              <input
+              <select
                 onChange={onChangeHandler}
-                value={data.city}
-                type="text"
+                value={data.city} // Важливо, щоб value було тут
                 name="city"
-                placeholder="Місто (Київ, Львів, Харків)"
-                className="ring-1 ring-slate-900/15 p-1 pl-3 rounded-sm outline-none w-full mb-3"
-              />
-              {errors.city && <p className="text-red-500">{errors.city}</p>}
+                className="ring-1 ring-slate-900/15 p-1 pl-3 rounded-sm outline-none w-full mb-3 h-[38px]" // Додав h-[38px] для однакової висоти
+                required // Якщо місто обов'язкове для самовивозу
+              >
+                <option value="">Оберіть місто для самовивозу</option>
+                <option value="Київ">Київ</option>
+                <option value="Львів">Львів</option>
+                <option value="Харків">Харків</option>
+              </select>
+              {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
             </>
           )}
         </div>
@@ -469,11 +487,51 @@ const Order = () => {
                 </div>
               </div>
             </div>
+
+            {/* Вибір способу оплати */}
+            <div className="mt-6 pt-6 border-t border-slate-200">
+              <h4
+                style={{ fontFamily: "Montserrat Alternates" }}
+                className="font-semibold text-lg mb-3"
+              >
+                Спосіб оплати
+              </h4>
+              <div className="space-y-3">
+                <div>
+                  <label className="flex items-center gap-x-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="payNow"
+                      checked={paymentMethod === "payNow"}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Оплатити зараз (карткою онлайн)</span>
+                  </label>
+                </div>
+                <div>
+                  <label className="flex items-center gap-x-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="payOnDelivery"
+                      checked={paymentMethod === "payOnDelivery"}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Оплата при отриманні</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
             <button
               type="submit"
-              className="mt-6 w-full bg-[#54A5D9] hover:bg-[#4389b9] text-white font-medium py-3 rounded-md transition-colors duration-200 text-base"
+              className="mt-8 w-full bg-[#54A5D9] hover:bg-[#4389b9] text-white font-medium py-3 rounded-md transition-colors duration-200 text-base"
             >
-              Перейти до оплати
+              {/* Змінюємо текст кнопки залежно від способу оплати */}
+              {paymentMethod === "payNow" ? "Перейти до оплати" : "Оформити замовлення"}
             </button>
           </div>
         </div>
