@@ -9,6 +9,8 @@ import Order from "./pages/Order";
 import Footer from "./components/Footer";
 import LoginPopup from "./components/LoginPopup";
 import SearchPage from './pages/SearchPage';
+import ChangePassword from "./pages/ChangePassword"
+import MyOrders from "./pages/MyOrders";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { ToastContainer } from 'react-toastify';
@@ -39,6 +41,8 @@ export default function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/order" element={<Order />} />
+        <Route path="change-password" element={<ChangePassword />} />
+        <Route path="/my-orders" element={<MyOrders />} />
       </Routes>
       <Footer />
     </BrowserRouter>

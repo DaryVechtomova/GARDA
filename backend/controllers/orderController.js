@@ -44,7 +44,7 @@ const placeOrder = async (req, res) => {
         if (deliveryMethod === "Нова Пошта" && (!deliveryDetails.region || !deliveryDetails.city || !deliveryDetails.departmentNumber)) return res.status(400).json({ success: false, message: "Для Нової Пошти необхідно вказати область, місто та номер відділення" });
         if (deliveryMethod === "Укрпошта" && (!deliveryDetails.region || !deliveryDetails.city || !deliveryDetails.postalCode || !deliveryDetails.street || !deliveryDetails.houseNumber)) return res.status(400).json({ success: false, message: "Для Укрпошти необхідно вказати область, місто, поштовий індекс, вулицю та номер будинку" });
         if (deliveryMethod === "Самовивіз" && !["Київ", "Львів", "Харків"].includes(deliveryDetails.city)) return res.status(400).json({ success: false, message: "Самовивіз можливий тільки у Києві, Львові або Харкові" });
-        
+
         console.log("placeOrder: Валідація пройдена. items:", JSON.stringify(items, null, 2));
         console.log("placeOrder: amount:", amount, "deliveryMethod:", deliveryMethod, "paymentMethod:", paymentMethod);
 
@@ -76,8 +76,8 @@ const placeOrder = async (req, res) => {
         }).filter(item => item !== null);
 
         if (itemsToSave.length === 0) { // Якщо після фільтрації не залишилося товарів
-             console.error("placeOrder: Немає валідних товарів для збереження в замовленні.");
-             return res.status(400).json({ success: false, message: "Немає товарів для оформлення замовлення." });
+            console.error("placeOrder: Немає валідних товарів для збереження в замовленні.");
+            return res.status(400).json({ success: false, message: "Немає товарів для оформлення замовлення." });
         }
         if (itemsToSave.length !== items.length) {
             console.warn("placeOrder: Деякі товари були відфільтровані через неповні/некоректні дані.");
@@ -137,12 +137,12 @@ const placeOrder = async (req, res) => {
 
             if (line_items.length === 0) { // Це може статися, якщо всі товари безкоштовні
                 console.warn("placeOrder: Немає товарів для оплати через Stripe (можливо, всі безкоштовні).");
-                 // Якщо оплата не потрібна, але користувач обрав "Оплатити зараз" для безкоштовного замовлення
+                // Якщо оплата не потрібна, але користувач обрав "Оплатити зараз" для безкоштовного замовлення
                 await orderModel.findByIdAndUpdate(newOrder._id, { payment: true, status: "Оплачено" }); // Позначаємо як оплачене
-                return res.json({ 
-                    success: true, 
-                    message: "Замовлення оформлено, оплата не потрібна.", 
-                    orderId: newOrder._id, 
+                return res.json({
+                    success: true,
+                    message: "Замовлення оформлено, оплата не потрібна.",
+                    orderId: newOrder._id,
                     orderNumber,
                     paymentRequired: false, // Оплата не потрібна
                     session_url: null
@@ -172,10 +172,10 @@ const placeOrder = async (req, res) => {
             } catch (stripeError) {
                 console.error("placeOrder: Помилка створення сесії Stripe:", stripeError);
                 // Важливо: замовлення вже збережено. Повідомляємо користувача.
-                res.status(500).json({ 
+                res.status(500).json({
                     success: true, // Замовлення збережено
-                    message: "Замовлення оформлено, але виникла помилка при підготовці до онлайн оплати. Будь ласка, зв'яжіться з підтримкою.", 
-                    orderId: newOrder._id, 
+                    message: "Замовлення оформлено, але виникла помилка при підготовці до онлайн оплати. Будь ласка, зв'яжіться з підтримкою.",
+                    orderId: newOrder._id,
                     orderNumber,
                     paymentRequired: true, // Оплата все ще потрібна, але не вдалося створити сесію
                     session_url: null
@@ -246,8 +246,8 @@ const verifyOrder = async (req, res) => {
             const cancelledOrder = await orderModel.findByIdAndUpdate(orderId, { status: "Оплата не вдалася" }, { new: true });
             // АБО: await orderModel.findByIdAndDelete(orderId);
             if (!cancelledOrder && success !== "true" && success !== true) { // Перевіряємо, чи не було помилки, якщо success не true
-                 console.warn("VerifyOrder: Замовлення з ID", orderId, "не знайдено для скасування/оновлення статусу.");
-                 // Якщо success не "true", але замовлення не знайдено, можливо, його вже видалено або інша помилка
+                console.warn("VerifyOrder: Замовлення з ID", orderId, "не знайдено для скасування/оновлення статусу.");
+                // Якщо success не "true", але замовлення не знайдено, можливо, його вже видалено або інша помилка
             } else if (cancelledOrder) {
                 console.log("VerifyOrder: Статус замовлення", orderId, "оновлено на 'Оплата не вдалася'.");
             }
@@ -262,11 +262,28 @@ const verifyOrder = async (req, res) => {
 //user orders for frontend
 const userOrders = async (req, res) => {
     try {
-        const orders = await orderModel.find({ userId: req.body.userId })
-        res.json({ success: true, data: orders })
+        // Краще отримувати userId з токена (якщо ви використовуєте JWT аутентифікацію)
+        const userId = req.user?._id || req.body.userId;
+
+        console.log("User ID:", userId); // Для дебагінга
+
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: "ID користувача не надано"
+            });
+        }
+
+        const orders = await orderModel.find({ userId: userId })
+            .sort({ date: -1 });
+
+        res.json({ success: true, data: orders });
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: "Error" })
+        console.error("Error fetching user orders:", error);
+        res.status(500).json({
+            success: false,
+            message: "Помилка при отриманні замовлень користувача"
+        });
     }
 }
 

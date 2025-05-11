@@ -23,7 +23,7 @@ const orderRouter = express.Router();
 
 orderRouter.post("/place", authMiddleware, placeOrder)
 orderRouter.post("/verify", verifyOrder)
-orderRouter.post("/userorders", authMiddleware, userOrders)
+orderRouter.get("/userorders", authMiddleware, userOrders)
 orderRouter.get("/list", authMiddleware, adminMiddleware, listOrders)
 orderRouter.put("/cancel/:orderId", authMiddleware, adminMiddleware, cancelOrder);
 orderRouter.put("/update-status/:orderId", authMiddleware, adminMiddleware, updateOrderStatus);

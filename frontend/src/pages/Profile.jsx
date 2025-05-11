@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaSave, FaKey, FaSpinner, FaUserEdit } from 'react-icons/fa';
 import { IMaskInput } from 'react-imask';
 import { ShopContext } from "../context/ShopContext";
+import Flower from "../assets/design/flower.png";
 
 const Profile = () => {
     const url = "http://localhost:4000"; // Ваш URL бекенду
@@ -183,9 +184,44 @@ const Profile = () => {
         // Контейнер сторінки з відступами
         <section className="py-28 px-4 min-h-[80vh]">
             <div className="w-full max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-lg shadow-md border border-gray-200">
-                <h4 className="text-xl md:text-2xl font-semibold pb-4 mb-6 uppercase border-b text-gray-800 flex items-center gap-3">
-                    <FaUserEdit /> Мій профіль
-                </h4>
+                <div className="flex items-center justify-center mb-6 md:mb-10">
+                    <img
+                        src={Flower}
+                        alt=""
+                        className="
+            h-12 w-12
+            sm:h-14 sm:w-14
+            md:h-16 md:w-16
+            object-contain
+            mr-2 sm:mr-3 md:mr-4
+            transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
+        "
+                    />
+                    <h2
+                        style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }}
+                        className="
+            text-xl
+            sm:text-2xl
+            md:text-3xl
+            text-center
+            text-black
+        "
+                    >
+                        Профіль
+                    </h2>
+                    <img
+                        src={Flower}
+                        alt=""
+                        className="
+            h-12 w-12
+            sm:h-14 sm:w-14
+            md:h-16 md:w-16
+            object-contain
+            ml-2 sm:ml-3 md:ml-4
+            transform translate-y-[10px] {/* АБО translate-y-2.5 */}
+        "
+                    />
+                </div>
 
                 <form onSubmit={handleProfileSave} className="space-y-6">
 
@@ -222,12 +258,12 @@ const Profile = () => {
                             </div>
                             {/* Дата народження */}
                             <div className="flex flex-col gap-y-1">
-                                <label htmlFor="birthDate" className='text-sm font-medium text-gray-600'>Дата народження</label>
+                                <label htmlFor="birthDate" className='text-sm font-medium text-gray-600'>Дата народження<span className="text-red-500">*</span></label>
                                 <input id="birthDate" name="birthDate" type="date" value={userData.birthDate} onChange={onChangeHandler} className="border border-gray-300 rounded-md py-1.5 px-3 h-[38px] outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500" />
                             </div>
                             {/* Email (редагування) */}
                             <div className="flex flex-col gap-y-1">
-                                <label htmlFor="email" className='text-sm font-medium text-gray-600'>Email (Логін)</label>
+                                <label htmlFor="email" className='text-sm font-medium text-gray-600'>Email (Логін)<span className="text-red-500">*</span></label>
                                 <input
                                     id="email"
                                     name="email"

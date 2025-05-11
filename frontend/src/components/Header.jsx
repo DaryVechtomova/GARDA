@@ -8,6 +8,7 @@ import { HiMenu, HiX } from "react-icons/hi";
 import Navbar from './Navbar';
 import { ShopContext } from '../context/ShopContext';
 import { TbLogout } from "react-icons/tb"
+import { FiShoppingBag } from 'react-icons/fi';
 
 const Header = ({ setShowLogin }) => {
     const { getTotalCartItems, token, setToken } = useContext(ShopContext);
@@ -60,7 +61,7 @@ const Header = ({ setShowLogin }) => {
     const toggleSearch = () => {
         setSearchOpened(!searchOpened);
     };
-   
+
     useEffect(() => {
         const handleScroll = () => {
             window.scrollY > 40 ? setHeader(true) : setHeader(false);
@@ -84,7 +85,7 @@ const Header = ({ setShowLogin }) => {
         );
     };
 
-   
+
 
     return (
         <header className={`${header ? "!py-3 shadow-sm" : ""} fixed w-full top-0 left-0 right-0 py-4 z-30 transition-all bg-[#fcfaf4]`}>
@@ -117,31 +118,31 @@ const Header = ({ setShowLogin }) => {
                         <div className="flexBetween gap-x-3 sm:gap-x-8">
                             {/* Пошук */}
                             <div className="flex items-center gap-2">
-                            {searchOpened && (
-        <div className="relative">
-            <input
-                type="text"
-                placeholder="Пошук..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="bg-white border border-gray-300 rounded-md p-2 w-48 shadow-md transition-all duration-300"
-            />
-            <HiSearch 
-                onClick={handleSearch}
-                className="absolute right-2 top-2 text-xl hover:text-secondary cursor-pointer" 
-            />
-        </div>
-    )}
+                                {searchOpened && (
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Пошук..."
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            onKeyPress={handleKeyPress}
+                                            className="bg-white border border-gray-300 rounded-md p-2 w-48 shadow-md transition-all duration-300"
+                                        />
+                                        <HiSearch
+                                            onClick={handleSearch}
+                                            className="absolute right-2 top-2 text-xl hover:text-secondary cursor-pointer"
+                                        />
+                                    </div>
+                                )}
                                 <div className="flex flex-col items-center gap-1">
-                                    <HiSearch 
+                                    <HiSearch
                                         onClick={() => {
                                             toggleSearch();
                                             if (searchOpened && searchQuery) {
                                                 handleSearch();
                                             }
-                                        }} 
-                                        className="text-2xl hover:text-secondary cursor-pointer sm:text-3xl" 
+                                        }}
+                                        className="text-2xl hover:text-secondary cursor-pointer sm:text-3xl"
                                     />
                                     <span className="text-sm hidden sm:block">Пошук</span>
                                 </div>
@@ -180,7 +181,12 @@ const Header = ({ setShowLogin }) => {
                                             <CgProfile className="text-[22px] hover:text-secondary sm:text-3xl cursor-pointer" />
                                         </Link>
                                         <ul className="absolute top-10 right-0 bg-white border rounded shadow-md hidden group-hover:block z-50">
-
+                                            <li className="flex items-center gap-x-2 px-4 py-2 cursor-pointer hover:bg-gray-100">
+                                                <Link to="/my-orders" className="flex items-center gap-x-2">
+                                                    <FiShoppingBag className="text-[19px]" />
+                                                    <span>Мої замовлення</span>
+                                                </Link>
+                                            </li>
                                             <li
                                                 onClick={logout}
                                                 className="flex items-center gap-x-2 px-4 py-2 cursor-pointer hover:bg-gray-100"
