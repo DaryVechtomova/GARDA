@@ -35,10 +35,18 @@ exports.getDashboardStats = async (req, res) => {
             date: { $gte: startOfWeek, $lt: endOfWeek }
         });
 
+        const saleStatuses = [
+            "В обробці",
+            "Передано в службу доставки",
+            "Чекає на отримання",
+            "Доставлено"
+            // "Нове замовлення" та "Скасовано" не включаємо
+        ];
+
         const salesDataThisMonth = await Order.aggregate([
             {
                 $match: {
-                    payment: true,
+                    status: { $in: saleStatuses },
                     date: { $gte: startOfMonth, $lt: endOfMonth }
                 }
             },
@@ -89,7 +97,6 @@ exports.getPopularProducts = async (req, res) => {
             {
                 $match: {
                     date: { $gte: dateFrom },
-                    // payment: true, // Розкоментуй, якщо потрібно рахувати тільки оплачені
                 }
             },
             { $unwind: "$items" }

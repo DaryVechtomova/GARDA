@@ -473,7 +473,9 @@ const EditOrder = () => {
                 // Передаємо також інші важливі поля, якщо вони є і не мають змінюватись
                 // наприклад: status, payment, address, userId, deliveryDetails etc.
                 ...(order.status && { status: order.status }),
-                ...(order.payment !== undefined && { payment: order.payment }), // Якщо payment може бути false
+                // ...(order.payment !== undefined && { payment: order.payment }), // Якщо payment може бути false
+
+                ...(order.paymentMethod && { paymentMethod: order.paymentMethod }),
                 ...(order.address && { address: order.address }),
                 ...(order.deliveryDetails && { deliveryDetails: order.deliveryDetails }),
                 ...(order.userId && { userId: order.userId }),

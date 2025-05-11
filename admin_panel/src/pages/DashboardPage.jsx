@@ -105,10 +105,9 @@ const DashboardPage = () => {
 
 
     return (
-        <section className="p-4 md:p-8 w-full bg-gray-100 min-h-[calc(100vh-theme(space.14))]">
-            <div className="px-4"> {/* Замінив p-10 на p-4 md:p-8, bg-primary/20 на bg-gray-100 для узгодженості */}
-                <h1 className="text-3xl font-bold mb-8 text-gray-800">Панель управління</h1> {/* Стилі заголовка як у попередньому прикладі */}
-
+        <section className="p-10 w-full bg-primary/20">
+            <div className="px-4">
+                <h1 className="text-3xl font-bold mb-8 ">Панель управління</h1>
                 {/* Картки основної статистики */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-10">
                     <StatCard

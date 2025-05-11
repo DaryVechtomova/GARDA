@@ -1,6 +1,6 @@
 // const userModel = require("../models/userModel.js"); // Ваш варіант
 // Якщо ви використовуєте ES Modules в package.json ("type": "module") або .mjs файли:
-import userModel from "../models/userModel.js";
+const userModel = require("../models/userModel.js");
 
 
 // add items to user favourite
@@ -111,7 +111,7 @@ const getFavourite = async (req, res) => {
 };
 
 // Якщо ви використовуєте ES Modules:
-export { addToFavourite, removeFromFavourite, getFavourite };
+//export { addToFavourite, removeFromFavourite, getFavourite };
 
 // Якщо ви використовуєте CommonJS (як у вашому початковому коді з require):
-// module.exports = { addToFavourite, removeFromFavourite, getFavourite };
+module.exports = { addToFavourite, removeFromFavourite, getFavourite };
