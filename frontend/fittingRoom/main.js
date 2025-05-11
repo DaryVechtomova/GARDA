@@ -3,15 +3,23 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 // Define sizes
+// Отримуємо DOM-елемент для рендерера
+const viewerElement = document.getElementById('viewer');
+if (!viewerElement) {
+    console.error("Елемент #viewer не знайдено!");
+    // Зупинити виконання або обробити помилку
+}
+
+// Початкові розміри беремо з контейнера #viewer
 const sizes = {
-    width: window.innerWidth,
-    height: window.innerHeight
+    width: viewerElement.clientWidth,  // <--- ВИКОРИСТОВУЄМО РОЗМІРИ КОНТЕЙНЕРА
+    height: viewerElement.clientHeight // <--- ВИКОРИСТОВУЄМО РОЗМІРИ КОНТЕЙНЕРА
 };
 
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100);
-camera.position.set(0, 1.5, 1.9);
+camera.position.set(0, 1.4, 1.3);
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(sizes.width, sizes.height);
@@ -74,6 +82,7 @@ scene.add(frontLight);
 // // Додаємо хелпер для візуалізації світла (опціонально)
 // const frontLightHelper = new THREE.PointLightHelper(frontLight, 0.5);
 // scene.add(frontLightHelper);
+// Контролери камери
 
 // Додаємо світло спереду (PointLight)
 const back1Light = new THREE.PointLight(0xffffff, 1, 10); // Колір, інтенсивність, відстань
@@ -94,6 +103,10 @@ loader.load('/static/models/woman_15.gltf', (gltf) => {
     // Додаємо код для перевірки розміру моделі
     const modelSize = getModelSize(hero); // Розміри моделі
     const modelCenter = getModelCenter(hero); // Центр моделі
+
+   
+    orbitControls.update(); // Важливо оновити після зміни цілі
+
 
     console.log('Розміри моделі:', modelSize);
     console.log('Центр моделі:', modelCenter)
