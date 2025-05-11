@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { FaSave, FaKey, FaSpinner, FaUserEdit } from 'react-icons/fa';
 import { IMaskInput } from 'react-imask';
+import { ShopContext } from "../context/ShopContext";
 
 const Profile = () => {
     const url = "http://localhost:4000"; // Ваш URL бекенду
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const { updateUserProfileInContext } = useContext(ShopContext);
     const [userData, setUserData] = useState({
         _id: '',
         firstName: "",
@@ -129,17 +131,20 @@ const Profile = () => {
                     }
                 }
             );
-
             if (response.data.success) {
                 toast.success("Профіль успішно оновлено!");
-                // Оновлюємо дані в стані, якщо бекенд їх повертає
                 if (response.data.updatedUser) {
                     const updatedData = response.data.updatedUser;
+                    // Оновлюємо локальний стан userData
                     setUserData(prev => ({
-                        ...prev, // Зберігаємо нередаговані поля (email, role, id)
-                        ...updatedData, // Оновлюємо решту
-                        birthDate: formatDateForInput(updatedData.birthDate), // Переформатовуємо дату
+                        ...prev,
+                        ...updatedData,
+                        birthDate: formatDateForInput(updatedData.birthDate),
                     }));
+                    // Оновлюємо дані в ShopContext
+                    if (updateUserProfileInContext) {
+                        updateUserProfileInContext(updatedData);
+                    }
                 }
             } else {
                 toast.error(response.data.message || "Помилка оновлення профілю");

@@ -19,9 +19,17 @@ const generateOrderNumber = () => {
 // placing user order for frontend
 const placeOrder = async (req, res) => {
     const frontend_url = "http://localhost:5173/GARDA";
+    console.log("Початок placeOrder. Тіло запиту:", req.body); // ЛОГ 1: Тіло запиту
 
     try {
-        const { userId, items, amount, deliveryMethod, deliveryDetails } = req.body;
+        if (!req.user || !req.user._id) { 
+            console.error("placeOrder: Користувач не авторизований");
+            return res.status(401).json({ success: false, message: "Користувач не авторизований" });
+        }
+        const userId = req.user._id;
+        console.log("placeOrder: userId:", userId); // ЛОГ 2: ID користувача
+
+        const { items, amount, deliveryMethod, deliveryDetails } = req.body;
 
         // Перевірка наявності обов'язкових полів
         if (!userId) {
@@ -56,10 +64,10 @@ const placeOrder = async (req, res) => {
         }
 
         // Перевірка імені та прізвища
-        if (!deliveryDetails.firstName || !deliveryDetails.lastName) {
+        if (!deliveryDetails.firstName || !deliveryDetails.lastName|| !deliveryDetails.middleName ) {
             return res.status(400).json({
                 success: false,
-                message: "Ім'я та прізвище є обов'язковими полями"
+                message: "Ім'я, прізвище та по-батькові є обов'язковими полями"
             });
         }
 
@@ -103,50 +111,99 @@ const placeOrder = async (req, res) => {
                 });
             }
         }
+        // Якщо валідація проходить, логуємо далі
+        console.log("placeOrder: Валідація пройдена. items:", JSON.stringify(items, null, 2)); // ЛОГ 3: Товари після валідації
+        console.log("placeOrder: amount:", amount, "deliveryMethod:", deliveryMethod);
 
-        // Генерація унікального номера замовлення
-        let orderNumber;
+        // ===================================================================
+        // ПОЧАТОК КРИТИЧНОЇ ЧАСТИНИ ДЛЯ orderNumber
+        // ===================================================================
+        let orderNumber; // ОГОЛОШЕННЯ orderNumber
         let isUnique = false;
 
-        while (!isUnique) {
-            orderNumber = generateOrderNumber(); // Генеруємо номер
-            const existingOrder = await orderModel.findOne({ orderNumber }); // Перевіряємо унікальність
+        while (!isUnique) { 
+            orderNumber = generateOrderNumber(); 
+            const existingOrder = await orderModel.findOne({ orderNumber }); 
             if (!existingOrder) {
-                isUnique = true; // Якщо номер унікальний, виходимо з циклу
+                isUnique = true; 
             }
         }
+        // ПІСЛЯ ЦИКЛУ orderNumber ГАРАНТОВАНО МАЄ ЗНАЧЕННЯ
+        console.log("placeOrder: Згенеровано orderNumber (після циклу):", orderNumber); // Це правильний console.log для orderNumber
+        // ===================================================================
+        // КІНЕЦЬ КРИТИЧНОЇ ЧАСТИНИ ДЛЯ orderNumber
+        // ===================================================================
 
         // Створення нового замовлення
-        const newOrder = new orderModel({
-            userId,
-            items: items.map(item => ({
-                productId: item._id, // Зберігаємо ID товару
+        const itemsToSave = items.map(item => {
+            if (typeof item._id === 'undefined' ||
+                typeof item.name === 'undefined' ||
+                typeof item.price === 'undefined' ||
+                typeof item.size === 'undefined' || 
+                typeof item.quantity === 'undefined') {
+                console.error("Неповні дані для товару в замовленні:", item);
+                return null; 
+            }
+
+            return {
+                productId: item._id,
                 name: item.name,
                 price: item.price,
-                discount: item.discount,
+                discount: item.discount || 0,
                 size: item.size,
-                image: item.images?.[0] || null,
+                image: item.image || null, 
                 quantity: item.quantity
-            })),
+            };
+        }).filter(item => item !== null);
+
+        if (itemsToSave.length !== items.length) {
+            console.error("placeOrder: Деякі товари були відфільтровані через неповні дані.");
+        }
+
+        const newOrderData = { // Тепер orderNumber тут буде визначено
+            userId,
+            items: itemsToSave,
             amount,
             deliveryMethod,
             deliveryDetails,
-            orderNumber,
-        });
+            orderNumber, 
+        };
+        console.log("placeOrder: Об'єкт newOrderData перед створенням моделі:", JSON.stringify(newOrderData, null, 2));
 
+
+        const newOrder = new orderModel(newOrderData);
         await newOrder.save();
-        await userModel.findByIdAndUpdate(userId, { cartData: {} });
+        console.log("placeOrder: Замовлення збережено. ID:", newOrder._id);
 
-        const line_items = items.map((item) => ({
-            price_data: {
-                currency: "usd",
-                product_data: {
-                    name: item.name
+        await userModel.findByIdAndUpdate(userId, { cartData: {} });
+        console.log("placeOrder: Кошик користувача очищено.");
+
+        const line_items = itemsToSave.map((item) => { // Використовуємо itemsToSave
+            if (typeof item.price !== 'number' || typeof item.quantity !== 'number') {
+                console.error("placeOrder: Некоректні дані для Stripe line_items (price або quantity):", item);
+                return null; 
+            }
+            return {
+                price_data: {
+                    currency: "uah",
+                    product_data: { name: item.name },
+                    unit_amount: Math.round(item.price * 100) // Виправлено unit_amount
                 },
-                unit_amount: item.price * 100 * 278 // Конвертація в копійки
-            },
-            quantity: item.quantity
-        }));
+                quantity: item.quantity
+            };
+        }).filter(item => item !== null);
+
+        console.log("placeOrder: line_items для Stripe:", JSON.stringify(line_items, null, 2));
+
+        if (line_items.length === 0 && itemsToSave.length > 0) {
+            console.error("placeOrder: Немає товарів для створення сесії Stripe, хоча замовлення містить товари.");
+            return res.status(500).json({ success: false, message: "Помилка формування товарів для оплати." });
+        }
+        
+        if (line_items.length === 0 && itemsToSave.length === 0) {
+            console.warn("placeOrder: Немає товарів для Stripe.");
+            return res.json({ success: true, message: "Замовлення оброблено, але оплата не потрібна / неможлива.", orderId: newOrder._id, orderNumber });
+        }
 
         const session = await stripe.checkout.sessions.create({
             line_items: line_items,
@@ -154,10 +211,12 @@ const placeOrder = async (req, res) => {
             success_url: `${frontend_url}/verify?success=true&orderId=${newOrder._id}`,
             cancel_url: `${frontend_url}/verify?success=false&orderId=${newOrder._id}`
         });
+        console.log("placeOrder: Сесія Stripe створена. URL:", session.url);
 
         res.json({ success: true, session_url: session.url, orderNumber });
     } catch (error) {
-        console.log(error);
+        console.error("placeOrder: КРИТИЧНА ПОМИЛКА:", error);
+        console.error("placeOrder: Stack помилки:", error.stack);
         res.status(500).json({ success: false, message: "Помилка сервера" });
     }
 };

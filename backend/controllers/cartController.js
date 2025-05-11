@@ -1,103 +1,131 @@
-// import userModel from "../models/userModel.js";
 const userModel = require("../models/userModel.js");
 
-// add items to user cart
+// Додавання товарів до кошика користувача
 const addToCart = async (req, res) => {
-      try {
-            if (!req.user || !req.user.id) {
-                return res.status(401).json({ success: false, message: "Не авторизовано або ID користувача не знайдено в токені" });
-            }
-            const userId = req.user.id; // Отримуємо ID з токена
-    
-            let userData = await userModel.findById(userId); // Використовуємо userId з токена
-            if (!userData) {
-                return res.status(404).json({ success: false, message: "Користувача не знайдено" });
-            }
-    
-            // Переконуємося, що favourites - це об'єкт
-            let cartData = await userData.cartData || {};
-            if (!cartData[req.body.itemId]) {
-                cartData[req.body.itemId] = 1
-            } else {
-                cartData[req.body.itemId] += 1;
-            }
-            // Важливо: Mongoose може не відслідковувати зміни у вкладених об'єктах (якщо favourites - Mixed type)
-            // Щоб гарантувати збереження, можна позначити шлях як змінений:
-            userData.markModified('cartData');
-            await userData.save(); // Або використовувати findByIdAndUpdate, але з обережністю з вкладеними полями
-
-    
-            console.log(`Додано itemId: ${req.body.itemId} до кошика користувача: ${userId}`);
-            res.json({ success: true, message: "Додано до кошика", cartData: cartData }); // Повертаємо оновлені улюблені
-        } catch (error) {
-            console.error("Помилка в addToCart:", error);
-            res.status(500).json({ success: false, message: "Помилка сервера при додаванні до кошика" });
+    try {
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ success: false, message: "Не авторизовано або ID користувача не знайдено в токені" });
         }
-}
+        const userId = req.user.id;
+        // Очікуємо itemId та size з тіла запиту. quantity тепер не обов'язкове, бо логіка +1.
+        const { itemId, size } = req.body; 
 
-// remove items from user cart
+        if (!itemId || !size) {
+            return res.status(400).json({ success: false, message: "ID товару та розмір є обов'язковими" });
+        }
+
+        let userData = await userModel.findById(userId);
+        if (!userData) {
+            return res.status(404).json({ success: false, message: "Користувача не знайдено" });
+        }
+
+        // Ініціалізуємо cartData, якщо вона ще не існує (як порожній об'єкт)
+        // Важливо: якщо cartData - це Mongoose Map, ініціалізація може бути іншою (new Map())
+        // Але для простого об'єкта (Mixed) це підійде.
+        let cartData = userData.cartData || {}; 
+
+        // Створюємо унікальний ключ для комбінації itemId та size
+        const cartItemKey = `${itemId}-${size}`;
+
+        if (cartData[cartItemKey]) {
+            // Якщо товар з таким ID та РОЗМІРОМ вже є, збільшуємо його кількість
+            cartData[cartItemKey].quantity += 1;
+        } else {
+            // Якщо такої комбінації ID+розмір немає, додаємо новий запис
+            cartData[cartItemKey] = { 
+                itemId: itemId,       // Зберігаємо оригінальний itemId
+                size: size,           // Зберігаємо розмір
+                quantity: 1           // Початкова кількість
+            };
+        }
+        
+        userData.cartData = cartData; // Присвоюємо оновлений об'єкт
+        // Позначаємо, що cartData було змінено, особливо важливо для типу Mixed
+        userData.markModified('cartData'); 
+        await userData.save();
+
+        console.log(`Оновлено кошик: додано/збільшено ${cartItemKey}, користувач: ${userId}`);
+        // Повертаємо весь оновлений кошик
+        res.json({ success: true, message: "Кошик оновлено", cartData: userData.cartData });
+
+    } catch (error) {
+        console.error("Помилка в addToCart (бекенд):", error);
+        res.status(500).json({ success: false, message: "Помилка сервера при додаванні до кошика" });
+    }
+};
+
+// Видалення/зменшення товарів з кошика користувача
 const removeFromCart = async (req, res) => {
     try {
-            // *** ЗМІНА: Отримуємо ID користувача з об'єкту, доданого JWT middleware ***
-            if (!req.user || !req.user.id) {
-                return res.status(401).json({ success: false, message: "Не авторизовано або ID користувача не знайдено в токені" });
-            }
-            const userId = req.user.id;
-    
-            let userData = await userModel.findById(userId);
-            if (!userData) {
-                return res.status(404).json({ success: false, message: "Користувача не знайдено" });
-            }
-    
-            let cartData = await userData.cartData || {};
-    
-            if (cartData[req.body.itemId]) { // Перевіряємо, чи існує такий itemId
-                if (cartData[req.body.itemId] > 1) {
-                    cartData[req.body.itemId] -= 1;
-                } else {
-                    delete cartData[req.body.itemId]; // Видаляємо повністю, якщо був 1
-                }
-    
-                userData.markModified('cartData');
-                await userData.save();
-               
-    
-    
-                console.log(`Зменшено/видалено itemId: ${req.body.itemId} з кошика користувача: ${userId}`);
-                res.json({ success: true, message: "Оновлено кошик", cartData: cartData }); // Повертаємо оновлені улюблені
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ success: false, message: "Не авторизовано" });
+        }
+        const userId = req.user.id;
+        // Тепер обов'язково очікуємо itemId ТА size
+        const { itemId, size } = req.body; 
+
+        if (!itemId || !size) {
+            return res.status(400).json({ success: false, message: "ID товару та розмір є обов'язковими для видалення" });
+        }
+
+        let userData = await userModel.findById(userId);
+        if (!userData || !userData.cartData) { // Перевіряємо і наявність cartData
+            return res.status(404).json({ success: false, message: "Користувача або дані кошика не знайдено" });
+        }
+
+        let cartData = userData.cartData;
+        const cartItemKey = `${itemId}-${size}`; // Ключ, за яким шукаємо
+
+        if (cartData[cartItemKey]) {
+            if (cartData[cartItemKey].quantity > 1) {
+                // Якщо кількість більше 1, зменшуємо на 1
+                cartData[cartItemKey].quantity -= 1;
             } else {
-               
-                res.json({ success: true, message: "Товар не знайдено в кошику", cartData:cartData }); // Можна повернути true, бо операція "видалення" неіснуючого елемента успішна
+                // Якщо кількість 1 (або менше, хоча не повинно бути), видаляємо запис повністю
+                delete cartData[cartItemKey]; 
             }
-        } catch (error) {
-            console.error("Помилка в removeFromCart:", error);
-            res.status(500).json({ success: false, message: "Помилка сервера при видаленні з кошика" });
-        }
-}
 
-// fetch user cart data
+            userData.cartData = cartData;
+            userData.markModified('cartData');
+            await userData.save();
+
+            console.log(`Зменшено/видалено ${cartItemKey} з кошика користувача: ${userId}`);
+            res.json({ success: true, message: "Кошик оновлено", cartData: userData.cartData });
+        } else {
+            // Якщо товару з таким ключем (itemId-size) немає в кошику
+            console.log(`Товар ${cartItemKey} не знайдено в кошику користувача: ${userId}`);
+            res.json({ success: false, message: "Товар з вказаним розміром не знайдено в кошику", cartData: userData.cartData });
+        }
+    } catch (error) {
+        console.error("Помилка в removeFromCart (бекенд):", error);
+        res.status(500).json({ success: false, message: "Помилка сервера при видаленні з кошика" });
+    }
+};
+
+// Отримання даних кошика користувача
 const getCart = async (req, res) => {
-
-     try {
-            // *** ЗМІНА: Отримуємо ID користувача з об'єкту, доданого JWT middleware ***
-            if (!req.user || !req.user.id) {
-                return res.status(401).json({ success: false, message: "Не авторизовано або ID користувача не знайдено в токені" });
-            }
-            const userId = req.user.id;
-    
-            let userData = await userModel.findById(userId);
-            if (!userData) {
-                return res.status(404).json({ success: false, message: "Користувача не знайдено" });
-            }
-    
-            let cartData = await userData.cartData || {}; // Повертаємо порожній об'єкт, якщо немає
-            // console.log("Отримання улюблених для користувача:", userId, favourites); // Для дебагу
-            res.json({ success: true, cartData: cartData});
-        } catch (error) {
-            console.error("Помилка в getcart:", error);
-            res.status(500).json({ success: false, message: "Помилка сервера при отриманні товарів в кошику" });
+    try {
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ success: false, message: "Не авторизовано" });
         }
-}
+        const userId = req.user.id;
+
+        // Вибираємо тільки поле cartData. Можна також populate, якщо itemId - це ObjectId ref до колекції Product
+        // let userData = await userModel.findById(userId).select('cartData').populate('cartData.*.itemId'); // Приклад з populate
+        let userData = await userModel.findById(userId).select('cartData'); 
+        
+        if (!userData) {
+            return res.status(404).json({ success: false, message: "Користувача не знайдено" });
+        }
+
+        // Повертаємо cartData. Якщо вона undefined або null, повертаємо порожній об'єкт.
+        // Фронтенд тепер очікує структуру: 
+        // { "itemId1-sizeA": { itemId: "itemId1", size: "sizeA", quantity: X }, ... }
+        res.json({ success: true, cartData: userData.cartData || {} });
+    } catch (error) {
+        console.error("Помилка в getCart (бекенд):", error);
+        res.status(500).json({ success: false, message: "Помилка сервера при отриманні даних кошика" });
+    }
+};
 
 module.exports = { addToCart, removeFromCart, getCart };
-// export { addToCart, removeFromCart, getCart }

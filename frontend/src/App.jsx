@@ -5,6 +5,7 @@ import Product from "./pages/Product";
 import Cart from "./pages/Cart";
 import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
+import Order from "./pages/Order";
 import Footer from "./components/Footer";
 import LoginPopup from "./components/LoginPopup";
 import SearchPage from './pages/SearchPage';
@@ -37,6 +38,7 @@ export default function App() {
         <Route path="/favorites" element={<Favorites />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/search" element={<SearchPage />} />
+        <Route path="/order" element={<Order />} />
       </Routes>
       <Footer />
     </BrowserRouter>

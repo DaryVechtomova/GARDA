@@ -1,28 +1,74 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react'; // Додали useEffect
 import { Link } from 'react-router-dom';
 import { FaMinus, FaPlus } from 'react-icons/fa6';
 import { ShopContext } from '../context/ShopContext';
 
-
 const Item = ({ product }) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const [isFavorited, setIsFavorited] = useState(false);
+    // Локальний стан для isFavorited, який буде синхронізуватися з контекстом
+    const [isFavoritedByContext, setIsFavoritedByContext] = useState(false);
+
+    const contextValue = useContext(ShopContext);
+
+    // Обережний доступ до значень контексту
+    const cartItems = contextValue?.cartItems;
+    const addToCart = contextValue?.addToCart;
+    const removeFromCart = contextValue?.removeFromCart;
+    const url = contextValue?.url;
+    const wishlistItems = contextValue?.wishlistItems; // Має бути {} якщо не завантажено/немає токена
+    const toggleWishlist = contextValue?.toggleWishlist;
+    const token = contextValue?.token;
+
+    // Синхронізація локального isFavoritedByContext зі станом з контексту
+    useEffect(() => {
+        if (product && product._id && wishlistItems) {
+            // Перевіряємо, чи wishlistItems не порожній і чи містить ключ
+            const favorited = !!(wishlistItems[product._id] && wishlistItems[product._id] > 0);
+            setIsFavoritedByContext(favorited);
+        } else {
+            setIsFavoritedByContext(false); // За замовчуванням не в улюблених
+        }
+    }, [wishlistItems, product]); // Залежності: product та wishlistItems
+
+    // Якщо контекст або основні функції не завантажені, показуємо заглушку
+    if (!contextValue || typeof addToCart !== 'function' || typeof toggleWishlist !== 'function') {
+        return <div>Завантаження...</div>;
+    }
+    
+    // Якщо дані продукту ще не завантажені
+    if (!product || !product._id || !product.images) {
+        return <div>Інформація про товар завантажується...</div>;
+    }
 
     const handleNextImage = () => {
-        setCurrentImageIndex((prevIndex) => (prevIndex + 1) % product.images.length);
+        if (product.images && product.images.length > 0) {
+            setCurrentImageIndex((prevIndex) => (prevIndex + 1) % product.images.length);
+        }
     };
 
     const handlePreviousImage = () => {
-        setCurrentImageIndex((prevIndex) =>
-            prevIndex === 0 ? product.images.length - 1 : prevIndex - 1
-        );
+        if (product.images && product.images.length > 0) {
+            setCurrentImageIndex((prevIndex) =>
+                prevIndex === 0 ? product.images.length - 1 : prevIndex - 1
+            );
+        }
     };
 
-    const toggleFavorite = () => {
-        setIsFavorited(!isFavorited);
+    const handleToggleFavorite = () => {
+        if (!token) {
+            alert("Будь ласка, увійдіть до акаунту, щоб додавати товари до обраного.");
+            return;
+        }
+        if (product && product._id && toggleWishlist) {
+            toggleWishlist(product._id);
+        }
     };
 
-    const { cartItems, addToCart, removeFromCart, url } = useContext(ShopContext);
+    // Якщо URL не визначено, показуємо заглушку або повертаємо null
+    if (!url) {
+        console.warn("URL is not defined in ShopContext for Item component.");
+        return <div>Помилка конфігурації: URL не знайдено.</div>;
+    }
 
 
     return (
@@ -30,18 +76,20 @@ const Item = ({ product }) => {
             className="item-container bg-[#FCFAF4] shadow-md rounded-[15px] p-4 flex flex-col justify-between relative"
             style={{ width: '370px', height: '571px' }}
         >
-            {/* Зображення з навігацією */}
             <div className="relative">
                 <button
                     onClick={handlePreviousImage}
                     className="absolute left-2 top-1/2 transform -translate-y-1/2"
+                    disabled={!product.images || product.images.length <= 1}
                 >
                     ◀
                 </button>
                 <Link to={`/product/${product._id}`}>
                 <img
-                        src={url+"/images/"+product.images[currentImageIndex]}
-                        alt={product.name}
+                        src={(product.images && product.images.length > 0 && product.images[currentImageIndex])
+                             ? `${url}/images/${product.images[currentImageIndex]}`
+                             : 'placeholder.jpg'}
+                        alt={product.name || 'Зображення товару'}
                         style={{
                             width: '100%',
                             height: '400px',
@@ -54,19 +102,21 @@ const Item = ({ product }) => {
                 <button
                     onClick={handleNextImage}
                     className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                    disabled={!product.images || product.images.length <= 1}
                 >
                     ▶
                 </button>
             </div>
             <Link to={`/product/${product._id}`}>
-            {/* Назва і ціна */}
             <div className="text-center mt-4">
-                <h4 style={{ fontFamily: 'Montserrat Alternates', fontWeight: 600 }} className="font-semi-bold text-l mb-2">{product.name}</h4>
+                <h4 style={{ fontFamily: 'Montserrat Alternates', fontWeight: 600 }} className="font-semi-bold text-l mb-2">
+                    {product.name || 'Назва товару'}
+                </h4>
                 <div className="text-lg text-gray-800">
                 <span style={{ fontFamily: 'Montserrat Alternates', fontWeight: 500 }}>Ціна:</span>
-                {product.price ? (
+                {typeof product.price === 'number' ? (
                     <span style={{ fontFamily: 'Montserrat Alternates', fontWeight: 500 }} className="ml-2">
-                    {product.discount ? (
+                    {typeof product.discount === 'number' && product.discount > 0 ? (
                         <>
                         <span style={{ fontFamily: 'Montserrat Alternates', fontWeight: 500 }}className="line-through text-gray-500">{product.price} грн</span>
                         <br />
@@ -82,28 +132,25 @@ const Item = ({ product }) => {
                     'Ціна не вказана'
                 )}
                 </div>
-
-
-
-
             </div>
             </Link>
-            {/* Іконка сердечка */}
             <button
-                onClick={toggleFavorite}
+                onClick={handleToggleFavorite}
                 className="absolute bottom-4 right-4"
                 style={{
                     fontSize: '2.5rem',
                     backgroundColor: 'transparent',
                     border: 'none',
+                    cursor: 'pointer',
                 }}
+                aria-label={isFavoritedByContext ? "Видалити з обраного" : "Додати в обране"}
             >
                 <svg
                     width="40"
                     height="40"
                     viewBox="0 0 24 24"
-                    fill={isFavorited ? "#991313" : "transparent"} // Заливка змінюється
-                    stroke="black" // Чорний контур завжди
+                    fill={isFavoritedByContext ? "#991313" : "transparent"} // Використовуємо локальний синхронізований стан
+                    stroke="black"
                     strokeWidth="1.25"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -112,25 +159,21 @@ const Item = ({ product }) => {
                 </svg>
             </button>
 
-            <div className="absolute bottom-4 left-4">
-                {!cartItems[product._id] ? (
-                    <FaPlus onClick={() => addToCart(product._id)}
-
+            {/* <div className="absolute bottom-4 left-4">
+                {cartItems && !cartItems[product._id] ? ( // cartItems перевірено на null/undefined вище
+                    <FaPlus onClick={() => addToCart && addToCart(product._id)}
                         className='bg-white h-8 w-8 p-2 rounded-full shadow-inner cursor-pointer' />
                 ) : (
+                    cartItems && cartItems[product._id] &&
                     <div className='bg-white rounded-full flexCenter gap-2 h-8'>
-                        <FaMinus onClick={() => removeFromCart(product._id)}
-
+                        <FaMinus onClick={() => removeFromCart && removeFromCart(product._id)}
                             className='bg-primary h-6 w-6 p-1 ml-1 cursor-pointer rounded-full' />
-                        <p>{cartItems[product._id]}</p>
-                        <FaPlus onClick={() => addToCart(product._id)}
-
+                        <p className="text-sm font-medium">{cartItems[product._id].quantity}</p>
+                        <FaPlus onClick={() => addToCart && addToCart(product._id)}
                             className='bg-primary h-6 w-6 p-1 mr-1 cursor-pointer rounded-full' />
                     </div>
                 )}
-            </div>
-
-
+            </div> */}
         </div>
     );
 };
