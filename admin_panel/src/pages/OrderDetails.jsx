@@ -383,15 +383,25 @@ const OrderDetails = () => {
                         <p className="text-sm mb-1"><span className="font-medium text-gray-700">Спосіб:</span> {order.deliveryMethod}</p>
                         <div className="text-sm">
                             <span className="font-medium text-gray-700">Адреса:</span>{' '}
-                            {order.deliveryMethod === "Нова Пошта" && `${order.deliveryDetails.region}, ${order.deliveryDetails.city}, Відділення №${order.deliveryDetails.departmentNumber}`}
+                            <span className="text-gray-500">
+                                {' '}
+                                {order.deliveryMethod === "Нова Пошта" && `${order.deliveryDetails.region} область, м. ${order.deliveryDetails.city}, Відділення №${order.deliveryDetails.departmentNumber}`}
 
-                            {order.deliveryMethod === "Укрпошта" && `${order.deliveryDetails.region}, ${order.deliveryDetails.city}, ${order.deliveryDetails.street} ${order.deliveryDetails.houseNumber}${order.deliveryDetails.apartment ? ', кв. ' + order.deliveryDetails.apartment : ''}, поштовий індекс: ${order.deliveryDetails.postalCode}`}
+                                {order.deliveryMethod === "Укрпошта" && `${order.deliveryDetails.region} область, м. ${order.deliveryDetails.city}, ${order.deliveryDetails.street} ${order.deliveryDetails.houseNumber}${order.deliveryDetails.apartment ? ', кв. ' + order.deliveryDetails.apartment : ''}, поштовий індекс: ${order.deliveryDetails.postalCode}`}
 
-                            {order.deliveryMethod === "Самовивіз" && `м. ${order.deliveryDetails.city}`}
+                                {order.deliveryMethod === "Самовивіз" && `м. ${order.deliveryDetails.city}`}
+                            </span>
                         </div>
-                        {/* Додати ТТН, якщо є */}
-                        {order.trackingNumber && (
-                            <p className="text-sm mt-1"><span className="font-medium text-gray-700">ТТН:</span> {order.trackingNumber}</p>
+                        {order.paymentMethod && (
+                            <div>
+                                <p className="text-sm mb-1">
+                                    <span className="text-sm font-medium text-gray-700 mb-1">Оплата:</span>{' '}
+                                    {order.paymentMethod === "payOnDelivery" && "Оплата при отриманні"}
+                                    {order.paymentMethod === "payNow" && "Онлайн оплата карткою"}
+                                    {/* Додай інші варіанти, якщо вони є */}
+                                    {order.paymentMethod !== "payOnDelivery" && order.paymentMethod !== "payNow" && order.paymentMethod /* Якщо невідомий метод, показуємо як є */}
+                                </p>
+                            </div>
                         )}
                     </div>
                 </div>
