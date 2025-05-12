@@ -35,6 +35,9 @@ const Header = ({ setShowLogin }) => {
             handleSearch();
         }
     };
+    const closeMenuOnly = () => { // Функція, яка тільки закриває
+        setMenuOpened(false);
+    }
 
     // Перевіряємо стан авторизації при завантаженні компонента
     useEffect(() => {
@@ -207,10 +210,23 @@ const Header = ({ setShowLogin }) => {
 
                 {/* Меню */}
                 {menuOpened && (
-                    <div className="fixed top-0 left-0 h-screen w-64 bg-white shadow-lg z-40">
-                        <div className="p-5">
-                            <HiX onClick={toggleMenu} className="cursor-pointer hover:text-secondary text-2xl mb-5" />
-                            <Navbar containerStyles={"flex flex-col gap-y-5"} />
+                    // Використовуємо overlay для закриття по кліку поза меню (опціонально)
+                    <div
+                        className="fixed inset-0 bg-black bg-opacity-30 z-35"
+                        onClick={toggleMenu} // Закриття по кліку на фон
+                    >
+                        <div
+                            className="fixed top-0 left-0 h-screen w-64 bg-white shadow-lg z-40"
+                            onClick={(e) => e.stopPropagation()} // Зупиняємо спливання, щоб клік по меню не закривав його
+                        >
+                            <div className="p-5">
+                                <HiX onClick={toggleMenu} className="cursor-pointer hover:text-secondary text-2xl mb-5" />
+                                {/* Передаємо функцію для закриття */}
+                                <Navbar
+                                    containerStyles={"flex flex-col gap-y-5"} // Тільки класи Tailwind
+                                    closeMenu={closeMenuOnly}
+                                />
+                            </div>
                         </div>
                     </div>
                 )}

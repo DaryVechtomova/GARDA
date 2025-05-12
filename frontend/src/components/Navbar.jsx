@@ -1,41 +1,60 @@
-import React, { useState } from 'react';
+// src/components/Navbar.jsx
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
-const Navbar = ({ containerStyles }) => {
-    const [isActive, setIsActive] = useState("home");
+const Navbar = ({ containerStyles, closeMenu }) => {
+    const location = useLocation();
+
+    const handleLinkClick = () => {
+        if (closeMenu) {
+            closeMenu();
+        }
+    };
 
     return (
-        <nav className={containerStyles}>
-            <a
-                href="#home"
-                onClick={() => setIsActive("home")}
-                className={isActive === "home" ? "active-link" : ""}
+        <nav
+         style={{ fontFamily: 'Montserrat Alternates', fontWeight: 500 }}
+            // Застосовуємо передані класи Tailwind
+            className={`${containerStyles}`}
+            // Застосовуємо інлайн-стилі для шрифту
+           
+        >
+            <Link
+                to="/"
+                onClick={handleLinkClick}
+                className={`hover:text-secondary ${location.pathname === '/' ? 'text-secondary font-semibold' : ''}`}
             >
-                Home
-            </a>
-
-            <a
-                href="#categories"
-                onClick={() => setIsActive("categories")}
-                className={isActive === "categories" ? "active-link" : ""}
+                Головна сторінка
+            </Link>
+            {/* ... інші посилання ... */}
+             <Link
+                to="/catalog/women"
+                onClick={handleLinkClick}
+                className={`hover:text-secondary ${location.pathname === '/catalog/women' ? 'text-secondary font-semibold' : ''}`}
             >
-                Categories
-            </a>
-
-            <a
-                href="#shop"
-                onClick={() => setIsActive("shop")}
-                className={isActive === "shop" ? "active-link" : ""}
+                Для жінок
+            </Link>
+            <Link
+                to="/catalog/accessories"
+                onClick={handleLinkClick}
+                className={`hover:text-secondary ${location.pathname === '/catalog/accessories' ? 'text-secondary font-semibold' : ''}`}
             >
-                Shop
-            </a>
-
-            <a
-                href="#contact"
-                onClick={() => setIsActive("contact")}
-                className={isActive === "contact" ? "active-link" : ""}
+                Аксесуари
+            </Link>
+            <Link
+                to="/catalog/men"
+                onClick={handleLinkClick}
+                className={`hover:text-secondary ${location.pathname === '/catalog/men' ? 'text-secondary font-semibold' : ''}`}
             >
-                Contact
-            </a>
+                Для чоловіків
+            </Link>
+            <Link
+                to="/catalog/all"
+                onClick={handleLinkClick}
+                className={`hover:text-secondary ${location.pathname === '/catalog/all' ? 'text-secondary font-semibold' : ''}`}
+            >
+                Усі товари
+            </Link>
         </nav>
     );
 };

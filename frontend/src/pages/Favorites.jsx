@@ -4,7 +4,7 @@ import Item from "../components/Item"; // Переконайся, що шлях 
 import { ShopContext } from "../context/ShopContext"; // Імпорт контексту
 import Flower from "../assets/design/flower.png";
 
-const  Favorites = () => {
+const Favorites = () => {
     const { all_products, wishlistItems, token } = useContext(ShopContext); // Отримуємо потрібні дані з контексту
     const [wishlistedProducts, setWishlistedProducts] = useState([]);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -93,14 +93,14 @@ const  Favorites = () => {
                 paddingBottom: "100px" // Додаємо відступ знизу
             }}
         >
-               {/* Заголовок сторінки з квітками */}
-                            <div className="flex items-center justify-center mb-2 md:mb-3">
-                                <img src={Flower} alt="" className="h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 object-contain mr-2 sm:mr-3 md:mr-4 transform translate-y-[10px]" />
-                                <h2 style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }} className="text-xl sm:text-2xl md:text-3xl text-center text-black">
-                                    Обране
-                                </h2>
-                                <img src={Flower} alt="" className="h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 object-contain ml-2 sm:ml-3 md:ml-4 transform translate-y-[10px]" />
-                            </div>
+            {/* Заголовок сторінки з квітками */}
+            <div className="flex items-center justify-center mb-2 md:mb-3">
+                <img src={Flower} alt="" className="h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 object-contain mr-2 sm:mr-3 md:mr-4 transform translate-y-[10px]" />
+                <h2 style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }} className="text-xl sm:text-2xl md:text-3xl text-center text-black">
+                    Обране
+                </h2>
+                <img src={Flower} alt="" className="h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 object-contain ml-2 sm:ml-3 md:ml-4 transform translate-y-[10px]" />
+            </div>
 
             {/* Перевіряємо, чи є товари в обраному */}
             {wishlistedProducts.length > 0 ? (
@@ -108,7 +108,7 @@ const  Favorites = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 xl:gap-x-8 flex-grow">
                     {wishlistedProducts.map(product => (
                         <div key={product._id} className="flex justify-center">
-                             {/* Передаємо дані товару в компонент Item */}
+                            {/* Передаємо дані товару в компонент Item */}
                             <Item product={product} />
                         </div>
                     ))}
@@ -123,4 +123,4 @@ const  Favorites = () => {
     );
 };
 
-export default  Favorites;
+export default Favorites;

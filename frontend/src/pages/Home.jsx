@@ -3,6 +3,7 @@ import Hero from "../components/Hero"
 import Categories from "../components/Categories"
 import ProductDisplay from '../components/ProductDisplay';
 import DiscountedProductsPage from '../pages/DiscountedProductsPage';
+import ProductHd from '../components/ProductHd';
 
 const Home = () => {
 
@@ -12,7 +13,6 @@ const Home = () => {
         <>
             <Hero />
             <Categories category={category} setCategory={setCategory} />
-            <ProductDisplay category={category} />
             <DiscountedProductsPage category={category} />
         </>
     );
