@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { FaPlus, FaArrowLeft } from 'react-icons/fa6';
 import Select from 'react-select';
 import { useNavigate } from 'react-router-dom';
+import Flower from "../assets/design/flower.png";
 
 // Визначаємо компонент
 const AddInvoice = () => {
@@ -277,11 +278,49 @@ const AddInvoice = () => {
     return (
         <section className="p-10 w-full bg-gray-100 min-h-screen flex justify-center"> {/* Налаштовано відступи та фон */}
             <form onSubmit={onSubmitHandler} className="flex flex-col gap-y-6 max-w-7xl mx-auto bg-white p-6 rounded-lg shadow-md"> {/* Додано контейнер */}
-                <h4 className="text-xl font-semibold pb-2 uppercase border-b border-gray-300 text-gray-800">Додавання прибуткової накладної</h4>
+                <div className="flex items-center justify-center mb-2 border-b">
+                    <img
+                        src={Flower}
+                        alt=""
+                        className="
+                                                                                            h-12 w-12
+                                                                                            sm:h-14 sm:w-14
+                                                                                            md:h-16 md:w-16
+                                                                                            object-contain
+                                                                                            mr-2 sm:mr-3 md:mr-4
+                                                                                            transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
+                                                                                        "
+                    />
+                    <h2
+                        style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }}
+                        className="
+                                                                                            text-xl
+                                                                                            sm:text-2xl
+                                                                                            md:text-3xl
+                                                                                            text-center
+                                                                                            text-black
+                                                                                        "
+                    >
+                        Додавання прибуткової накладної
+                    </h2>
+                    <img
+                        src={Flower}
+                        alt=""
+                        className="
+                                                                                            h-12 w-12
+                                                                                            sm:h-14 sm:w-14
+                                                                                            md:h-16 md:w-16
+                                                                                            object-contain
+                                                                                            ml-2 sm:ml-3 md:ml-4
+                                                                                            transform translate-y-[10px] {/* АБО translate-y-2.5 */}
+                                                                                        "
+                    />
+                </div>
+                {/* <h4 className="text-xl font-semibold pb-2 uppercase border-b border-gray-300 text-gray-800">Додавання прибуткової накладної</h4> */}
 
                 {/* Вибір постачальника */}
                 <div className="flex flex-col gap-y-2">
-                    <label htmlFor="supplier-select" className='text-base font-medium text-gray-700'>Постачальник </label>
+                    <label htmlFor="supplier-select" className='text-base font-medium text-gray-900'>Постачальник <span className="text-red-500">*</span></label>
                     <select
                         id="supplier-select"
                         onChange={handleSupplierChange}
@@ -300,7 +339,7 @@ const AddInvoice = () => {
 
                 {/* Блок додавання товарів */}
                 <fieldset className="border border-gray-300 p-4 rounded-md">
-                    <legend className="text-base font-medium px-2 text-gray-700">Додати товар</legend>
+                    <legend className="text-base font-medium px-2 text-gray-900">Додати товар <span className="text-red-500">*</span></legend>
                     {/* Ряд 1: Вибір товару */}
                     <div className="mb-4">
                         <label htmlFor="product-select" className='block text-sm font-medium text-gray-600 mb-1'>Товар</label>
@@ -431,7 +470,7 @@ const AddInvoice = () => {
                 {/* Список вибраних товарів */}
                 {selectedProducts.length > 0 && ( // Показуємо блок, тільки якщо є товари
                     <div className="flex flex-col gap-y-2 mt-4">
-                        <p className='text-base font-medium text-gray-700'>Товари в накладній:</p>
+                        <p className='text-base font-medium text-gray-900'>Товари в накладній:</p>
                         <div className='border border-gray-300 rounded-md max-h-60 overflow-y-auto'> {/* Додано обгортку для тіні/скролу */}
                             <ul className='divide-y divide-gray-200'>
                                 {selectedProducts.map((item, index) => {
@@ -463,7 +502,7 @@ const AddInvoice = () => {
 
                 {/* Загальна сума */}
                 <div className="flex flex-col gap-y-2">
-                    <label htmlFor="totalAmount-input" className='text-base font-medium text-gray-700'>Загальна сума</label>
+                    <label htmlFor="totalAmount-input" className='text-base font-medium text-gray-900'>Загальна сума</label>
                     <input
                         id="totalAmount-input"
                         type="number"
@@ -475,7 +514,7 @@ const AddInvoice = () => {
 
                 {/* Нотатки */}
                 <div className="flex flex-col gap-y-2">
-                    <label htmlFor="notes-textarea" className='text-base font-medium text-gray-700'>Нотатки</label>
+                    <label htmlFor="notes-textarea" className='text-base font-medium text-gray-900'>Нотатки</label>
                     <textarea
                         id="notes-textarea"
                         onChange={onChangeHandler} // Потрібен для оновлення стану data.notes

@@ -4,6 +4,7 @@ import { FaPlus, FaTrash, FaUpload, FaArrowLeft } from 'react-icons/fa'; // До
 import axios from "axios";
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import Flower from "../assets/design/flower.png";
 
 const Add = () => {
     const url = "http://localhost:4000"; // URL вашого бекенду
@@ -145,13 +146,51 @@ const Add = () => {
     return (
         <section className="p-10 w-full bg-gray-100 min-h-screen flex justify-center">
             <form onSubmit={onSubmitHandler} className="flex flex-col gap-y-5 max-w-4xl w-full mx-auto bg-white p-6 rounded-lg shadow-md">
-                <h4 className="text-xl font-semibold pb-2 uppercase border-b border-gray-300 text-gray-800 mb-4">
+                <div className="flex items-center justify-center">
+                    <img
+                        src={Flower}
+                        alt=""
+                        className="
+                                            h-12 w-12
+                                            sm:h-14 sm:w-14
+                                            md:h-16 md:w-16
+                                            object-contain
+                                            mr-2 sm:mr-3 md:mr-4
+                                            transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
+                                        "
+                    />
+                    <h2
+                        style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }}
+                        className="
+                                            text-xl
+                                            sm:text-2xl
+                                            md:text-3xl
+                                            text-center
+                                            text-black
+                                        "
+                    >
+                        Додавання нового товару
+                    </h2>
+                    <img
+                        src={Flower}
+                        alt=""
+                        className="
+                                            h-12 w-12
+                                            sm:h-14 sm:w-14
+                                            md:h-16 md:w-16
+                                            object-contain
+                                            ml-2 sm:ml-3 md:ml-4
+                                            transform translate-y-[10px] {/* АБО translate-y-2.5 */}
+                                        "
+                    />
+                </div>
+                {/* <h4 className="text-xl font-semibold pb-2 uppercase border-b border-gray-300 text-gray-800 mb-4">
                     Додавання нового товару
-                </h4>
+                </h4> */}
 
                 {/* Завантаження та управління зображеннями */}
                 <fieldset className="border border-gray-300 p-4 rounded-md">
-                    <legend className="text-base font-medium px-2 text-gray-700">Зображення товару <span className="text-red-500">*</span></legend>
+                    <legend className="text-base font-medium px-2 text-gray-900">Зображення товару <span className="text-red-500">*</span></legend>
 
                     {/* Контейнер для прев'ю */}
                     <div className="flex flex-wrap gap-3 mb-3 min-h-[110px] p-2 border border-dashed border-gray-300 rounded-md ">
@@ -175,7 +214,7 @@ const Add = () => {
                         ))}
                         {/* Повідомлення, якщо немає зображень */}
                         {images.length === 0 && (
-                            <div className="flex items-center justify-center h-24 w-full text-gray-500">
+                            <div className="flex items-center justify-center h-24 w-full text-gray-300">
                                 <p>Перетягніть або оберіть зображення...</p>
                             </div>
                         )}
@@ -205,7 +244,7 @@ const Add = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mt-4">
                     {/* Назва */}
                     <div className="flex flex-col gap-y-1">
-                        <label htmlFor="name" className='text-sm font-medium text-gray-600'>Назва товару <span className="text-red-500">*</span></label>
+                        <label htmlFor="name" className='text-base font-medium text-gray-900'>Назва товару <span className="text-red-500">*</span></label>
                         <input
                             id="name" onChange={onChangeHandler} value={data.name} name="name" type="text"
                             placeholder='Наприклад, "Вишиванка Оберіг"'
@@ -215,7 +254,7 @@ const Add = () => {
 
                     {/* Ціна */}
                     <div className="flex flex-col gap-y-1">
-                        <label htmlFor="price" className='text-sm font-medium text-gray-600'>Ціна (грн) <span className="text-red-500">*</span></label>
+                        <label htmlFor="price" className='text-base font-medium text-gray-900'>Ціна (грн) <span className="text-red-500">*</span></label>
                         <input
                             id="price" onChange={onChangeHandler} value={data.price} type="number" name="price"
                             placeholder='Наприклад, 1500' min="0.01" step="0.01"
@@ -225,7 +264,7 @@ const Add = () => {
 
                     {/* Опис */}
                     <div className="flex flex-col gap-y-1 md:col-span-2">
-                        <label htmlFor="description" className='text-sm font-medium text-gray-600'>Опис</label>
+                        <label htmlFor="description" className='text-base font-medium text-gray-900'>Опис <span className="text-red-500">*</span></label>
                         <textarea
                             id="description" onChange={onChangeHandler} value={data.description} name="description"
                             rows={4} placeholder='Детальний опис товару...'
@@ -235,12 +274,11 @@ const Add = () => {
 
                     {/* Категорія */}
                     <div className="flex flex-col gap-y-1">
-                        <label htmlFor="category" className='text-sm font-medium text-gray-600'>Категорія <span className="text-red-500">*</span></label>
+                        <label htmlFor="category" className='text-base font-medium text-gray-900'>Категорія <span className="text-red-500">*</span></label>
                         <select
                             id="category" onChange={onChangeHandler} value={data.category} name="category"
                             className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out bg-white"
                         >
-                            {/* <option value="" disabled>-- Оберіть категорію --</option> */}
                             <option value="" disabled>-- Оберіть --</option>
                             <option value="Для жінок">Для жінок</option>
                             <option value="Для чоловіків">Для чоловіків</option>
@@ -251,30 +289,30 @@ const Add = () => {
 
                     {/* Інші характеристики */}
                     <div className="flex flex-col gap-y-1">
-                        <label htmlFor="threads" className='text-sm font-medium text-gray-600'>Нитки</label>
+                        <label htmlFor="threads" className='text-base font-medium text-gray-900'>Нитки</label>
                         <input id="threads" onChange={onChangeHandler} value={data.threads} type="text" name="threads" placeholder='Наприклад, "Бавовна, акрил"' className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out" />
                     </div>
                     <div className="flex flex-col gap-y-1">
-                        <label htmlFor="cut" className='text-sm font-medium text-gray-600'>Крій</label>
+                        <label htmlFor="cut" className='text-base font-medium text-gray-900'>Крій</label>
                         <input id="cut" onChange={onChangeHandler} value={data.cut} type="text" name="cut" placeholder='Наприклад, "Прямий, вільний"' className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out" />
                     </div>
                     <div className="flex flex-col gap-y-1">
-                        <label htmlFor="technique" className='text-sm font-medium text-gray-600'>Техніка виконання</label>
+                        <label htmlFor="technique" className='text-base font-medium text-gray-900'>Техніка виконання</label>
                         <input id="technique" onChange={onChangeHandler} value={data.technique} type="text" name="technique" placeholder='Наприклад, "Хрестик, гладь"' className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out" />
                     </div>
                     <div className="flex flex-col gap-y-1">
-                        <label htmlFor="fabric" className='text-sm font-medium text-gray-600'>Тканина</label>
+                        <label htmlFor="fabric" className='text-base font-medium text-gray-900'>Тканина</label>
                         <input id="fabric" onChange={onChangeHandler} value={data.fabric} type="text" name="fabric" placeholder='Наприклад, "Льон, домоткане полотно"' className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out" />
                     </div>
                     <div className="flex flex-col gap-y-1">
-                        <label htmlFor="colors" className='text-sm font-medium text-gray-600'>Кольори</label>
+                        <label htmlFor="colors" className='text-base font-medium text-gray-900'>Кольори <span className="text-red-500">*</span></label>
                         <input id="colors" onChange={onChangeHandler} value={data.colors} type="text" name="colors" placeholder='Наприклад, "Червоний, чорний, білий"' className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out" />
                     </div>
                 </div>
 
                 {/* Блок для розмірів та кількості */}
                 <fieldset className="border border-gray-300 p-4 rounded-md mt-4">
-                    <legend className="text-base font-medium px-2 text-gray-700">Розміри та початкова кількість <span className="text-red-500">*</span></legend>
+                    <legend className="text-base font-medium px-2 text-gray-900">Розміри та початкова кількість <span className="text-red-500">*</span></legend>
                     <div className="flex flex-col gap-y-3">
                         {sizes.map((sizeItem, index) => (
                             <div key={index} className="flex flex-wrap items-center gap-x-3 gap-y-2 p-2 rounded border border-gray-200">

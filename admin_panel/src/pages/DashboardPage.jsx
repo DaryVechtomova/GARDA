@@ -108,7 +108,7 @@ const DashboardPage = () => {
     return (
         <section className="p-10 w-full bg-primary/20">
             <div className="px-4">
-                <div className="flex items-center justify-center mb-6 md:mb-10">
+                <div className="flex items-center mb-4">
                     <img
                         src={Flower}
                         alt=""
@@ -178,7 +178,7 @@ const DashboardPage = () => {
 
                 {/* Секція популярних товарів */}
                 <div className="mt-10 p-6 bg-white rounded-xl shadow-lg">
-                    <h2 className="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
                         <FaStar className="mr-2 text-yellow-500" />
                         Топ-5 популярних товарів (за 30 днів)
                     </h2>
@@ -202,7 +202,7 @@ const DashboardPage = () => {
                                             <div className="w-12 h-12 bg-gray-200 rounded-md mr-4 flex items-center justify-center text-gray-400 flex-shrink-0">?</div>
                                         )}
                                         <div className="overflow-hidden">
-                                            <p className="font-medium text-gray-800 truncate group-hover:text-blue-600 transition-colors">
+                                            <p className="font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors">
                                                 {index + 1}. {product.name || 'Без назви'}
                                             </p>
                                         </div>

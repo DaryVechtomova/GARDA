@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast } from 'react-toastify';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
+import Flower from "../assets/design/flower.png";
 
 const ProductDetails = () => {
     const url = "http://localhost:4000";
@@ -160,7 +161,45 @@ const ProductDetails = () => {
     return (
         <section className="p-10 w-full bg-gray-100 flex justify-center">
             <div className="w-full max-w-4xl bg-white shadow-lg rounded-lg p-6">
-                <h4 className="text-2xl font-bold text-black border-b pb-3 mb-4 uppercase">Деталі товару</h4>
+                <div className="flex items-center justify-center mb-2 border-b">
+                    <img
+                        src={Flower}
+                        alt=""
+                        className="
+                                                            h-12 w-12
+                                                            sm:h-14 sm:w-14
+                                                            md:h-16 md:w-16
+                                                            object-contain
+                                                            mr-2 sm:mr-3 md:mr-4
+                                                            transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
+                                                        "
+                    />
+                    <h2
+                        style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }}
+                        className="
+                                                            text-xl
+                                                            sm:text-2xl
+                                                            md:text-3xl
+                                                            text-center
+                                                            text-black
+                                                        "
+                    >
+                        Деталі товару
+                    </h2>
+                    <img
+                        src={Flower}
+                        alt=""
+                        className="
+                                                            h-12 w-12
+                                                            sm:h-14 sm:w-14
+                                                            md:h-16 md:w-16
+                                                            object-contain
+                                                            ml-2 sm:ml-3 md:ml-4
+                                                            transform translate-y-[10px] {/* АБО translate-y-2.5 */}
+                                                        "
+                    />
+                </div>
+                {/* <h4 className="text-2xl font-bold text-black border-b pb-3 mb-4 uppercase">Деталі товару</h4> */}
 
                 <div className="grid grid-cols-2 gap-6">
                     <div>

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useParams, useNavigate, NavLink } from 'react-router-dom'; // Додав NavLink
 import { FaArrowLeft, FaEdit, FaSpinner } from 'react-icons/fa'; // Додав іконки
+import Flower from "../assets/design/flower.png";
 
 const SupplierDetails = () => {
     const url = "http://localhost:4000";
@@ -107,9 +108,47 @@ const SupplierDetails = () => {
                 {/* Заголовок */}
                 <div className="flex flex-col sm:flex-row justify-between items-start mb-6 pb-4 border-b">
                     <div>
-                        <h4 className="text-xl font-semibold uppercase text-gray-800">
+                        <div className="flex items-center justify-center mb-2">
+                            <img
+                                src={Flower}
+                                alt=""
+                                className="
+                                h-12 w-12
+                                sm:h-14 sm:w-14
+                                md:h-16 md:w-16
+                                object-contain
+                                                                                                    mr-2 sm:mr-3 md:mr-4
+                                                                                                    transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
+                                                                                                "
+                            />
+                            <h2
+                                style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }}
+                                className="
+                                                                                                    text-xl
+                                                                                                    sm:text-2xl
+                                                                                                    md:text-3xl
+                                                                                                    text-center
+                                                                                                    text-black
+                                                                                                "
+                            >
+                                Постачальник: {supplier.companyName}
+                            </h2>
+                            <img
+                                src={Flower}
+                                alt=""
+                                className="
+                                                                                                    h-12 w-12
+                                                                                                    sm:h-14 sm:w-14
+                                                                                                    md:h-16 md:w-16
+                                                                                                    object-contain
+                                                                                                    ml-2 sm:ml-3 md:ml-4
+                                                                                                    transform translate-y-[10px] {/* АБО translate-y-2.5 */}
+                                                                                                "
+                            />
+                        </div>
+                        {/* <h4 className="text-xl font-semibold uppercase text-gray-800">
                             Постачальник: {supplier.companyName}
-                        </h4>
+                        </h4> */}
                         <p className="text-sm text-gray-500">ID: {supplier._id}</p>
                     </div>
                     {/* Статус */}
@@ -124,42 +163,42 @@ const SupplierDetails = () => {
 
                     {/* Блок для кожного поля */}
                     <div className="space-y-1">
-                        <p className='text-sm font-medium text-gray-500'>Назва компанії</p>
+                        <p className='text-sm font-medium text-gray-900'>Назва компанії</p>
                         <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
                             {displayValue(supplier.companyName)}
                         </p>
                     </div>
 
                     <div className="space-y-1">
-                        <p className='text-sm font-medium text-gray-500'>Контактна особа</p>
+                        <p className='text-sm font-medium text-gray-900'>Контактна особа</p>
                         <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
                             {displayValue(supplier.contactPerson)}
                         </p>
                     </div>
 
                     <div className="space-y-1">
-                        <p className='text-sm font-medium text-gray-500'>Email</p>
+                        <p className='text-sm font-medium text-gray-900'>Email</p>
                         <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
                             {displayValue(supplier.email)}
                         </p>
                     </div>
 
                     <div className="space-y-1">
-                        <p className='text-sm font-medium text-gray-500'>Телефон</p>
+                        <p className='text-sm font-medium text-gray-900'>Телефон</p>
                         <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
                             {displayValue(supplier.phone)}
                         </p>
                     </div>
 
                     <div className="space-y-1">
-                        <p className='text-sm font-medium text-gray-500'>Країна</p>
+                        <p className='text-sm font-medium text-gray-900'>Країна</p>
                         <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
                             {displayValue(supplier.country)}
                         </p>
                     </div>
 
                     <div className="space-y-1">
-                        <p className='text-sm font-medium text-gray-500'>Місто</p>
+                        <p className='text-sm font-medium text-gray-900'>Місто</p>
                         <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
                             {displayValue(supplier.city)}
                         </p>
@@ -167,14 +206,14 @@ const SupplierDetails = () => {
 
                     {/* Адреса може займати всю ширину */}
                     <div className="space-y-1 md:col-span-2">
-                        <p className='text-sm font-medium text-gray-500'>Адреса</p>
+                        <p className='text-sm font-medium text-gray-900'>Адреса</p>
                         <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
                             {displayValue(supplier.address)}
                         </p>
                     </div>
 
                     <div className="space-y-1">
-                        <p className='text-sm font-medium text-gray-500'>Дата початку співпраці</p>
+                        <p className='text-sm font-medium text-gray-900'>Дата початку співпраці</p>
                         <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
                             {formatDateForDisplay(supplier.cooperationStartDate)}
                         </p>
@@ -183,7 +222,7 @@ const SupplierDetails = () => {
                     {/* Показуємо дату завершення, тільки якщо вона є */}
                     {supplier.cooperationEndDate && (
                         <div className="space-y-1">
-                            <p className='text-sm font-medium text-gray-500'>Дата завершення співпраці</p>
+                            <p className='text-sm font-medium text-gray-900'>Дата завершення співпраці</p>
                             <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px]">
                                 {formatDateForDisplay(supplier.cooperationEndDate)}
                             </p>
@@ -191,7 +230,7 @@ const SupplierDetails = () => {
                     )}
 
                     <div className="space-y-1">
-                        <p className='text-sm font-medium text-gray-500'>Тип продукції</p>
+                        <p className='text-sm font-medium text-gray-900'>Тип продукції</p>
                         <p className="text-base text-gray-800 bg-gray-100 p-2 rounded border border-gray-200 min-h-[38px] capitalize"> {/* Додав capitalize */}
                             {displayValue(supplier.productType)}
                         </p>
@@ -199,7 +238,7 @@ const SupplierDetails = () => {
                     {/* Нотатки, якщо є */}
                     {supplier.notes && (
                         <div className="space-y-1 md:col-span-2"> {/* Займає всю ширину */}
-                            <p className='text-sm font-medium text-gray-500'>Нотатки</p>
+                            <p className='text-sm font-medium text-gray-900'>Нотатки</p>
                             <p className="text-base text-gray-800 bg-gray-50 p-2 rounded border border-gray-200 min-h-[60px] whitespace-pre-wrap"> {/* whitespace-pre-wrap для збереження переносів рядків */}
                                 {displayValue(supplier.notes)}
                             </p>

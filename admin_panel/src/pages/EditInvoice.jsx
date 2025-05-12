@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaSave, FaPlus, FaTrash, FaArrowLeft, FaSpinner, FaMinus, FaPlusCircle } from 'react-icons/fa'; // Додав FaMinus, FaPlusCircle
 import Select from 'react-select'; // Використовуємо react-select
+import Flower from "../assets/design/flower.png";
 
 const EditInvoice = () => {
     const url = "http://localhost:4000";
@@ -322,21 +323,59 @@ const EditInvoice = () => {
     return (
         <section className="p-10 w-full bg-gray-100 min-h-screen flex justify-center">
             <div className="w-full max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-md">
-                <h4 className="text-xl font-semibold pb-4 mb-6 uppercase border-b text-gray-800">
+                <div className="flex items-center justify-center mb-2 border-b">
+                    <img
+                        src={Flower}
+                        alt=""
+                        className="
+                                                                                            h-12 w-12
+                                                                                            sm:h-14 sm:w-14
+                                                                                            md:h-16 md:w-16
+                                                                                            object-contain
+                                                                                            mr-2 sm:mr-3 md:mr-4
+                                                                                            transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
+                                                                                        "
+                    />
+                    <h2
+                        style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }}
+                        className="
+                                                                                            text-xl
+                                                                                            sm:text-2xl
+                                                                                            md:text-3xl
+                                                                                            text-center
+                                                                                            text-black
+                                                                                        "
+                    >
+                        Редагування прибуткової накладної № {invoiceData.invoiceNumber || "..."}
+                    </h2>
+                    <img
+                        src={Flower}
+                        alt=""
+                        className="
+                                                                                            h-12 w-12
+                                                                                            sm:h-14 sm:w-14
+                                                                                            md:h-16 md:w-16
+                                                                                            object-contain
+                                                                                            ml-2 sm:ml-3 md:ml-4
+                                                                                            transform translate-y-[10px] {/* АБО translate-y-2.5 */}
+                                                                                        "
+                    />
+                </div>
+                {/* <h4 className="text-xl font-semibold pb-4 mb-6 uppercase border-b text-gray-800">
                     Редагування прибуткової накладної № {invoiceData.invoiceNumber || "..."}
-                </h4>
+                </h4> */}
 
                 <form onSubmit={onSubmitHandler} className="space-y-6">
                     {/* --- Основна інформація --- */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                         <div className="flex flex-col gap-y-1">
-                            <label className='text-sm font-medium text-gray-600'>Постачальник</label>
-                            <div className="border border-gray-300 rounded-md py-1.5 px-3 h-[38px] bg-gray-100 text-gray-700 flex items-center">
+                            <label className='text-base font-medium text-gray-900'>Постачальник</label>
+                            <div className="border border-gray-300 rounded-md py-1.5 px-3 h-[38px] bg-gray-100 text-gray-900 flex items-center">
                                 {supplierName}
                             </div>
                         </div>
                         <div className="flex flex-col gap-y-1">
-                            <label htmlFor="status" className='text-sm font-medium text-gray-600'>Статус <span className="text-[#99120d]">*</span></label>
+                            <label htmlFor="status" className='text-base font-medium text-gray-900'>Статус <span className="text-[#99120d]">*</span></label>
                             <select
                                 id="status" name="status" value={invoiceData.status} onChange={handleInvoiceDataChange}
                                 className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out bg-white"
@@ -350,7 +389,7 @@ const EditInvoice = () => {
 
                     {/* --- Додавання товару --- */}
                     <fieldset className="border border-gray-300 p-4 rounded-md">
-                        <legend className="text-base font-medium px-2 text-gray-700">Додати товар</legend>
+                        <legend className="text-base font-medium px-2 text-gray-900">Додати товар</legend>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-start">
                             {/* Товар */}
                             <div className="flex flex-col gap-y-1 lg:col-span-2">
@@ -379,7 +418,7 @@ const EditInvoice = () => {
                             {/* Ціна/од. */}
                             <div className="flex flex-col gap-y-1 lg:col-start-4">
                                 <label className='text-sm font-medium text-gray-600'>Розрахована Ціна/од.</label>
-                                <div className="border border-gray-300 rounded-md py-1.5 px-3 h-[38px] bg-gray-100 text-gray-700 flex items-center justify-end">
+                                <div className="border border-gray-300 rounded-md py-1.5 px-3 h-[38px] bg-gray-100 text-gray-900 flex items-center justify-end">
                                     {pricePerUnitToAdd.toFixed(2)} грн
                                 </div>
                             </div>
@@ -388,19 +427,19 @@ const EditInvoice = () => {
 
                     {/* --- Список доданих товарів (з редагуванням кількості) --- */}
                     <fieldset className="border border-gray-300 p-4 rounded-md">
-                        <legend className="text-base font-medium px-2 text-gray-700">Товари в накладній</legend>
+                        <legend className="text-base font-medium px-2 text-gray-900">Товари в накладній</legend>
                         {invoiceData.products.length > 0 ? (
                             <div className="overflow-x-auto">
                                 <table className="w-full min-w-[700px] border-collapse text-sm"> {/* Збільшив min-w */}
                                     <thead className="bg-gray-100">
                                         <tr>
-                                            <th className="p-2 border text-left font-semibold text-gray-600">Назва товару</th>
-                                            <th className="p-2 border text-center font-semibold text-gray-600 w-20">Розмір</th>
+                                            <th className="p-2 border text-center font-semibold text-gray-900">Назва товару</th>
+                                            <th className="p-2 border text-center font-semibold text-gray-900 w-20">Розмір</th>
                                             {/* Змінив заголовок К-ть */}
-                                            <th className="p-2 border text-center font-semibold text-gray-600 w-32">Кількість</th>
-                                            <th className="p-2 border text-right font-semibold text-gray-600 w-28">Ціна/од.</th>
-                                            <th className="p-2 border text-right font-semibold text-gray-600 w-32">Сума</th>
-                                            <th className="p-2 border text-center font-semibold text-gray-600 w-20">Дія</th>
+                                            <th className="p-2 border text-center font-semibold text-gray-900 w-32">Кількість</th>
+                                            <th className="p-2 border text-center font-semibold text-gray-900 w-28">Ціна/од.</th>
+                                            <th className="p-2 border text-center font-semibold text-gray-900 w-32">Сума</th>
+                                            <th className="p-2 border text-center font-semibold text-gray-900 w-20">Дія</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -460,7 +499,7 @@ const EditInvoice = () => {
                                     </tbody>
                                     <tfoot>
                                         <tr className="bg-gray-100">
-                                            <td colSpan="4" className="p-2 border text-right font-semibold text-gray-700">Загальна сума:</td>
+                                            <td colSpan="4" className="p-2 border text-right font-semibold text-gray-900">Загальна сума:</td>
                                             <td className="p-2 border text-right font-bold text-lg text-gray-800">
                                                 {invoiceData.totalAmount.toFixed(2)} грн
                                             </td>

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaSave, FaPlus, FaTrash, FaUndo, FaExclamationTriangle, FaArrowLeft, FaMinus, FaPlusCircle, FaSpinner } from 'react-icons/fa';
+import Flower from "../assets/design/flower.png";
 
 const EditOrder = () => {
     const url = "http://localhost:4000";
@@ -527,9 +528,47 @@ const EditOrder = () => {
     return (
         <section className="p-6 md:p-10 w-full bg-gray-100 min-h-screen">
             <div className="w-full max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-md print:shadow-none print:rounded-none print:p-4">
-                <h4 className="text-xl font-semibold pb-4 mb-6 uppercase border-b text-gray-800">
+                <div className="flex items-center justify-center mb-2">
+                    <img
+                        src={Flower}
+                        alt=""
+                        className="
+                                                                            h-12 w-12
+                                                                            sm:h-14 sm:w-14
+                                                                            md:h-16 md:w-16
+                                                                            object-contain
+                                                                            mr-2 sm:mr-3 md:mr-4
+                                                                            transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
+                                                                        "
+                    />
+                    <h2
+                        style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }}
+                        className="
+                                                                            text-xl
+                                                                            sm:text-2xl
+                                                                            md:text-3xl
+                                                                            text-center
+                                                                            text-black
+                                                                        "
+                    >
+                        Редагування товару (ID: {id})
+                    </h2>
+                    <img
+                        src={Flower}
+                        alt=""
+                        className="
+                                                                            h-12 w-12
+                                                                            sm:h-14 sm:w-14
+                                                                            md:h-16 md:w-16
+                                                                            object-contain
+                                                                            ml-2 sm:ml-3 md:ml-4
+                                                                            transform translate-y-[10px] {/* АБО translate-y-2.5 */}
+                                                                        "
+                    />
+                </div>
+                {/* <h4 className="text-xl font-semibold pb-4 mb-6 uppercase border-b text-gray-800">
                     Редагування замовлення № {order.orderNumber}
-                </h4>
+                </h4> */}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
 
@@ -613,18 +652,18 @@ const EditOrder = () => {
 
                     {/* --- Список товарів у замовленні --- */}
                     <fieldset className="border border-gray-300 p-4 rounded-md">
-                        <legend className="text-base font-medium px-2 text-gray-700">Склад замовлення</legend>
+                        <legend className="text-base font-medium px-2 text-gray-900">Склад замовлення</legend>
                         {order.items.length > 0 ? (
                             <div className="overflow-x-auto">
                                 <table className="w-full min-w-[700px] border-collapse text-sm">
                                     <thead className="bg-gray-100">
                                         <tr>
-                                            <th className="p-2 border text-left font-semibold text-gray-600">Назва товару</th>
-                                            <th className="p-2 border text-center font-semibold text-gray-600 w-24">Розмір / Сток</th>
-                                            <th className="p-2 border text-center font-semibold text-gray-600 w-20">К-ть</th>
-                                            <th className="p-2 border text-right font-semibold text-gray-600 w-28">Ціна/шт.</th>
-                                            <th className="p-2 border text-right font-semibold text-gray-600 w-32">Сума</th>
-                                            <th className="p-2 border text-center font-semibold text-gray-600 w-20">Дія</th>
+                                            <th className="p-2 border text-center font-semibold text-gray-900">Назва товару</th>
+                                            <th className="p-2 border text-center font-semibold text-gray-900 w-24">Розмір / Сток</th>
+                                            <th className="p-2 border text-center font-semibold text-gray-900 w-20">К-ть</th>
+                                            <th className="p-2 border text-center font-semibold text-gray-900 w-28">Ціна/шт.</th>
+                                            <th className="p-2 border text-center font-semibold text-gray-900 w-32">Сума</th>
+                                            <th className="p-2 border text-center font-semibold text-gray-900 w-20">Дія</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -728,8 +767,8 @@ const EditOrder = () => {
                                     </tbody>
                                     <tfoot>
                                         <tr className="bg-gray-100">
-                                            <td colSpan="4" className="p-2 border text-right font-semibold text-gray-700">Загальна сума активних товарів:</td>
-                                            <td className="p-2 border text-right font-bold text-lg text-gray-800">
+                                            <td colSpan="4" className="p-2 border text-right font-semibold text-gray-900">Загальна сума активних товарів:</td>
+                                            <td className="p-2 border text-right font-bold text-lg text-gray-900">
                                                 {currentOrderTotal.toFixed(2)} грн
                                             </td>
                                             <td className="p-2 border"></td>
@@ -744,7 +783,7 @@ const EditOrder = () => {
 
                     {/* --- Причина редагування --- */}
                     <fieldset className="border border-gray-300 p-4 rounded-md">
-                        <legend className="text-base font-medium px-2 text-gray-700">Причина редагування</legend>
+                        <legend className="text-base font-medium px-2 text-gray-900">Причина редагування</legend>
                         <label htmlFor="editReasonSelect" className="block mb-1 text-sm font-medium text-gray-600">
                             Оберіть причину <span className="text-[#99120d]">*</span>
                         </label>

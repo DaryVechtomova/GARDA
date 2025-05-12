@@ -159,7 +159,7 @@ function List() {
     return (
         <section className="p-10 w-full bg-primary/20">
             <div className="px-4">
-                <div className="flex items-center mb-2">
+                <div className="flex items-center mb-4">
                     <img
                         src={Flower}
                         alt=""
