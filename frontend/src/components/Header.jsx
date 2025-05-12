@@ -118,6 +118,7 @@ const Header = ({ setShowLogin }) => {
                         <div className="flexBetween gap-x-3 sm:gap-x-8">
                             {/* Пошук */}
                             <div className="flex items-center gap-2">
+                                {/* Поле пошуку з іконкою всередині (показується, коли searchOpened === true) */}
                                 {searchOpened && (
                                     <div className="relative">
                                         <input
@@ -125,27 +126,26 @@ const Header = ({ setShowLogin }) => {
                                             placeholder="Пошук..."
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
-                                            onKeyPress={handleKeyPress}
+                                            onKeyPress={handleKeyPress} // Дозволяє шукати по Enter
                                             className="bg-white border border-gray-300 rounded-md p-2 w-48 shadow-md transition-all duration-300"
                                         />
                                         <HiSearch
-                                            onClick={handleSearch}
+                                            onClick={handleSearch} // Клік по цій іконці виконує пошук
                                             className="absolute right-2 top-2 text-xl hover:text-secondary cursor-pointer"
                                         />
                                     </div>
                                 )}
-                                <div className="flex flex-col items-center gap-1">
-                                    <HiSearch
-                                        onClick={() => {
-                                            toggleSearch();
-                                            if (searchOpened && searchQuery) {
-                                                handleSearch();
-                                            }
-                                        }}
-                                        className="text-2xl hover:text-secondary cursor-pointer sm:text-3xl"
-                                    />
-                                    <span className="text-sm hidden sm:block">Пошук</span>
-                                </div>
+
+                                {/* Іконка для відкриття пошуку (показується, коли searchOpened === false) */}
+                                {!searchOpened && ( // <--- Додано умову !searchOpened
+                                    <div className="flex flex-col items-center gap-1">
+                                        <HiSearch
+                                            onClick={toggleSearch} // <--- Спрощено onClick, тільки відкриває/закриває
+                                            className="text-2xl hover:text-secondary cursor-pointer sm:text-3xl"
+                                        />
+                                        <span className="text-sm hidden sm:block">Пошук</span>
+                                    </div>
+                                )}
                             </div>
                             {/* Уподобані */}
                             <Link to={"/favorites"} className="flex flex-col items-center gap-1">
