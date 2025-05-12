@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { TbTrash, TbEdit } from "react-icons/tb";
 import { NavLink } from 'react-router-dom';
 import { FaPlus } from 'react-icons/fa6';
+import Flower from "../assets/design/flower.png";
 
 function List() {
     const url = "http://localhost:4000";
@@ -158,7 +159,45 @@ function List() {
     return (
         <section className="p-10 w-full bg-primary/20">
             <div className="px-4">
-                <h4 className="bold-22 pb-2 uppercase">Список товарів</h4>
+                <div className="flex items-center mb-2">
+                    <img
+                        src={Flower}
+                        alt=""
+                        className="
+                            h-12 w-12
+                            sm:h-14 sm:w-14
+                            md:h-16 md:w-16
+                            object-contain
+                            mr-2 sm:mr-3 md:mr-4
+                            transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
+                        "
+                    />
+                    <h2
+                        style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }}
+                        className="
+                            text-xl
+                            sm:text-2xl
+                            md:text-3xl
+                            text-center
+                            text-black
+                        "
+                    >
+                        Список товарів
+                    </h2>
+                    <img
+                        src={Flower}
+                        alt=""
+                        className="
+                            h-12 w-12
+                            sm:h-14 sm:w-14
+                            md:h-16 md:w-16
+                            object-contain
+                            ml-2 sm:ml-3 md:ml-4
+                            transform translate-y-[10px] {/* АБО translate-y-2.5 */}
+                        "
+                    />
+                </div>
+                {/* <h4 className="bold-22 pb-2 uppercase">Список товарів</h4> */}
                 <div className="flex gap-4 mb-4">
                     <button onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')} className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fbb42c]">
                         Сортувати за ціною {sortOrder === 'asc' ? '↑' : '↓'}

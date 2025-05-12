@@ -180,7 +180,7 @@ const Header = ({ setShowLogin }) => {
                                         <Link to={"/profile"} className="flex flex-col items-center gap-1">
                                             <CgProfile className="text-[22px] hover:text-secondary sm:text-3xl cursor-pointer" />
                                         </Link>
-                                        <ul className="absolute top-10 right-0 bg-white border rounded shadow-md hidden group-hover:block z-50">
+                                        <ul className="absolute top-10 right-0 mt-2 bg-white border rounded-md shadow-lg hidden group-hover:block z-50 min-w-[220px] py-1">
                                             <li className="flex items-center gap-x-2 px-4 py-2 cursor-pointer hover:bg-gray-100">
                                                 <Link to="/my-orders" className="flex items-center gap-x-2">
                                                     <FiShoppingBag className="text-[19px]" />

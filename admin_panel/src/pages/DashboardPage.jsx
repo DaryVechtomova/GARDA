@@ -4,6 +4,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { FaShoppingCart, FaRegCalendarCheck, FaRegMoneyBillAlt, FaUsers, FaCalendarWeek, FaStar, FaExternalLinkAlt } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
+import Flower from "../assets/design/flower.png";
 
 const API_URL = 'http://localhost:4000';
 
@@ -107,7 +108,45 @@ const DashboardPage = () => {
     return (
         <section className="p-10 w-full bg-primary/20">
             <div className="px-4">
-                <h1 className="text-3xl font-bold mb-8 ">Панель управління</h1>
+                <div className="flex items-center justify-center mb-6 md:mb-10">
+                    <img
+                        src={Flower}
+                        alt=""
+                        className="
+                            h-12 w-12
+                            sm:h-14 sm:w-14
+                            md:h-16 md:w-16
+                            object-contain
+                            mr-2 sm:mr-3 md:mr-4
+                            transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
+                        "
+                    />
+                    <h2
+                        style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }}
+                        className="
+                            text-xl
+                            sm:text-2xl
+                            md:text-3xl
+                            text-center
+                            text-black
+                        "
+                    >
+                        Панель управління
+                    </h2>
+                    <img
+                        src={Flower}
+                        alt=""
+                        className="
+                            h-12 w-12
+                            sm:h-14 sm:w-14
+                            md:h-16 md:w-16
+                            object-contain
+                            ml-2 sm:ml-3 md:ml-4
+                            transform translate-y-[10px] {/* АБО translate-y-2.5 */}
+                        "
+                    />
+                </div>
+                {/* <h1 className="text-3xl font-bold mb-8 ">Панель управління</h1> */}
                 {/* Картки основної статистики */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-10">
                     <StatCard
