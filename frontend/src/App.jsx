@@ -11,6 +11,7 @@ import LoginPopup from "./components/LoginPopup";
 import SearchPage from './pages/SearchPage';
 import ChangePassword from "./pages/ChangePassword"
 import MyOrders from "./pages/MyOrders";
+import CatalogPage from './pages/CatalogPage';
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { ToastContainer } from 'react-toastify';
@@ -35,6 +36,10 @@ export default function App() {
       <Header setShowLogin={setShowLogin} />
       <Routes>
         <Route path="/" element={<Home />} />
+        {/* Маршрут для каталогу з параметром категорії */}
+        <Route path='/catalog/:category' element={<CatalogPage />} />
+        {/* Можна додати маршрут /catalog без параметра, який показує всі товари */}
+        <Route path='/catalog' element={<CatalogPage />} />
         <Route path="/product/:productId" element={<Product />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/favorites" element={<Favorites />} />

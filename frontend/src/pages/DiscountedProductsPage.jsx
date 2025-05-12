@@ -70,7 +70,7 @@ const DiscountedProductsPage = () => {
         >
             <h2
                 style={{ fontFamily: 'Montserrat Alternates', fontWeight: 500 }}
-                className="text-2xl font-bold mb-8 text-center"
+                className="text-3xl font-bold mb-8 text-center"
             >
                 Акційні товари {/* Змінено заголовок */}
             </h2>

@@ -35,6 +35,9 @@ const Header = ({ setShowLogin }) => {
             handleSearch();
         }
     };
+    const closeMenuOnly = () => { // Функція, яка тільки закриває
+        setMenuOpened(false);
+    }
 
     // Перевіряємо стан авторизації при завантаженні компонента
     useEffect(() => {
@@ -118,6 +121,7 @@ const Header = ({ setShowLogin }) => {
                         <div className="flexBetween gap-x-3 sm:gap-x-8">
                             {/* Пошук */}
                             <div className="flex items-center gap-2">
+                                {/* Поле пошуку з іконкою всередині (показується, коли searchOpened === true) */}
                                 {searchOpened && (
                                     <div className="relative">
                                         <input
@@ -125,27 +129,26 @@ const Header = ({ setShowLogin }) => {
                                             placeholder="Пошук..."
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
-                                            onKeyPress={handleKeyPress}
+                                            onKeyPress={handleKeyPress} // Дозволяє шукати по Enter
                                             className="bg-white border border-gray-300 rounded-md p-2 w-48 shadow-md transition-all duration-300"
                                         />
                                         <HiSearch
-                                            onClick={handleSearch}
+                                            onClick={handleSearch} // Клік по цій іконці виконує пошук
                                             className="absolute right-2 top-2 text-xl hover:text-secondary cursor-pointer"
                                         />
                                     </div>
                                 )}
-                                <div className="flex flex-col items-center gap-1">
-                                    <HiSearch
-                                        onClick={() => {
-                                            toggleSearch();
-                                            if (searchOpened && searchQuery) {
-                                                handleSearch();
-                                            }
-                                        }}
-                                        className="text-2xl hover:text-secondary cursor-pointer sm:text-3xl"
-                                    />
-                                    <span className="text-sm hidden sm:block">Пошук</span>
-                                </div>
+
+                                {/* Іконка для відкриття пошуку (показується, коли searchOpened === false) */}
+                                {!searchOpened && ( // <--- Додано умову !searchOpened
+                                    <div className="flex flex-col items-center gap-1">
+                                        <HiSearch
+                                            onClick={toggleSearch} // <--- Спрощено onClick, тільки відкриває/закриває
+                                            className="text-2xl hover:text-secondary cursor-pointer sm:text-3xl"
+                                        />
+                                        <span className="text-sm hidden sm:block">Пошук</span>
+                                    </div>
+                                )}
                             </div>
                             {/* Уподобані */}
                             <Link to={"/favorites"} className="flex flex-col items-center gap-1">
@@ -207,10 +210,23 @@ const Header = ({ setShowLogin }) => {
 
                 {/* Меню */}
                 {menuOpened && (
-                    <div className="fixed top-0 left-0 h-screen w-64 bg-white shadow-lg z-40">
-                        <div className="p-5">
-                            <HiX onClick={toggleMenu} className="cursor-pointer hover:text-secondary text-2xl mb-5" />
-                            <Navbar containerStyles={"flex flex-col gap-y-5"} />
+                    // Використовуємо overlay для закриття по кліку поза меню (опціонально)
+                    <div
+                        className="fixed inset-0 bg-black bg-opacity-30 z-35"
+                        onClick={toggleMenu} // Закриття по кліку на фон
+                    >
+                        <div
+                            className="fixed top-0 left-0 h-screen w-64 bg-white shadow-lg z-40"
+                            onClick={(e) => e.stopPropagation()} // Зупиняємо спливання, щоб клік по меню не закривав його
+                        >
+                            <div className="p-5">
+                                <HiX onClick={toggleMenu} className="cursor-pointer hover:text-secondary text-2xl mb-5" />
+                                {/* Передаємо функцію для закриття */}
+                                <Navbar
+                                    containerStyles={"flex flex-col gap-y-5"} // Тільки класи Tailwind
+                                    closeMenu={closeMenuOnly}
+                                />
+                            </div>
                         </div>
                     </div>
                 )}
