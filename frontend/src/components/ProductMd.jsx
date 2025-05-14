@@ -341,36 +341,6 @@ const ProductMd = ({ product }) => {
                         </div>
                     )}
 
-                    {/* Small Images */}
-
-                    {/* <div className="small-images">
-                        {product.images
-                            .filter((_, index) => index !== currentImageIndex)
-                            .slice(visibleStartIndex, visibleStartIndex + numberOfVisibleSmallImages)
-                            .map((imgFilename) => { // Перейменовано змінну для ясності
-                                // const originalIndex = visibleStartIndex + indexInSlice;
-                                // // Перевірка, чи ім'я файлу не порожнє
-                                // if (!imgFilename) return null; // Пропускаємо, якщо ім'я файлу відсутнє
-                                const originalIndex = product.images.findIndex(originalImg => originalImg === imgFilename);
-                                if (originalIndex === -1 || !imgFilename) return null;
-                                return (
-                                    <img
-                                        key={`main-thumb-${originalIndex}`}
-                                        // === ВИПРАВЛЕННЯ: Додаємо url + "/images/" ===
-                                        src={`${url}/images/${imgFilename}`}
-                                        alt={`Перегляд ${originalIndex + 1}`}
-                                        // className={originalIndex === currentImageIndex ? 'active' : ''}
-                                        className={originalIndex === sliderIndex ? 'semi-active-thumb' : ''}
-                                        onClick={() => handleSmallImageClick(originalIndex)}
-                                        onError={(e) => {
-                                            console.error(`Помилка завантаження малої картинки: ${url}/images/${imgFilename}`);
-                                            e.target.style.visibility = 'hidden'; // Ховаємо при помилці
-                                        }}
-                                    />
-                                );
-                            })}
-                    </div> */}
-
                     {totalImages > 1 && numberOfVisibleSmallImages > 0 && (
                         <div className="small-images">
                             {imagesToDisplayInSmallSlider.map((imgData) => {

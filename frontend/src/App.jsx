@@ -12,6 +12,7 @@ import SearchPage from './pages/SearchPage';
 import ChangePassword from "./pages/ChangePassword"
 import MyOrders from "./pages/MyOrders";
 import CatalogPage from './pages/CatalogPage';
+import Verify from './pages/Verify';
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { ToastContainer } from 'react-toastify';
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="/order" element={<Order />} />
         <Route path="change-password" element={<ChangePassword />} />
         <Route path="/my-orders" element={<MyOrders />} />
+        <Route path="/verify" element={<Verify />} />
       </Routes>
       <Footer />
     </BrowserRouter>

@@ -5,6 +5,7 @@ import Item from "../components/Item";
 import { ShopContext } from "../context/ShopContext";
 import { IoOptionsOutline } from "react-icons/io5";
 import { HiX } from "react-icons/hi";
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import Flower from "../assets/design/flower.png";
 
 const CatalogPage = () => {
@@ -21,6 +22,10 @@ const CatalogPage = () => {
 
     const [pageTitle, setPageTitle] = useState("Каталог товарів");
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+    // СТАНИ ДЛЯ СОРТУВАННЯ
+    const [sortOption, setSortOption] = useState("default"); // Поточний вибраний варіант сортування
+    const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false); // Для відкриття/закриття випадаючого списку сортування
 
     const categoryNameMap = {
         'women': 'Для жінок',
@@ -43,65 +48,101 @@ const CatalogPage = () => {
 
     // --- Ефект для вилучення доступних кольорів та розмірів ---
     useEffect(() => {
-        console.log('Extracting filters useEffect: Running...'); // DEBUG
+        console.log('Extracting filters useEffect: Running...');
         if (all_products && all_products.length > 0) {
-            console.log('Extracting filters: Found products', all_products.length); // DEBUG
             const colorsSet = new Set();
             const sizesSet = new Set();
 
-            all_products.forEach((product, index) => {
-                // DEBUG: Логуємо дані конкретного продукту
-                // if (index < 5) { // Логуємо тільки перші 5 для чистоти
-                //     console.log(`Product ${index} colors:`, product.colors, `Type: ${typeof product.colors}`);
-                //     console.log(`Product ${index} sizes:`, product.sizes, `Is Array: ${Array.isArray(product.sizes)}`);
-                // }
-
-                if (product.colors && typeof product.colors === 'string') { // Перевірка на рядок
+            all_products.forEach(product => {
+                if (product.colors && typeof product.colors === 'string') {
                     colorsSet.add(product.colors.trim());
-                } else if (product.colors) {
-                    console.warn(`Product ID ${product._id} has unexpected colors type: ${typeof product.colors}`, product.colors); // DEBUG
                 }
-
                 if (product.sizes && Array.isArray(product.sizes)) {
                     product.sizes.forEach(sizeObj => {
-                        if (sizeObj.size && typeof sizeObj.size === 'string') { // Перевірка на рядок
+                        if (sizeObj.size && typeof sizeObj.size === 'string') {
                             sizesSet.add(sizeObj.size.trim());
-                        } else if (sizeObj.size) {
-                            console.warn(`Product ID ${product._id} has unexpected size type in sizes array: ${typeof sizeObj.size}`, sizeObj.size); // DEBUG
                         }
                     });
-                } else if (product.sizes) {
-                    console.warn(`Product ID ${product._id} has non-array sizes field:`, product.sizes); // DEBUG
                 }
             });
 
-            const sortedColors = Array.from(colorsSet).sort();
-            const sortedSizes = Array.from(sizesSet).sort(); // Можна додати кастомне сортування для розмірів
+            // СОРТУВАННЯ КОЛЬОРІВ (за алфавітом - залишається без змін)
+            const sortedColors = Array.from(colorsSet).sort((a, b) => {
+                const nameA = a.toUpperCase();
+                const nameB = b.toUpperCase();
+                if (nameA < nameB) return -1;
+                if (nameA > nameB) return 1;
+                return 0;
+            });
 
-            console.log('Extracting filters: Available Colors:', sortedColors); // DEBUG
-            console.log('Extracting filters: Available Sizes:', sortedSizes); // DEBUG
+            // СОРТУВАННЯ РОЗМІРІВ (ОНОВЛЕНА ЛОГІКА)
+            const desiredSizeOrder = [ // Чітко визначаємо бажаний порядок
+                "ONE SIZE", // Або "УНІВЕРСАЛЬНИЙ", якщо використовуєш такий варіант
+                "XS",
+                "S",
+                "M",
+                "L",
+                "XL",
+                "XXL",
+                "XXXL"
+                // Додай сюди інші розміри, якщо вони є і мають бути в певному порядку
+            ];
+
+            const sortedSizes = Array.from(sizesSet).sort((a, b) => {
+                const aUpper = a.toUpperCase(); // Переводимо в верхній регістр для порівняння
+                const bUpper = b.toUpperCase();
+
+                let indexA = desiredSizeOrder.indexOf(aUpper);
+                let indexB = desiredSizeOrder.indexOf(bUpper);
+
+                // Якщо розмір 'a' не знайдено в desiredSizeOrder, намагаємось обробити його як число
+                if (indexA === -1) {
+                    const numA = parseFloat(aUpper);
+                    // Якщо 'a' - число, даємо йому високий індекс, щоб він був після стандартних розмірів,
+                    // але перед іншими невідомими текстовими розмірами.
+                    // Числа сортуватимуться між собою.
+                    if (!isNaN(numA)) {
+                        indexA = desiredSizeOrder.length + numA; // Наприклад, "36" матиме індекс ~8 + 36 = 44
+                    } else {
+                        indexA = Infinity; // Невідомі текстові розміри йдуть в самий кінець
+                    }
+                }
+
+                // Те саме для розміру 'b'
+                if (indexB === -1) {
+                    const numB = parseFloat(bUpper);
+                    if (!isNaN(numB)) {
+                        indexB = desiredSizeOrder.length + numB;
+                    } else {
+                        indexB = Infinity;
+                    }
+                }
+
+                return indexA - indexB;
+            });
+
+            console.log('Extracting filters: Sorted Colors:', sortedColors);
+            console.log('Extracting filters: Sorted Sizes:', sortedSizes);
 
             setAvailableColors(sortedColors);
             setAvailableSizes(sortedSizes);
         } else {
-            console.log('Extracting filters: No products found or empty array.'); // DEBUG
             setAvailableColors([]);
             setAvailableSizes([]);
         }
     }, [all_products]);
 
-    // --- Основний ефект для фільтрації товарів ---
+    // --- Основний ефект для фільтрації ТА СОРТУВАННЯ товарів ---
     useEffect(() => {
-        console.log('Filtering products useEffect: Running...'); // DEBUG
-        console.log('Dependencies changed:', { categorySlug, all_products_count: all_products?.length, selectedColors_size: selectedColors.size, selectedSizes_size: selectedSizes.size }); // DEBUG
+        console.log('Filtering and Sorting products useEffect: Running...');
+        console.log('Dependencies changed:', { categorySlug, all_products_count: all_products?.length, selectedColors_size: selectedColors.size, selectedSizes_size: selectedSizes.size, sortOption }); // Додали sortOption
 
         setPageTitle(getPageTitle(categorySlug));
 
         if (all_products && all_products.length > 0) {
             const categoryNameToFilterBy = getCategoryNameFromSlug(categorySlug);
-            console.log('Filtering by category name:', categoryNameToFilterBy); // DEBUG
 
-            // 1. Фільтрація за категорією
+            // 1. Фільтрація (твій код без змін)
             let categoryFiltered = [];
             if (categoryNameToFilterBy === 'All') {
                 categoryFiltered = all_products;
@@ -111,39 +152,63 @@ const CatalogPage = () => {
                     product.category.toLowerCase() === categoryNameToFilterBy.toLowerCase()
                 );
             } else {
-                categoryFiltered = all_products; // Якщо слаг невідомий, показуємо все
+                categoryFiltered = all_products;
             }
-            console.log('After category filter count:', categoryFiltered.length); // DEBUG
 
-            // 2. Фільтрація за вибраними кольорами
             let colorFiltered = categoryFiltered;
             if (selectedColors.size > 0) {
-                console.log('Filtering by colors:', Array.from(selectedColors)); // DEBUG
                 colorFiltered = categoryFiltered.filter(product =>
                     product.colors && typeof product.colors === 'string' && selectedColors.has(product.colors.trim())
                 );
-                console.log('After color filter count:', colorFiltered.length); // DEBUG
             }
 
-            // 3. Фільтрація за вибраними розмірами
             let sizeFiltered = colorFiltered;
             if (selectedSizes.size > 0) {
-                console.log('Filtering by sizes:', Array.from(selectedSizes)); // DEBUG
                 sizeFiltered = colorFiltered.filter(product =>
                     product.sizes && Array.isArray(product.sizes) &&
                     product.sizes.some(sizeObj => sizeObj.size && typeof sizeObj.size === 'string' && selectedSizes.has(sizeObj.size.trim()))
                 );
-                console.log('After size filter count:', sizeFiltered.length); // DEBUG
             }
 
-            console.log('Final filtered products count:', sizeFiltered.length); // DEBUG
-            setFilteredProducts(sizeFiltered);
+            // 2. СОРТУВАННЯ ВІДФІЛЬТРОВАНИХ ТОВАРІВ
+            let sortedAndFilteredProducts = [...sizeFiltered]; // Робимо копію, щоб не мутувати оригінальний масив
+
+            switch (sortOption) {
+                case "price_asc": // Ціною зростання
+                    sortedAndFilteredProducts.sort((a, b) => {
+                        const priceA = a.discount > 0 ? a.price * (1 - a.discount / 100) : a.price;
+                        const priceB = b.discount > 0 ? b.price * (1 - b.discount / 100) : b.price;
+                        return priceA - priceB;
+                    });
+                    break;
+                case "price_desc": // Ціною падіння
+                    sortedAndFilteredProducts.sort((a, b) => {
+                        const priceA = a.discount > 0 ? a.price * (1 - a.discount / 100) : a.price;
+                        const priceB = b.discount > 0 ? b.price * (1 - b.discount / 100) : b.price;
+                        return priceB - priceA;
+                    });
+                    break;
+                // case "newest": // Якщо захочеш додати "Новинки", потрібне поле дати додавання в моделі товару
+                //     sortedAndFilteredProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Приклад, якщо є поле createdAt
+                //     break;
+                case "default":
+                default:
+                    // За замовчуванням можна не сортувати додатково, або сортувати за якоюсь властивістю,
+                    // наприклад, за іменем або порядком з БД (якщо він є)
+                    // Для прикладу, залишимо як є (порядок після фільтрації)
+                    // або можна додати сортування за _id, якщо товари приходять в різному порядку
+                    // sortedAndFilteredProducts.sort((a, b) => a.name.localeCompare(b.name)); // Сортування за іменем як приклад
+                    break;
+            }
+
+            console.log('Final sorted and filtered products count:', sortedAndFilteredProducts.length);
+            setFilteredProducts(sortedAndFilteredProducts);
 
         } else {
-            console.log('Filtering products useEffect: No base products to filter.'); // DEBUG
+            console.log('Filtering products useEffect: No base products to filter.');
             setFilteredProducts([]);
         }
-    }, [categorySlug, all_products, selectedColors, selectedSizes]); // Залежності
+    }, [categorySlug, all_products, selectedColors, selectedSizes, sortOption]);
 
     // --- Обробники зміни фільтрів ---
     const handleColorChange = (color) => {
@@ -186,6 +251,27 @@ const CatalogPage = () => {
         setIsFilterOpen(prev => !prev);
     }
 
+    // ФУНКЦІЯ ДЛЯ ЗМІНИ СОРТУВАННЯ
+    const handleSortChange = (option) => {
+        setSortOption(option);
+        setIsSortDropdownOpen(false); // Закриваємо випадаючий список після вибору
+        console.log("Sort option changed to:", option);
+    };
+
+    // ФУНКЦІЯ ДЛЯ ВІДКРИТТЯ/ЗАКРИТТЯ ВИПАДАЮЧОГО СПИСКУ СОРТУВАННЯ
+    const toggleSortDropdown = () => {
+        setIsSortDropdownOpen(prev => !prev);
+    };
+
+    // --- КОНСТАНТИ ДЛЯ ПОЗИЦІОНУВАННЯ КНОПКИ ФІЛЬТРІВ ---
+    const HEADER_HEIGHT_PLUS_OFFSET = "75px";
+
+    // Відступ кнопки фільтрів зліва. Має відповідати відступу кнопки "Меню" в хедері.
+    const FILTER_BUTTON_LEFT_MARGIN = "1rem";
+
+    // ВІДСТУП КНОПКИ СОРТУВАННЯ СПРАВА (має відповідати відступу кнопки "Профіль")
+    const SORT_BUTTON_RIGHT_MARGIN = "2rem";
+
 
     // --- Код для відступів та ширини вікна (без змін) ---
     useEffect(() => {
@@ -208,8 +294,12 @@ const CatalogPage = () => {
             >
                 {/* --- КНОПКА ВІДКРИТТЯ ФІЛЬТРІВ --- */}
                 <div
-                    className="absolute top-45 right-100 sm:left-6 lg:left-8 flex flex-col items-center gap-1 cursor-pointer z-10 transform translate-x-[-125px]"
-                    onClick={toggleFilterPanel} // Використовуємо нову функцію
+                    className="fixed flex flex-col items-center gap-1 cursor-pointer z-20 p-2 pt-8  "
+                    style={{
+                        top: HEADER_HEIGHT_PLUS_OFFSET,
+                        left: FILTER_BUTTON_LEFT_MARGIN,
+                    }}
+                    onClick={toggleFilterPanel}
                 >
                     <IoOptionsOutline className="text-2xl hover:text-secondary sm:text-3xl" />
                     <span className="text-sm hidden sm:block">Фільтрувати</span>
@@ -219,10 +309,102 @@ const CatalogPage = () => {
                 <div className="flex items-center justify-center mb-5 md:mb-5">
                     <img src={Flower} alt="" className="h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 object-contain mr-2 sm:mr-3 md:mr-4 transform translate-y-[10px]" />
                     <h2 style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }} className="text-xl sm:text-2xl md:text-3xl text-center text-black">
-                       {getPageTitle()}
+                        {getPageTitle()}
                     </h2>
                     <img src={Flower} alt="" className="h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 object-contain ml-2 sm:ml-3 md:ml-4 transform translate-y-[10px]" />
                 </div>
+
+                {/* --- КНОПКА ВІДКРИТТЯ СОРТУВАННЯ --- */}
+                <button // Змінив div на button для кращої семантики та доступності
+                    type="button" // Явно вказуємо тип кнопки
+                    className="fixed flex items-center justify-center gap-x-2 cursor-pointer z-20 bg-white px-3 py-2 rounded-md  text-sm font-medium focus:outline-none pt-8"
+                    style={{
+                        top: HEADER_HEIGHT_PLUS_OFFSET,
+                        right: SORT_BUTTON_RIGHT_MARGIN,
+                    }}
+                    onClick={toggleSortDropdown}
+                >
+                    {/* Текст кнопки */}
+                    <span className="hidden sm:inline">Сортувати</span> 
+                    {/* Іконка-стрілка */}
+                    {isSortDropdownOpen ? (
+                        <IoIosArrowUp className="text-2xl h-5 w-5 " /> // Змінив розмір іконки для кращого вигляду
+                    ) : (
+                        <IoIosArrowDown className="text-2xl h-5 w-5 " /> // Змінив розмір іконки
+                    )}
+                </button>
+
+                                {/* --- ВИПАДАЮЧИЙ СПИСОК ОПЦІЙ СОРТУВАННЯ (окремо від кнопки) --- */}
+                {isSortDropdownOpen && (
+                    <div
+                        className="fixed bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-30 p-4 w-64" // Змінив py-1 на p-4, w-60 на w-64
+                        style={{
+                            top: `calc(${HEADER_HEIGHT_PLUS_OFFSET} + 55px)`, // Трохи нижче кнопки (55px - приблизна висота кнопки + невеликий відступ)
+                            right: SORT_BUTTON_RIGHT_MARGIN, // Вирівнюємо по правому краю кнопки
+                        }}
+                        role="menu" aria-orientation="vertical" aria-labelledby="options-menu"
+                    >
+                        {/* Заголовок для списку сортування (схожий на панель фільтрів) */}
+                        <div className="flex justify-between items-center mb-4 pb-3 border-b"> {/* Зменшив mb і pb */}
+                            <h3 className="text-lg font-semibold" style={{ fontFamily: 'Montserrat Alternates' }}>Впорядкувати за</h3>
+                            {/* Можна додати кнопку X для закриття, якщо потрібно, хоча зазвичай випадаючі списки закриваються по кліку на опцію або поза ним */}
+                            {/* <button onClick={toggleSortDropdown} className="text-xl text-gray-500 hover:text-gray-800">
+                                <HiX />
+                            </button> */}
+                        </div>
+
+                        {/* Опції сортування зі стилями, схожими на фільтри */}
+                        <div className="space-y-3"> {/* Додав space-y-3 для більших проміжків */}
+                            <label // Тепер це label, щоб можна було клікати по тексту
+                                onClick={() => handleSortChange("price_asc")}
+                                className={`flex items-center cursor-pointer text-sm text-gray-700 p-2 rounded-md hover:bg-gray-100 ${sortOption === 'price_asc' ? 'bg-gray-100 font-semibold' : ''}`}
+                                role="menuitem" // role все ще корисний
+                            >
+                                <input
+                                    type="radio"
+                                    name="sort_option_display" // Змінив name, щоб уникнути конфлікту з невидимими радіо для логіки
+                                    value="price_asc"
+                                    checked={sortOption === 'price_asc'}
+                                    readOnly // Залишаємо readOnly, оскільки клік обробляється на label
+                                    className="mr-3 h-4 w-4 rounded-full border-gray-300 text-indigo-600 focus:ring-indigo-500" // Стилі для радіокнопки
+                                />
+                                <span className="align-middle">Ціною зростання</span>
+                            </label>
+
+                            <label
+                                onClick={() => handleSortChange("price_desc")}
+                                className={`flex items-center cursor-pointer text-sm text-gray-700 p-2 rounded-md hover:bg-gray-100 ${sortOption === 'price_desc' ? 'bg-gray-100 font-semibold' : ''}`}
+                                role="menuitem"
+                            >
+                                <input
+                                    type="radio"
+                                    name="sort_option_display"
+                                    value="price_desc"
+                                    checked={sortOption === 'price_desc'}
+                                    readOnly
+                                    className="mr-3 h-4 w-4 rounded-full border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                />
+                                <span className="align-middle">Ціною падіння</span>
+                            </label>
+
+                            <label
+                                onClick={() => handleSortChange("default")}
+                                className={`flex items-center cursor-pointer text-sm text-gray-700 p-2 rounded-md hover:bg-gray-100 ${sortOption === 'default' ? 'bg-gray-100 font-semibold' : ''}`}
+                                role="menuitem"
+                            >
+                                <input
+                                    type="radio"
+                                    name="sort_option_display"
+                                    value="default"
+                                    checked={sortOption === 'default'}
+                                    readOnly
+                                    className="mr-3 h-4 w-4 rounded-full border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                />
+                                <span className="align-middle">За замовчуванням</span>
+                            </label>
+                        </div>
+                    </div>
+                )}
 
 
                 {/* --- ОСНОВНИЙ КОНТЕНТ --- */}
