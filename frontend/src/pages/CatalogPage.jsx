@@ -368,7 +368,7 @@ const CatalogPage = () => {
                                     readOnly // Залишаємо readOnly, оскільки клік обробляється на label
                                     className="mr-3 h-4 w-4 rounded-full border-gray-300 text-indigo-600 focus:ring-indigo-500" // Стилі для радіокнопки
                                 />
-                                <span className="align-middle">Ціною зростання</span>
+                                <span className="align-middle">Ціною за зростанням</span>
                             </label>
 
                             <label
@@ -384,7 +384,7 @@ const CatalogPage = () => {
                                     readOnly
                                     className="mr-3 h-4 w-4 rounded-full border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                 />
-                                <span className="align-middle">Ціною падіння</span>
+                                <span className="align-middle">Ціною за спаданням</span>
                             </label>
 
                             <label
