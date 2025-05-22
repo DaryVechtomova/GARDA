@@ -112,8 +112,8 @@ const addInvoice = async (req, res) => {
 const fetchInvoices = async (req, res) => {
     try {
         const invoices = await invoiceModel.find({})
-            .populate("supplier") // Заповнює дані про постачальника
-            .populate("products.product"); // Заповнює дані про товари
+            .populate("supplier")
+            .populate("products.product");
 
         res.json({ success: true, data: invoices });
     } catch (error) {

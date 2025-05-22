@@ -40,18 +40,13 @@ const AddEmployee = () => {
 
     setIsSaving(true);
     try {
-      // Переконуємося, що надсилаємо правильні дані (можливо, без confirmPassword)
       const dataToSend = { ...employeeData };
-      // delete dataToSend.confirmPassword; // Якщо було поле підтвердження
-
       const response = await axios.post(
         `${url}/api/user/register-employee`,
         dataToSend
       );
-
       if (response.data.success) {
         toast.success(response.data.message || "Співробітника успішно додано!");
-        // Очищення форми
         setEmployeeData({
           firstName: "",
           secondName: "",
@@ -62,7 +57,6 @@ const AddEmployee = () => {
           birthDate: "",
           role: "",
         });
-        // Опціонально: navigate('/admin_panel/list-employees');
       } else {
         toast.error(
           response.data.message || "Не вдалося додати співробітника."
@@ -82,7 +76,7 @@ const AddEmployee = () => {
 
   return (
     <div className="bg-gray-100 min-h-[92vh]">
-      <section className="p-10 w-full flex justify-center">
+      <section className="p-16 w-full flex justify-center">
         <div className="w-full max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
           <div className="flex items-center justify-center mb-2 border-b">
             <img

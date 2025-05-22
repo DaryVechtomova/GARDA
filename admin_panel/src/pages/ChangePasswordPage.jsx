@@ -125,7 +125,7 @@ const ChangePasswordPage = () => {
 
   return (
     <div className="bg-gray-100 min-h-[92vh]">
-      <section className="p-10 w-full flex justify-center">
+      <section className="p-16 w-full flex justify-center">
         {/* Центруємо контейнер */}
         <div className="w-full max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
           <div className="flex items-center justify-center mb-2 border-b">

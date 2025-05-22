@@ -126,25 +126,24 @@ const placeOrder = async (req, res) => {
                 return {
                     price_data: {
                         currency: "uah",
-                        product_data: { name: `${item.name} (Розмір: ${item.size})` }, // Додав розмір до назви для Stripe
+                        product_data: { name: `${item.name} (Розмір: ${item.size})` },
                         unit_amount: Math.round(priceAfterDiscount * 100)
                     },
                     quantity: item.quantity
                 };
-            }); // .filter(item => item !== null) тут вже не потрібен, бо itemsToSave вже відфільтровані
+            });
 
             console.log("placeOrder: line_items для Stripe:", JSON.stringify(line_items, null, 2));
 
-            if (line_items.length === 0) { // Це може статися, якщо всі товари безкоштовні
+            if (line_items.length === 0) {
                 console.warn("placeOrder: Немає товарів для оплати через Stripe (можливо, всі безкоштовні).");
-                // Якщо оплата не потрібна, але користувач обрав "Оплатити зараз" для безкоштовного замовлення
-                await orderModel.findByIdAndUpdate(newOrder._id, { payment: true, status: "Оплачено" }); // Позначаємо як оплачене
+                await orderModel.findByIdAndUpdate(newOrder._id, { payment: true, status: "Оплачено" });
                 return res.json({
                     success: true,
                     message: "Замовлення оформлено, оплата не потрібна.",
                     orderId: newOrder._id,
                     orderNumber,
-                    paymentRequired: false, // Оплата не потрібна
+                    paymentRequired: false,
                     session_url: null
                 });
             }
@@ -155,8 +154,8 @@ const placeOrder = async (req, res) => {
                     mode: "payment",
                     success_url: `${frontend_url}/verify?success=true&orderId=${newOrder._id}`,
                     cancel_url: `${frontend_url}/verify?success=false&orderId=${newOrder._id}`,
-                    client_reference_id: newOrder._id.toString(), // Для зв'язку сесії з замовленням
-                    metadata: { // Додаткова інформація, якщо потрібно
+                    client_reference_id: newOrder._id.toString(),
+                    metadata: {
                         order_id: newOrder._id.toString(),
                         order_number: newOrder.orderNumber.toString()
                     }
@@ -171,13 +170,12 @@ const placeOrder = async (req, res) => {
                 });
             } catch (stripeError) {
                 console.error("placeOrder: Помилка створення сесії Stripe:", stripeError);
-                // Важливо: замовлення вже збережено. Повідомляємо користувача.
                 res.status(500).json({
-                    success: true, // Замовлення збережено
+                    success: true,
                     message: "Замовлення оформлено, але виникла помилка при підготовці до онлайн оплати. Будь ласка, зв'яжіться з підтримкою.",
                     orderId: newOrder._id,
                     orderNumber,
-                    paymentRequired: true, // Оплата все ще потрібна, але не вдалося створити сесію
+                    paymentRequired: true,
                     session_url: null
                 });
             }
@@ -223,38 +221,32 @@ const placeOrder = async (req, res) => {
 // }
 // orderController.js
 const verifyOrder = async (req, res) => {
-    const { orderId, success } = req.body; // Отримуємо orderId та success з тіла запиту
-    console.log("VerifyOrder: отримано orderId:", orderId, "success:", success); // ЛОГ 1
-
+    const { orderId, success } = req.body;
+    console.log("VerifyOrder: отримано orderId:", orderId, "success:", success);
     try {
-        if (!orderId) { // Додаткова перевірка
+        if (!orderId) {
             console.error("VerifyOrder: orderId не надано.");
             return res.status(400).json({ success: false, message: "ID замовлення не надано." });
         }
-
-        if (success === "true" || success === true) { // Обробка і рядка, і булевого значення
-            const updatedOrder = await orderModel.findByIdAndUpdate(orderId, { payment: true, status: "Оплачено" }, { new: true }); // <--- ОСЬ ТУТ PAYMENT МАЄ СТАТИ TRUE
+        if (success === "true" || success === true) {
+            const updatedOrder = await orderModel.findByIdAndUpdate(orderId, { payment: true, status: "Оплачено" }, { new: true });
             if (!updatedOrder) {
                 console.error("VerifyOrder: Замовлення з ID", orderId, "не знайдено для оновлення.");
                 return res.status(404).json({ success: false, message: "Замовлення не знайдено." });
             }
-            console.log("VerifyOrder: Замовлення", orderId, "позначено як оплачене. Новий статус:", updatedOrder.status); // ЛОГ 2
+            console.log("VerifyOrder: Замовлення", orderId, "позначено як оплачене. Новий статус:", updatedOrder.status);
             res.json({ success: true, message: "Оплачено" });
         } else {
-            // Якщо оплата не пройшла, замовлення можна видалити або змінити статус на "Скасовано" або "Оплата не вдалася"
-            // Видалення може бути не найкращим варіантом, якщо ти хочеш аналізувати невдалі спроби.
             const cancelledOrder = await orderModel.findByIdAndUpdate(orderId, { status: "Оплата не вдалася" }, { new: true });
-            // АБО: await orderModel.findByIdAndDelete(orderId);
-            if (!cancelledOrder && success !== "true" && success !== true) { // Перевіряємо, чи не було помилки, якщо success не true
+            if (!cancelledOrder && success !== "true" && success !== true) {
                 console.warn("VerifyOrder: Замовлення з ID", orderId, "не знайдено для скасування/оновлення статусу.");
-                // Якщо success не "true", але замовлення не знайдено, можливо, його вже видалено або інша помилка
             } else if (cancelledOrder) {
                 console.log("VerifyOrder: Статус замовлення", orderId, "оновлено на 'Оплата не вдалася'.");
             }
             res.json({ success: false, message: "Оплата не пройшла" });
         }
     } catch (error) {
-        console.error("VerifyOrder: Помилка:", error); // ЛОГ 3
+        console.error("VerifyOrder: Помилка:", error);
         res.status(500).json({ success: false, message: "Помилка сервера при верифікації замовлення" });
     }
 };

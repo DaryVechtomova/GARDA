@@ -118,7 +118,6 @@ const registerUser = async (req, res) => {
             password: hashedPassword,
             role
         });
-
         const user = await newUser.save()
         const token = createToken(user._id, user.role);
         res.json({
@@ -156,18 +155,13 @@ const registerEmployee = async (req, res) => {
     const { firstName, secondName, middleName, email, phoneNumber, password, birthDate, role } = req.body;
 
     try {
-        // Перевірка, чи існує користувач з такою поштою
         const exists = await userModel.findOne({ email });
         if (exists) {
             return res.json({ success: false, message: "Такий користувач вже існує" });
         }
-
-        // Перевірка довжини пароля
         if (password.length < 8) {
             return res.json({ success: false, message: "Пароль має містити щонайменше 8 символів" });
         }
-
-        // Перевірка на обов'язкові поля
         if (!firstName) {
             return res.json({ success: false, message: "Будь ласка, введіть ім'я" });
         }
@@ -192,17 +186,11 @@ const registerEmployee = async (req, res) => {
         if (!role) {
             return res.json({ success: false, message: "Будь ласка, оберіть роль" });
         }
-
-        // Перевірка формату електронної пошти
         if (!validator.isEmail(email)) {
             return res.json({ success: false, message: "Будь ласка, введіть коректну адресу електронної пошти" });
         }
-
-        // Хешування пароля
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-
-        // Створення нового співробітника
         const newEmployee = new userModel({
             firstName,
             secondName,
@@ -213,7 +201,6 @@ const registerEmployee = async (req, res) => {
             birthDate,
             role,
         });
-
         await newEmployee.save();
         res.json({
             success: true,
