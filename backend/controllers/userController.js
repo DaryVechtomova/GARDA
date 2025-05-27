@@ -6,7 +6,7 @@ const userModel = require("../models/userModel.js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
-
+const expiresIn = '10s'; // Тимчасово ставимо 10 секунд для тесту
 //login user (для всіх)
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
@@ -59,7 +59,7 @@ const createToken = (userId, userRole) => { // Приймає ID та РОЛЬ
         role: userRole
     };
     // Додаємо термін дії, наприклад, 1 день (в секундах)
-    const expiresIn = '1d'; // '1h', '7d', '30m' і т.д.
+   const expiresIn = '1d'; // Тимчасово ставимо 10 секунд для тесту // '1h', '7d', '30m' і т.д.
 
     // Підписуємо токен з payload та терміном дії
     return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });

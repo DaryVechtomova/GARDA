@@ -233,7 +233,7 @@ const verifyOrder = async (req, res) => {
         }
 
         if (success === "true" || success === true) { // Обробка і рядка, і булевого значення
-            const updatedOrder = await orderModel.findByIdAndUpdate(orderId, { payment: true, status: "Оплачено" }, { new: true }); // <--- ОСЬ ТУТ PAYMENT МАЄ СТАТИ TRUE
+            const updatedOrder = await orderModel.findByIdAndUpdate(orderId, { payment: true, status: "Нове замовлення" }, { new: true }); // <--- ОСЬ ТУТ PAYMENT МАЄ СТАТИ TRUE
             if (!updatedOrder) {
                 console.error("VerifyOrder: Замовлення з ID", orderId, "не знайдено для оновлення.");
                 return res.status(404).json({ success: false, message: "Замовлення не знайдено." });

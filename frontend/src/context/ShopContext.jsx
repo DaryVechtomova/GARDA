@@ -77,23 +77,14 @@ const ShopContextProvider = (props) => {
 
     // --- Функція додавання в кошик (ОНОВЛЕНО для кількох розмірів одного товару) ---
     const addToCart = async (itemId, selectedSize) => {
-        if (!selectedSize || selectedSize === "N/A") { // N/A теж вважаємо відсутністю розміру для товарів з розмірною сіткою
-            // Якщо товар ПОВИНЕН мати розмір (наприклад, product.sizes існує і не порожній)
+        if (!selectedSize || selectedSize === "N/A") { 
             const productInfo = all_products.find(p => p._id === itemId);
             if (productInfo && productInfo.sizes && productInfo.sizes.length > 0) {
-                // Можна використовувати toast, якщо підключено
                 alert("Будь ласка, оберіть розмір товару.");
                 console.warn("Спроба додати товар без розміру, хоча він потрібен:", itemId);
                 return;
             }
-            // Якщо товар не має розмірів, то selectedSize може бути "N/A" або undefined.
-            // Для уніфікації ключа, якщо розміру немає, можна використовувати фіктивний ключ типу "onesize"
-            // Або бекенд має обробляти товари без розміру окремо.
-            // Для прикладу, якщо selectedSize "N/A", то будемо використовувати цей ключ.
-            // Якщо selectedSize undefined, це помилка, яку треба обробити вище.
         }
-
-        // Створюємо унікальний ключ для комбінації itemId та selectedSize
         const cartItemKey = `${itemId}-${selectedSize}`;
 
         setCartItems((prevCartItems) => {
@@ -119,22 +110,15 @@ const ShopContextProvider = (props) => {
 
         if (token) {
             try {
-                // ВАЖЛИВО: Бекенд /api/cart/add тепер має розуміти, що ви додаєте
-                // конкретний товар КОНКРЕТНОГО РОЗМІРУ.
-                // Можливо, бекенд вже працює так, що itemId + size є унікальною комбінацією.
-                // Якщо бекенд очікує cartItemKey як ідентифікатор, то передавайте його.
-                // Якщо він очікує itemId і size окремо, то так і передавайте.
-                // Припускаємо, що бекенд очікує itemId та size.
                 await axios.post(url + "/api/cart/add", {
                     itemId,
                     size: selectedSize,
-                    quantity: 1 // Надсилаємо 1, бекенд може сам обробляти збільшення
+                    quantity: 1 
                 }, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
             } catch (error) {
                 console.error("Помилка додавання в кошик на сервері:", error);
-                // Тут можна додати логіку відкату стану, якщо запит до сервера не вдався
             }
         }
     };
