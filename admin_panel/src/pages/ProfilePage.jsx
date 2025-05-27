@@ -133,7 +133,7 @@ const ProfilePage = () => {
 
   return (
     <div className="bg-gray-100 min-h-[92vh]">
-      <section className="p-10 w-full flex justify-center">
+      <section className="p-16 w-full flex justify-center">
         <div className="w-full max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
           <div className="flex items-center justify-center mb-2 border-b">
             <img
@@ -145,7 +145,7 @@ const ProfilePage = () => {
                                 md:h-16 md:w-16
                                 object-contain
                                 mr-2 sm:mr-3 md:mr-4
-                                transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
+                                transform translate-y-[10px]
                                 "
             />
             <h2
@@ -258,7 +258,7 @@ const ProfilePage = () => {
                   htmlFor="birthDate"
                   className="text-sm font-medium text-gray-600"
                 >
-                  Дата народження <span className="text-red-500">*</span>
+                  Дата народження
                 </label>
                 <input
                   id="birthDate"
@@ -276,7 +276,7 @@ const ProfilePage = () => {
                   htmlFor="hireDate"
                   className="text-sm font-medium text-gray-600"
                 >
-                  Дата прийому на роботу <span className="text-red-500">*</span>
+                  Дата прийому на роботу
                 </label>
                 <input
                   id="hireDate"
