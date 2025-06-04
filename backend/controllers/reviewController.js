@@ -1,5 +1,3 @@
-// import Review from '../models/reviewModel.js';
-// import User from '../models/userModel.js';
 const Review = require("../models/reviewModel.js");
 const User = require("../models/userModel.js");
 
@@ -32,11 +30,9 @@ const createReview = async (req, res) => {
 
         await newReview.save();
 
-        // --- Успішна відповідь ---
-        // Populate user data одразу для повернення на фронтенд
         const populatedReview = await Review.findById(newReview._id).populate('user', 'firstName secondName');
 
-        res.status(201).json({ // 201 Created
+        res.status(201).json({
             success: true, // Додаємо success: true
             data: populatedReview,   // Надсилаємо створений відгук з даними користувача
             message: "Відгук успішно додано"
@@ -105,4 +101,3 @@ const deleteReview = async (req, res) => {
 };
 
 module.exports = { createReview, getReviewsForAdmin, getReviewsForUser, deleteReview };
-// export { createReview, getReviewsForAdmin, getReviewsForUser, deleteReview }

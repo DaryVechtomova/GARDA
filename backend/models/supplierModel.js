@@ -1,5 +1,3 @@
-// import mongoose from "mongoose";
-// import { type } from "os";
 const mongoose = require("mongoose");
 
 const supplierSchema = new mongoose.Schema({
@@ -20,4 +18,3 @@ const supplierSchema = new mongoose.Schema({
 const supplierModel = mongoose.models.supplier || mongoose.model("supplier", supplierSchema);
 
 module.exports = supplierModel;
-// export default supplierModel;

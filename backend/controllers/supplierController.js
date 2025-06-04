@@ -1,7 +1,3 @@
-// import path from "path";
-// import supplierModel from "../models/supplierModel.js";
-// import invoiceModel from "../models/invoiceModel.js";
-// import fs from "fs";
 const path = require("path");
 const supplierModel = require("../models/supplierModel.js");
 const invoiceModel = require("../models/invoiceModel.js");
@@ -210,4 +206,3 @@ const editSupplier = async (req, res) => {
 };
 
 module.exports = { addSupplier, fetchSuppliers, removeSupplier, editSupplier };
-// export { addSupplier, fetchSuppliers, removeSupplier, editSupplier }

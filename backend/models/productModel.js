@@ -1,5 +1,3 @@
-// import mongoose from "mongoose";
-// import { type } from "os";
 const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema({
@@ -23,4 +21,3 @@ const productSchema = new mongoose.Schema({
 const productModel = mongoose.models.product || mongoose.model("product", productSchema);
 
 module.exports = productModel;
-// export default productModel;

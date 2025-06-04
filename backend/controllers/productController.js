@@ -1,11 +1,3 @@
-//import path from "path";
-// import mongoose from 'mongoose';
-// import { syncBuiltinESMExports } from "module";
-// import productModel from "../models/productModel.js";
-// import invoiceModel from "../models/invoiceModel.js";
-// import orderModel from "../models/orderModel.js";
-// import fs from "fs"
-
 const mongoose = require('mongoose');
 const { syncBuiltinESMExports } = require("module");
 const productModel = require("../models/productModel.js");
@@ -87,8 +79,6 @@ const addProduct = async (req, res) => {
         return res.status(400).json({ success: false, message: "Будь ласка, завантажте хоча б одне зображення товару" });
     }
     if (!Array.isArray(sizesData)) {
-        // Можливо, дані прийшли в іншому форматі (напр. від старого тесту)?
-        // Спробуємо розпарсити як JSON, якщо це рядок - АЛЕ ЦЕ КОСТИЛЬ ДЛЯ ТЕСТУ
         if (typeof sizesData === 'string') {
             try {
                 sizesData = JSON.parse(sizesData);
@@ -562,4 +552,3 @@ const checkProductAvailability = async (req, res) => {
 };
 
 module.exports = { addProduct, listProduct, removeProduct, editProduct, removeDiscount, editDiscount, getProductById, listDiscountedProducts, checkProductAvailability };
-// export { addProduct, listProduct, removeProduct, editProduct, removeDiscount, editDiscount, getProductById, listDiscountedProducts, checkProductAvailability }

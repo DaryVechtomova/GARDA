@@ -1,11 +1,10 @@
 import React, { useContext } from "react";
-import { ShopContext } from "../context/ShopContext"; // Переконайтеся, що шлях правильний
+import { ShopContext } from "../context/ShopContext";
 import { TbTrash, TbHeart, TbPlus, TbMinus } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
-import FlowerRight from "../assets/design/flowers-right.png"; // Переконайтесь, що шлях правильний
+import FlowerRight from "../assets/design/flowers-right.png";
 
 const Cart = () => {
-  // Отримуємо все необхідне з контексту, включно з даними для wishlist
   const {
     all_products,
     cartItems,
@@ -20,8 +19,6 @@ const Cart = () => {
   } = useContext(ShopContext);
   const navigate = useNavigate();
 
-  // Перевірка завантаження основних даних з контексту
-  // Це важливо, щоб уникнути помилок під час першого рендерингу, поки дані ще не завантажилися
   if (
     !all_products ||
     !cartItems ||
@@ -31,31 +28,29 @@ const Cart = () => {
   ) {
     return (
       <div className="min-h-screen pt-28 pb-16 flex justify-center items-center">
-        {/* Тут можна розмістити спіннер або просто текст */}
         <div>Завантаження даних кошика...</div>
       </div>
     );
   }
 
   // Обробник зміни кількості товару
- // Обробник зміни кількості товару
-const handleQuantityChange = (cartKey, change, event) => { // ПРИЙМАЄ cartKey
-  event.stopPropagation();
-  const currentCartItem = cartItems[cartKey]; // ОТРИМУЄМО ДАНІ ЗА КЛЮЧЕМ "itemId-size"
+  const handleQuantityChange = (cartKey, change, event) => {
+    event.stopPropagation();
+    const currentCartItem = cartItems[cartKey];
 
-  if (!currentCartItem) {
-    console.warn(`Товар з ключем ${cartKey} не знайдено в кошику.`);
-    return;
-  }
+    if (!currentCartItem) {
+      console.warn(`Товар з ключем ${cartKey} не знайдено в кошику.`);
+      return;
+    }
 
-  const { itemId, size, quantity } = currentCartItem; // ДІСТАЄМО itemId, size, quantity
+    const { itemId, size, quantity } = currentCartItem;
 
-  if (change > 0) {
-    addToCart(itemId, size); // ВИКЛИКАЄМО addToCart З itemId ТА size
-  } else if (change < 0 && quantity > 0) {
-    removeFromCart(itemId, size); // ВИКЛИКАЄМО removeFromCart З itemId ТА size
-  }
-};
+    if (change > 0) {
+      addToCart(itemId, size);
+    } else if (change < 0 && quantity > 0) {
+      removeFromCart(itemId, size);
+    }
+  };
   // Обробник кліку на сердечко (додати/видалити з обраного)
   const handleToggleFavoriteItem = (productId, event) => {
     event.stopPropagation();
@@ -88,161 +83,171 @@ const handleQuantityChange = (cartKey, change, event) => { // ПРИЙМАЄ car
           <div className="flex flex-col xl:flex-row gap-8 xl:gap-12">
             {/* Ліва колонка: Список товарів */}
             <div className="flex-grow xl:w-2/3 space-y-6">
-  {/* ОСНОВНА ІТЕРАЦІЯ ТЕПЕР ПО КЛЮЧАХ cartItems */}
-  {Object.keys(cartItems).map((cartKey) => { 
-    // cartKey це, наприклад, "itemId123-M"
-    const cartItemData = cartItems[cartKey]; // { itemId, size, quantity }
+              {/* ОСНОВНА ІТЕРАЦІЯ ТЕПЕР ПО КЛЮЧАХ cartItems */}
+              {Object.keys(cartItems).map((cartKey) => {
+                // cartKey це, наприклад, "itemId123-M"
+                const cartItemData = cartItems[cartKey]; // { itemId, size, quantity }
 
-    if (!cartItemData || cartItemData.quantity <= 0) {
-      return null;
-    }
-
-    // Знаходимо інформацію про товар (назва, ціна, картинка) з all_products
-    const product = all_products.find(p => p._id === cartItemData.itemId);
-
-    if (!product) {
-      console.warn(`Продукт з ID ${cartItemData.itemId} не знайдено в all_products.`);
-      return null; 
-    }
-
-    // ДІСТАЄМО size ТА quantity З cartItemData для КОНКРЕТНОГО ЗАПИСУ В КОШИКУ
-    const { size, quantity } = cartItemData; 
-
-    const isCurrentItemFavorited =
-      wishlistItems &&
-      wishlistItems[product._id] && 
-      wishlistItems[product._id] > 0;
-
-    const finalPrice = product.discount
-      ? Math.round(product.price * (1 - product.discount / 100))
-      : product.price;
-
-    // Умова if (quantity && quantity > 0) вже не потрібна тут, бо ми перевірили вище
-    return (
-      <div
-        key={cartKey} // КЛЮЧ ТЕПЕР cartKey ("itemId-size")
-        className="bg-[#FCFAF4] shadow-md rounded-[30px] p-4 sm:p-6 md:p-8 flex flex-col sm:flex-row gap-4 sm:gap-6 relative overflow-hidden"
-      >
-        {/* Контейнер для зображення з relative для позиціонування серця */}
-        <div className="relative flex-shrink-0">
-          <img
-            src={
-              product.images && product.images.length > 0
-                ? `${url}/images/${product.images[0]}`
-                : "placeholder.jpg"
-            }
-            alt={product.name}
-            className="w-24 h-32 sm:w-36 sm:h-48 md:w-40 md:h-52 xl:w-[173px] xl:h-[230px] object-cover rounded-lg border border-black/20"
-          />
-          <button
-            onClick={(e) =>
-              handleToggleFavoriteItem(product._id, e) // Використовуємо product._id для обраного
-            }
-            className="absolute top-3 right-3 p-1 z-10"
-            style={{
-              backgroundColor: "transparent",
-              border: "none",
-              cursor: "pointer",
-            }}
-            aria-label={
-              isCurrentItemFavorited
-                ? "Видалити з обраного"
-                : "Додати в обране"
-            }
-          >
-            <svg
-              width="28"
-              height="28"
-              viewBox="0 0 24 24"
-              fill={
-                isCurrentItemFavorited ? "#991313" : "transparent"
-              }
-              stroke="black"
-              strokeWidth="1.25"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M20.8 4.6a5.4 5.4 0 0 0-7.6 0L12 5.8l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6l1.2 1.2L12 21l7.6-7.6 1.2-1.2a5.4 5.4 0 0 0 0-7.6z"></path>
-            </svg>
-          </button>
-        </div>
-
-        {/* Блок з інформацією про товар */}
-        <div className="flex-1 flex flex-col justify-between">
-          {/* Верхня частина: Назва, ціна (моб), деталі */}
-          <div>
-            <h4
-              style={{ fontFamily: "Montserrat Alternates" }}
-              className="font-semibold text-sm sm:text-base md:text-lg xl:text-xl leading-tight mb-1"
-            >
-              {product.name} {/* Назва товару */}
-            </h4>
-            {/* Ціна для мобільних */}
-            <div className="sm:hidden text-sm font-semibold my-1">
-              Ціна: {finalPrice} грн
-            </div>
-            {/* ВІДОБРАЖЕННЯ РОЗМІРУ ТА КОЛЬОРУ */}
-            <div className="text-xs sm:text-sm text-gray-600 space-y-1 mt-2 sm:mt-1">
-              <p>
-                {/* Відображаємо size з cartItemData.size */}
-                <span className="font-medium">Розмір:</span> {size === "N/A" ? "Стандарт" : size} 
-              </p>
-              {/* Якщо інформація про колір є в об'єкті product */}
-              {product.colors && ( 
-                <p>
-                  <span className="font-medium">Колір:</span> {Array.isArray(product.colors) ? product.colors.join(', ') : product.colors}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Нижня частина: Контроль кількості, ціна (десктоп) */}
-          <div className="flex items-end justify-between mt-3 sm:mt-4">
-            <div className="flex items-center gap-2">
-              {/* Кнопка "-" */}
-              <button
-                onClick={(e) => // ПЕРЕДАЄМО cartKey
-                  handleQuantityChange(cartKey, -1, e)
+                if (!cartItemData || cartItemData.quantity <= 0) {
+                  return null;
                 }
-                className={`w-7 h-7 md:w-9 md:h-9 flex items-center justify-center rounded-full border-2 bg-white/70 transition-colors ${quantity > 0
-                    ? "border-[#54A5D9] hover:bg-[#54A5D9]/20"
-                    : "border-gray-300 cursor-not-allowed"
-                  }`}
-                disabled={quantity <= 0}
-                aria-label="Зменшити кількість"
-              >
-                <TbMinus
-                  className={`w-3 h-3 md:w-4 md:h-4 ${quantity > 0 ? "text-black" : "text-gray-400"
-                    }`}
-                />
-              </button>
-              {/* Кількість */}
-              <span className='w-5 text-center font-["Inter"] font-medium text-base md:text-lg'>
-                {quantity} {/* Кількість з cartItemData.quantity */}
-              </span>
-              {/* Кнопка "+" */}
-              <button
-                onClick={(e) => // ПЕРЕДАЄМО cartKey
-                  handleQuantityChange(cartKey, 1, e)
+
+                // Знаходимо інформацію про товар (назва, ціна, картинка) з all_products
+                const product = all_products.find(
+                  (p) => p._id === cartItemData.itemId
+                );
+
+                if (!product) {
+                  console.warn(
+                    `Продукт з ID ${cartItemData.itemId} не знайдено в all_products.`
+                  );
+                  return null;
                 }
-                className="w-7 h-7 md:w-9 md:h-9 flex items-center justify-center rounded-full border-2 border-[#54A5D9] bg-white/70 hover:bg-[#54A5D9]/20 transition-colors"
-                aria-label="Збільшити кількість"
-              >
-                <TbPlus className="w-3 h-3 md:w-4 md:h-4" />
-              </button>
+
+                // ДІСТАЄМО size ТА quantity З cartItemData для КОНКРЕТНОГО ЗАПИСУ В КОШИКУ
+                const { size, quantity } = cartItemData;
+
+                const isCurrentItemFavorited =
+                  wishlistItems &&
+                  wishlistItems[product._id] &&
+                  wishlistItems[product._id] > 0;
+
+                const finalPrice = product.discount
+                  ? Math.round(product.price * (1 - product.discount / 100))
+                  : product.price;
+
+                // Умова if (quantity && quantity > 0) вже не потрібна тут, бо ми перевірили вище
+                return (
+                  <div
+                    key={cartKey} // КЛЮЧ ТЕПЕР cartKey ("itemId-size")
+                    className="bg-[#FCFAF4] shadow-md rounded-[30px] p-4 sm:p-6 md:p-8 flex flex-col sm:flex-row gap-4 sm:gap-6 relative overflow-hidden"
+                  >
+                    {/* Контейнер для зображення з relative для позиціонування серця */}
+                    <div className="relative flex-shrink-0">
+                      <img
+                        src={
+                          product.images && product.images.length > 0
+                            ? `${url}/images/${product.images[0]}`
+                            : "placeholder.jpg"
+                        }
+                        alt={product.name}
+                        className="w-24 h-32 sm:w-36 sm:h-48 md:w-40 md:h-52 xl:w-[173px] xl:h-[230px] object-cover rounded-lg border border-black/20"
+                      />
+                      <button
+                        onClick={
+                          (e) => handleToggleFavoriteItem(product._id, e) // Використовуємо product._id для обраного
+                        }
+                        className="absolute top-3 right-3 p-1 z-10"
+                        style={{
+                          backgroundColor: "transparent",
+                          border: "none",
+                          cursor: "pointer",
+                        }}
+                        aria-label={
+                          isCurrentItemFavorited
+                            ? "Видалити з обраного"
+                            : "Додати в обране"
+                        }
+                      >
+                        <svg
+                          width="28"
+                          height="28"
+                          viewBox="0 0 24 24"
+                          fill={
+                            isCurrentItemFavorited ? "#991313" : "transparent"
+                          }
+                          stroke="black"
+                          strokeWidth="1.25"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M20.8 4.6a5.4 5.4 0 0 0-7.6 0L12 5.8l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6l1.2 1.2L12 21l7.6-7.6 1.2-1.2a5.4 5.4 0 0 0 0-7.6z"></path>
+                        </svg>
+                      </button>
+                    </div>
+
+                    {/* Блок з інформацією про товар */}
+                    <div className="flex-1 flex flex-col justify-between">
+                      {/* Верхня частина: Назва, ціна (моб), деталі */}
+                      <div>
+                        <h4
+                          style={{ fontFamily: "Montserrat Alternates" }}
+                          className="font-semibold text-sm sm:text-base md:text-lg xl:text-xl leading-tight mb-1"
+                        >
+                          {product.name} {/* Назва товару */}
+                        </h4>
+                        {/* Ціна для мобільних */}
+                        <div className="sm:hidden text-sm font-semibold my-1">
+                          Ціна: {finalPrice} грн
+                        </div>
+                        {/* ВІДОБРАЖЕННЯ РОЗМІРУ ТА КОЛЬОРУ */}
+                        <div className="text-xs sm:text-sm text-gray-600 space-y-1 mt-2 sm:mt-1">
+                          <p>
+                            {/* Відображаємо size з cartItemData.size */}
+                            <span className="font-medium">Розмір:</span>{" "}
+                            {size === "N/A" ? "Стандарт" : size}
+                          </p>
+                          {/* Якщо інформація про колір є в об'єкті product */}
+                          {product.colors && (
+                            <p>
+                              <span className="font-medium">Колір:</span>{" "}
+                              {Array.isArray(product.colors)
+                                ? product.colors.join(", ")
+                                : product.colors}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Нижня частина: Контроль кількості, ціна (десктоп) */}
+                      <div className="flex items-end justify-between mt-3 sm:mt-4">
+                        <div className="flex items-center gap-2">
+                          {/* Кнопка "-" */}
+                          <button
+                            onClick={(
+                              e // ПЕРЕДАЄМО cartKey
+                            ) => handleQuantityChange(cartKey, -1, e)}
+                            className={`w-7 h-7 md:w-9 md:h-9 flex items-center justify-center rounded-full border-2 bg-white/70 transition-colors ${
+                              quantity > 0
+                                ? "border-[#54A5D9] hover:bg-[#54A5D9]/20"
+                                : "border-gray-300 cursor-not-allowed"
+                            }`}
+                            disabled={quantity <= 0}
+                            aria-label="Зменшити кількість"
+                          >
+                            <TbMinus
+                              className={`w-3 h-3 md:w-4 md:h-4 ${
+                                quantity > 0 ? "text-black" : "text-gray-400"
+                              }`}
+                            />
+                          </button>
+                          {/* Кількість */}
+                          <span className='w-5 text-center font-["Inter"] font-medium text-base md:text-lg'>
+                            {quantity} {/* Кількість з cartItemData.quantity */}
+                          </span>
+                          {/* Кнопка "+" */}
+                          <button
+                            onClick={(
+                              e // ПЕРЕДАЄМО cartKey
+                            ) => handleQuantityChange(cartKey, 1, e)}
+                            className="w-7 h-7 md:w-9 md:h-9 flex items-center justify-center rounded-full border-2 border-[#54A5D9] bg-white/70 hover:bg-[#54A5D9]/20 transition-colors"
+                            aria-label="Збільшити кількість"
+                          >
+                            <TbPlus className="w-3 h-3 md:w-4 md:h-4" />
+                          </button>
+                        </div>
+                        {/* Ціна для десктопних екранів */}
+                        <div className="hidden sm:block text-right">
+                          <p className="font-semibold text-sm md:text-base xl:text-lg">
+                            Ціна: {finalPrice} грн
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            {/* Ціна для десктопних екранів */}
-            <div className="hidden sm:block text-right">
-              <p className="font-semibold text-sm md:text-base xl:text-lg">
-                Ціна: {finalPrice} грн
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  })}
-</div>
 
             <div className="relative w-full max-w-[570px] mx-auto">
               {/* Контейнер з підсумком */}

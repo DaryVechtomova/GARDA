@@ -1,8 +1,3 @@
-// import express from "express";
-// import { authMiddleware, adminMiddleware, strictAdminMiddleware } from "../middleware/auth.js";
-// import orderModel from "../models/orderModel.js"
-// import { placeOrder, verifyOrder, userOrders, listOrders, updateOrderStatus, cancelOrder, updateOrder, cancelOrderForUser, getOrderStatus } from "../controllers/orderController.js";
-
 const express = require("express");
 const { authMiddleware, adminMiddleware, strictAdminMiddleware } = require("../middleware/auth.js");
 const orderModel = require("../models/orderModel.js");
@@ -45,4 +40,3 @@ orderRouter.put("/cancel-order-user/:orderId", authMiddleware, cancelOrderForUse
 orderRouter.get('/:orderId/status', authMiddleware, getOrderStatus);
 
 module.exports = orderRouter;
-// export default orderRouter;

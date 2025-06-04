@@ -1,13 +1,8 @@
-// const userModel = require("../models/userModel.js"); // Ваш варіант
-// Якщо ви використовуєте ES Modules в package.json ("type": "module") або .mjs файли:
 const userModel = require("../models/userModel.js");
-
 
 // add items to user favourite
 const addToFavourite = async (req, res) => {
     try {
-        // *** ЗМІНА: Отримуємо ID користувача з об'єкту, доданого JWT middleware ***
-        // Припускаємо, що middleware додає req.user і в ньому є поле id
         if (!req.user || !req.user.id) {
             return res.status(401).json({ success: false, message: "Не авторизовано або ID користувача не знайдено в токені" });
         }
@@ -28,14 +23,8 @@ const addToFavourite = async (req, res) => {
             favourites[req.body.itemId] += 1;
         }
 
-        // Важливо: Mongoose може не відслідковувати зміни у вкладених об'єктах (якщо favourites - Mixed type)
-        // Щоб гарантувати збереження, можна позначити шлях як змінений:
         userData.markModified('favourites');
-        await userData.save(); // Або використовувати findByIdAndUpdate, але з обережністю з вкладеними полями
-
-        // Або, якщо findByIdAndUpdate, то так:
-        // await userModel.findByIdAndUpdate(userId, { $set: { favourites: favourites } }, { new: true });
-        // $set потрібен для оновлення всього об'єкта favourites
+        await userData.save();
 
         console.log(`Додано itemId: ${req.body.itemId} до улюблених користувача: ${userId}`);
         res.json({ success: true, message: "Додано до улюблених", favourites: favourites }); // Повертаємо оновлені улюблені
@@ -48,7 +37,6 @@ const addToFavourite = async (req, res) => {
 // remove items from user favourite
 const removeFromFavourite = async (req, res) => {
     try {
-        // *** ЗМІНА: Отримуємо ID користувача з об'єкту, доданого JWT middleware ***
         if (!req.user || !req.user.id) {
             return res.status(401).json({ success: false, message: "Не авторизовано або ID користувача не знайдено в токені" });
         }
@@ -71,9 +59,6 @@ const removeFromFavourite = async (req, res) => {
 
             userData.markModified('favourites');
             await userData.save();
-            // Або:
-            // await userModel.findByIdAndUpdate(userId, { $set: { favourites: favourites } }, { new: true });
-
 
             console.log(`Зменшено/видалено itemId: ${req.body.itemId} з улюблених користувача: ${userId}`);
             res.json({ success: true, message: "Оновлено улюблені", favourites: favourites }); // Повертаємо оновлені улюблені
@@ -90,7 +75,6 @@ const removeFromFavourite = async (req, res) => {
 // fetch user favourites
 const getFavourite = async (req, res) => {
     try {
-        // *** ЗМІНА: Отримуємо ID користувача з об'єкту, доданого JWT middleware ***
         if (!req.user || !req.user.id) {
             return res.status(401).json({ success: false, message: "Не авторизовано або ID користувача не знайдено в токені" });
         }
@@ -110,8 +94,4 @@ const getFavourite = async (req, res) => {
     }
 };
 
-// Якщо ви використовуєте ES Modules:
-//export { addToFavourite, removeFromFavourite, getFavourite };
-
-// Якщо ви використовуєте CommonJS (як у вашому початковому коді з require):
 module.exports = { addToFavourite, removeFromFavourite, getFavourite };

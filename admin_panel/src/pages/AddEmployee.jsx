@@ -11,7 +11,6 @@ const AddEmployee = () => {
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
   const [employeeData, setEmployeeData] = useState({
-    // Змінив назву стану
     firstName: "",
     secondName: "",
     middleName: "",
@@ -19,7 +18,7 @@ const AddEmployee = () => {
     phoneNumber: "",
     password: "",
     birthDate: "",
-    role: "", // Порожнє для валідації
+    role: "",
   });
 
   // Обробник зміни полів форми
@@ -83,23 +82,23 @@ const AddEmployee = () => {
               src={Flower}
               alt=""
               className="
-                                                                                                h-12 w-12
-                                                                                                sm:h-14 sm:w-14
-                                                                                                md:h-16 md:w-16
-                                                                                                object-contain
-                                                                                                mr-2 sm:mr-3 md:mr-4
-                                                                                                transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
-                                                                                            "
+                h-12 w-12
+                sm:h-14 sm:w-14
+                md:h-16 md:w-16
+                object-contain
+                mr-2 sm:mr-3 md:mr-4
+                transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
+                "
             />
             <h2
               style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }}
               className="
-                                                                                                text-xl
-                                                                                                sm:text-2xl
-                                                                                                md:text-3xl
-                                                                                                text-center
-                                                                                                text-black
-                                                                                            "
+              text-xl
+              sm:text-2xl
+              md:text-3xl
+              text-center
+              text-black
+              "
             >
               Додавання нового співробітника
             </h2>
@@ -107,13 +106,13 @@ const AddEmployee = () => {
               src={Flower}
               alt=""
               className="
-                                                                                                h-12 w-12
-                                                                                                sm:h-14 sm:w-14
-                                                                                                md:h-16 md:w-16
-                                                                                                object-contain
-                                                                                                ml-2 sm:ml-3 md:ml-4
-                                                                                                transform translate-y-[10px] {/* АБО translate-y-2.5 */}
-                                                                                            "
+              h-12 w-12
+              sm:h-14 sm:w-14
+              md:h-16 md:w-16
+              object-contain
+              ml-2 sm:ml-3 md:ml-4
+              transform translate-y-[10px] {/* АБО translate-y-2.5 */}
+              "
             />
           </div>
           {/* <h4 className="text-xl font-semibold pb-4 mb-6 uppercase border-b text-gray-800">

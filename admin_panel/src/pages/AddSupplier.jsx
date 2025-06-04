@@ -9,7 +9,7 @@ import Flower from "../assets/design/flower.png";
 const AddSupplier = () => {
   const url = "http://localhost:4000";
   const navigate = useNavigate();
-  const [isSaving, setIsSaving] = useState(false); // Стан для блокування кнопки
+  const [isSaving, setIsSaving] = useState(false);
   const [data, setData] = useState({
     companyName: "",
     contactPerson: "",
@@ -17,10 +17,10 @@ const AddSupplier = () => {
     phone: "",
     address: "",
     city: "",
-    country: "Україна", // Залишаємо Україну за замовчуванням
-    cooperationStartDate: new Date().toISOString().split("T")[0], // Поточна дата
-    productType: "", // Змінено на порожній рядок для валідації
-    status: "", // Змінено на порожній рядок для валідації
+    country: "Україна",
+    cooperationStartDate: new Date().toISOString().split("T")[0],
+    productType: "",
+    status: "",
     notes: "",
   });
 
@@ -86,23 +86,23 @@ const AddSupplier = () => {
             src={Flower}
             alt=""
             className="
-                                                                            h-12 w-12
-                                                                            sm:h-14 sm:w-14
-                                                                            md:h-16 md:w-16
-                                                                            object-contain
-                                                                            mr-2 sm:mr-3 md:mr-4
-                                                                            transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
-                                                                        "
+              h-12 w-12
+              sm:h-14 sm:w-14
+              md:h-16 md:w-16
+              object-contain
+              mr-2 sm:mr-3 md:mr-4
+              transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
+              "
           />
           <h2
             style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }}
             className="
-                                                                            text-xl
-                                                                            sm:text-2xl
-                                                                            md:text-3xl
-                                                                            text-center
-                                                                            text-black
-                                                                        "
+              text-xl
+              sm:text-2xl
+              md:text-3xl
+              text-center
+              text-black
+              "
           >
             Додавання нового постачальника
           </h2>
@@ -110,13 +110,13 @@ const AddSupplier = () => {
             src={Flower}
             alt=""
             className="
-                                                                            h-12 w-12
-                                                                            sm:h-14 sm:w-14
-                                                                            md:h-16 md:w-16
-                                                                            object-contain
-                                                                            ml-2 sm:ml-3 md:ml-4
-                                                                            transform translate-y-[10px] {/* АБО translate-y-2.5 */}
-                                                                        "
+              h-12 w-12
+              sm:h-14 sm:w-14
+              md:h-16 md:w-16
+              object-contain
+              ml-2 sm:ml-3 md:ml-4
+              transform translate-y-[10px] {/* АБО translate-y-2.5 */}
+              "
           />
         </div>
         {/* <h4 className="text-xl font-semibold pb-4 mb-6 uppercase border-b text-gray-800">
@@ -125,8 +125,6 @@ const AddSupplier = () => {
 
         <form onSubmit={onSubmitHandler} className="space-y-4">
           {" "}
-          {/* Використовуємо space-y для вертикальних відступів */}
-          {/* Використовуємо Grid для кращого розташування */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
             {/* Назва компанії */}
             <div className="flex flex-col gap-y-1">
@@ -194,11 +192,11 @@ const AddSupplier = () => {
                 Телефон <span className="text-red-500">*</span>
               </label>
               <IMaskInput
-                mask="+38 (000) 000-00-00" // Оновив маску для зручності
+                mask="+38 (000) 000-00-00"
                 value={data.phone}
-                onAccept={onPhoneAccept} // Використовуємо onAccept для оновлення стану
+                onAccept={onPhoneAccept}
                 placeholder="+38 (0XX) XXX-XX-XX"
-                id="phone" // Додав id для label
+                id="phone"
                 className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out"
               />
             </div>
@@ -330,7 +328,6 @@ const AddSupplier = () => {
           {/* Нотатки - займає всю ширину */}
           <div className="flex flex-col gap-y-1 pt-2">
             {" "}
-            {/* Додав невеликий відступ зверху */}
             <label
               htmlFor="notes"
               className="text-base font-medium text-gray-900"

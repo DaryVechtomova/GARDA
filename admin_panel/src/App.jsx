@@ -1,9 +1,16 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState, useMemo } from 'react';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { jwtDecode } from 'jwt-decode';
-import axios from 'axios';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+import { useEffect, useState, useMemo } from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import AddProduct from "./pages/AddProduct";
@@ -25,36 +32,42 @@ import EmployeesList from "./pages/EmployeesList";
 import AddEmployee from "./pages/AddEmployee";
 import EditEmployee from "./pages/EditEmployee";
 import EmployeeDetails from "./pages/EmployeeDetails";
-import ProfilePage from './pages/ProfilePage';
-import ChangePasswordPage from './pages/ChangePasswordPage';
+import ProfilePage from "./pages/ProfilePage";
+import ChangePasswordPage from "./pages/ChangePasswordPage";
 import DashboardPage from "./pages/DashboardPage";
 
-
-const frontendBaseUrl = import.meta.env.VITE_FRONTEND_BASE_URL || 'http://localhost:5173/GARDA';
-const API_URL = 'http://localhost:4000';
+const frontendBaseUrl =
+  import.meta.env.VITE_FRONTEND_BASE_URL || "http://localhost:5173/GARDA";
+const API_URL = "http://localhost:4000";
 
 const frontendLoginUrl = `${frontendBaseUrl}/GARDA`;
 const frontendProfileUrl = `${frontendBaseUrl}/GARDA/profile`;
 
-axios.interceptors.request.use(config => {
-  const token = localStorage.getItem('adminToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("adminToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return config;
-}, error => {
-  return Promise.reject(error);
-});
+);
 
 // Перехоплювач для відповідей
-axios.interceptors.response.use(response => response, error => {
-  if (error.response && error.response.status === 401) {
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminUserData');
-    window.location.href = frontendLoginUrl;
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminUserData");
+      window.location.href = frontendLoginUrl;
+    }
+    return Promise.reject(error);
   }
-  return Promise.reject(error);
-});
+);
 
 const fetchUserData = async (token) => {
   console.log(token);
@@ -65,32 +78,33 @@ const fetchUserData = async (token) => {
     if (response.data.success) {
       return response.data.userData;
     } else {
-      console.error("Помилка отримання даних користувача:", response.data.message);
+      console.error(
+        "Помилка отримання даних користувача:",
+        response.data.message
+      );
       return null;
     }
   } catch (error) {
     console.error("Помилка мережі при отриманні даних користувача:", error);
     if (error.response && error.response.status === 401) {
       console.error("Токен недійсний або термін дії закінчився.");
-      // Додатково можна обробити помилку 401 (Unauthorized), наприклад, видалити токен
     }
     return null;
   }
 };
 
-
 const AuthWrapper = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate(); // Використовуємо navigate для очищення URL
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log("AuthWrapper: Перевірка...");
 
     // 1. Перевіряємо токен в URL
     const queryParams = new URLSearchParams(location.search);
-    const urlToken = queryParams.get('token');
+    const urlToken = queryParams.get("token");
     let currentToken = localStorage.getItem("adminToken"); // Використовуємо інший ключ для адмінки
 
     if (urlToken) {
@@ -103,114 +117,112 @@ const AuthWrapper = ({ children }) => {
 
     // 2. Перевіряємо наявність та валідність токена (з URL або localStorage)
     if (!currentToken) {
-      console.log("AuthWrapper: Токен не знайдено. Перенаправлення на логін фронтенду.");
-      localStorage.removeItem("adminToken"); // Чистимо на всяк випадок
-      localStorage.removeItem("adminUserData"); // Чистимо дані користувача адмінки
+      console.log(
+        "AuthWrapper: Токен не знайдено. Перенаправлення на логін фронтенду."
+      );
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminUserData");
       window.location.href = frontendLoginUrl;
-      return; // Зупиняємо виконання
+      return;
     }
 
     // 3. Декодуємо токен, щоб отримати роль
     try {
       const decodedToken = jwtDecode(currentToken);
-      const role = decodedToken.role; // Припускаємо, що роль є в payload токена
-      // Якщо ні, вам доведеться отримати роль з бекенду
+      const role = decodedToken.role;
 
-      // Додаткова перевірка терміну дії токена (exp в секундах)
       const currentTime = Date.now() / 1000;
       if (decodedToken.exp < currentTime) {
         throw new Error("Token expired");
       }
 
-
       console.log("AuthWrapper: Декодована роль:", role);
 
-      if (role === "адміністратор" || role === "комірник" || role === "менеджер з продажу") {
+      if (
+        role === "адміністратор" ||
+        role === "комірник" ||
+        role === "менеджер з продажу"
+      ) {
         // Роль підходить
         console.log("AuthWrapper: Авторизація успішна.");
         setIsAuthorized(true);
       } else {
         // Роль не підходить
-        console.log("AuthWrapper: Неправильна роль. Перенаправлення на профіль фронтенду.");
+        console.log(
+          "AuthWrapper: Неправильна роль. Перенаправлення на профіль фронтенду."
+        );
         localStorage.removeItem("adminToken"); // Видаляємо невалідний токен
         localStorage.removeItem("adminUserData");
         window.location.href = frontendProfileUrl;
         return; // Зупиняємо виконання
       }
     } catch (error) {
-      // Помилка декодування (неправильний токен) або термін дії закінчився
-      console.error("AuthWrapper: Помилка декодування токена або термін дії закінчився:", error);
-      localStorage.removeItem("adminToken"); // Видаляємо невалідний токен
+      console.error(
+        "AuthWrapper: Помилка декодування токена або термін дії закінчився:",
+        error
+      );
+      localStorage.removeItem("adminToken");
       localStorage.removeItem("adminUserData");
       window.location.href = frontendLoginUrl;
-      return; // Зупиняємо виконання
+      return;
     }
 
-    setIsLoading(false); // Закінчили перевірку
-
-  }, [location.search, navigate, location.pathname]); // Додаємо залежності
+    setIsLoading(false);
+  }, [location.search, navigate, location.pathname]);
 
   if (isLoading) {
     return <div>Перевірка авторизації...</div>;
   }
 
   if (!isAuthorized) {
-    // Цей стан не мав би досягатися через return в useEffect, але про всяк випадок
     return <div>Не авторизовано.</div>;
   }
 
-  // Якщо все добре, рендеримо дочірні компоненти
   return children;
 };
 
 // --- AdminLayout ---
 const AdminLayout = () => {
   const [userData, setUserData] = useState(null);
-  const [isLoadingUser, setIsLoadingUser] = useState(true); // Окремий стан завантаження для юзера
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
 
   useEffect(() => {
     const loadUserData = async () => {
       setIsLoadingUser(true);
-      // Спочатку спробуємо взяти з localStorage адмінки
       const storedUserData = localStorage.getItem("adminUserData");
-      let token = localStorage.getItem("adminToken"); // Беремо токен адмінки
+      let token = localStorage.getItem("adminToken");
 
       if (storedUserData) {
         try {
           setUserData(JSON.parse(storedUserData));
           setIsLoadingUser(false);
-          console.log("AdminLayout: Дані користувача завантажено з localStorage.");
-          // Необов'язково: можна додати перевірку актуальності даних, якщо потрібно
-          return; // Виходимо, якщо дані є в кеші
+          console.log(
+            "AdminLayout: Дані користувача завантажено з localStorage."
+          );
+          return;
         } catch (e) {
           console.error("Помилка парсингу userData з localStorage", e);
-          localStorage.removeItem("adminUserData"); // Видаляємо пошкоджені дані
+          localStorage.removeItem("adminUserData");
         }
-
       }
 
-      // Якщо даних в localStorage немає (або вони пошкоджені), запитуємо з бекенду
       if (token) {
         console.log("AdminLayout: Запит даних користувача з бекенду...");
         const fetchedData = await fetchUserData(token);
         if (fetchedData) {
           setUserData(fetchedData);
-          // Зберігаємо в localStorage адмінки для кешування
           localStorage.setItem("adminUserData", JSON.stringify(fetchedData));
           console.log("AdminLayout: Дані користувача отримано та збережено.");
         } else {
-          // Не вдалося завантажити дані, можливо токен невалідний
-          // AuthWrapper мав би перенаправити, але про всяк випадок
-          console.error("AdminLayout: Не вдалося завантажити дані користувача з бекенду.");
-          // Можливо, треба видалити токен і перенаправити на логін
-          // localStorage.removeItem("adminToken");
-          // window.location.href = FRONTEND_LOGIN_URL;
+          console.error(
+            "AdminLayout: Не вдалося завантажити дані користувача з бекенду."
+          );
         }
       } else {
-        console.error("AdminLayout: Немає токена для завантаження даних користувача.");
-        // Це не повинно статись, якщо AuthWrapper працює
+        console.error(
+          "AdminLayout: Немає токена для завантаження даних користувача."
+        );
       }
-
 
       setIsLoadingUser(false);
     };
@@ -220,15 +232,19 @@ const AdminLayout = () => {
 
   const handleLogout = () => {
     console.log("Logging out...");
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminUserData');
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminUserData");
     window.location.href = frontendLoginUrl; // Перенаправлення на логін фронтенду
   };
 
   return (
     <>
       <ToastContainer />
-      <Navbar userData={userData} isLoadingUser={isLoadingUser} onLogout={handleLogout} />
+      <Navbar
+        userData={userData}
+        isLoadingUser={isLoadingUser}
+        onLogout={handleLogout}
+      />
       <hr />
       <div className="flex pt-14 min-h-screen print:pt-0">
         <Sidebar />
@@ -246,7 +262,10 @@ const AdminLayout = () => {
               <Route path="list-supplier" element={<SupplierList />} />
               <Route path="add-supplier" element={<AddSupplier />} />
               <Route path="edit-supplier/:id" element={<EditSupplier />} />
-              <Route path="suppliers/details/:id" element={<SupplierDetails />} />
+              <Route
+                path="suppliers/details/:id"
+                element={<SupplierDetails />}
+              />
               <Route path="list-invoice" element={<InvoiceList />} />
               <Route path="add-invoice" element={<AddInvoice />} />
               <Route path="edit-invoice/:id" element={<EditInvoice />} />

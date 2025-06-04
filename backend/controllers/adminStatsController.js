@@ -1,4 +1,3 @@
-// controllers/adminStatsController.js
 const Order = require('../models/orderModel.js');
 const User = require('../models/userModel.js');
 const Product = require('../models/productModel.js');
@@ -57,7 +56,6 @@ exports.getDashboardStats = async (req, res) => {
                 }
             }
         ]);
-        // Ось тут була змінна totalSalesThisMonth, яка правильно отримує значення
         const totalSalesThisMonthValue = salesDataThisMonth.length > 0 ? salesDataThisMonth[0].totalSalesMonth : 0;
 
         const totalUsers = await User.countDocuments({ role: 'користувач' });
@@ -68,7 +66,7 @@ exports.getDashboardStats = async (req, res) => {
                 totalOrders,
                 ordersToday,
                 ordersThisWeek,
-                totalSalesMonth: totalSalesThisMonthValue, // <--- ВИПРАВЛЕНО ТУТ
+                totalSalesMonth: totalSalesThisMonthValue,
                 totalUsers
             }
         });
@@ -186,7 +184,6 @@ exports.getPopularProducts = async (req, res) => {
                     as: "productDetails"
                 }
             },
-            // Важливо: перевірити, чи $lookup щось знаходить
             {
                 $addFields: { // Додаємо поле для перевірки, чи productDetails не порожній
                     productFound: { $gt: [{ $size: "$productDetails" }, 0] }

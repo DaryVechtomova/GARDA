@@ -1,5 +1,3 @@
-// import mongoose from "mongoose";
-// import { type } from "os";
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
@@ -29,4 +27,3 @@ const userSchema = new mongoose.Schema({
 const userModel = mongoose.models.user || mongoose.model("user", userSchema);
 
 module.exports = userModel;
-// export default userModel;

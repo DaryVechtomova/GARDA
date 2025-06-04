@@ -18,10 +18,7 @@ const addToCart = async (req, res) => {
         if (!userData) {
             return res.status(404).json({ success: false, message: "Користувача не знайдено" });
         }
-
-        // Ініціалізуємо cartData, якщо вона ще не існує (як порожній об'єкт)
-        // Важливо: якщо cartData - це Mongoose Map, ініціалізація може бути іншою (new Map())
-        // Але для простого об'єкта (Mixed) це підійде.
+        
         let cartData = userData.cartData || {}; 
 
         // Створюємо унікальний ключ для комбінації itemId та size
@@ -81,7 +78,6 @@ const removeFromCart = async (req, res) => {
                 // Якщо кількість більше 1, зменшуємо на 1
                 cartData[cartItemKey].quantity -= 1;
             } else {
-                // Якщо кількість 1 (або менше, хоча не повинно бути), видаляємо запис повністю
                 delete cartData[cartItemKey]; 
             }
 
@@ -92,7 +88,6 @@ const removeFromCart = async (req, res) => {
             console.log(`Зменшено/видалено ${cartItemKey} з кошика користувача: ${userId}`);
             res.json({ success: true, message: "Кошик оновлено", cartData: userData.cartData });
         } else {
-            // Якщо товару з таким ключем (itemId-size) немає в кошику
             console.log(`Товар ${cartItemKey} не знайдено в кошику користувача: ${userId}`);
             res.json({ success: false, message: "Товар з вказаним розміром не знайдено в кошику", cartData: userData.cartData });
         }
@@ -109,18 +104,12 @@ const getCart = async (req, res) => {
             return res.status(401).json({ success: false, message: "Не авторизовано" });
         }
         const userId = req.user.id;
-
-        // Вибираємо тільки поле cartData. Можна також populate, якщо itemId - це ObjectId ref до колекції Product
-        // let userData = await userModel.findById(userId).select('cartData').populate('cartData.*.itemId'); // Приклад з populate
         let userData = await userModel.findById(userId).select('cartData'); 
         
         if (!userData) {
             return res.status(404).json({ success: false, message: "Користувача не знайдено" });
         }
 
-        // Повертаємо cartData. Якщо вона undefined або null, повертаємо порожній об'єкт.
-        // Фронтенд тепер очікує структуру: 
-        // { "itemId1-sizeA": { itemId: "itemId1", size: "sizeA", quantity: X }, ... }
         res.json({ success: true, cartData: userData.cartData || {} });
     } catch (error) {
         console.error("Помилка в getCart (бекенд):", error);

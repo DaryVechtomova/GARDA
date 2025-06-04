@@ -141,23 +141,23 @@ function SupplierList() {
             src={Flower}
             alt=""
             className="
-                                            h-12 w-12
-                                            sm:h-14 sm:w-14
-                                            md:h-16 md:w-16
-                                            object-contain
-                                            mr-2 sm:mr-3 md:mr-4
-                                            transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
-                                        "
+              h-12 w-12
+              sm:h-14 sm:w-14
+              md:h-16 md:w-16
+              object-contain
+              mr-2 sm:mr-3 md:mr-4
+              transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
+          "
           />
           <h2
             style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }}
             className="
-                                            text-xl
-                                            sm:text-2xl
-                                            md:text-3xl
-                                            text-center
-                                            text-black
-                                        "
+              text-xl
+              sm:text-2xl
+              md:text-3xl
+              text-center
+              text-black
+          "
           >
             Список постачальників
           </h2>
@@ -165,13 +165,13 @@ function SupplierList() {
             src={Flower}
             alt=""
             className="
-                                            h-12 w-12
-                                            sm:h-14 sm:w-14
-                                            md:h-16 md:w-16
-                                            object-contain
-                                            ml-2 sm:ml-3 md:ml-4
-                                            transform translate-y-[10px] {/* АБО translate-y-2.5 */}
-                                        "
+              h-12 w-12
+              sm:h-14 sm:w-14
+              md:h-16 md:w-16
+              object-contain
+              ml-2 sm:ml-3 md:ml-4
+              transform translate-y-[10px] {/* АБО translate-y-2.5 */}
+          "
           />
         </div>
         {/* <h4 className="bold-22 pb-2 uppercase">Список постачальників</h4> */}

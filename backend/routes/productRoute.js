@@ -1,21 +1,3 @@
-// import express from "express"
-// import {
-//     addProduct,
-//     listProduct,
-//     removeProduct,
-//     editProduct,
-//     removeDiscount,
-//     editDiscount,
-//     getProductById,
-//     listDiscountedProducts,
-//     checkProductAvailability
-// }
-//     from "../controllers/productController.js"
-// import productModel from "../models/productModel.js"
-// import multer from "multer"
-// import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
-// import path from 'path';
-
 const express = require("express");
 const {
     addProduct,
@@ -83,7 +65,7 @@ productRouter.put("/discount/edit/:id", authMiddleware, adminMiddleware, editDis
 // Додайте цей маршрут на сервері
 productRouter.get('/search', async (req, res) => {
     try {
-        const query = req.query.q; // Змінив з query на q для консистентності
+        const query = req.query.q;
         if (!query) {
             return res.status(400).json({ message: 'Query parameter is required' });
         }
@@ -106,4 +88,3 @@ productRouter.get("/list-discounted-products", listDiscountedProducts)
 productRouter.get("/availability/:id", checkProductAvailability);
 
 module.exports = productRouter;
-// export default productRouter;

@@ -7,7 +7,6 @@ import { FaUserEdit, FaKey, FaSignOutAlt, FaSpinner } from "react-icons/fa"; // 
 function useClickOutside(ref, handler) {
   useEffect(() => {
     const listener = (event) => {
-      // Не робити нічого, якщо клік всередині ref або на нащадках ref
       if (!ref.current || ref.current.contains(event.target)) {
         return;
       }
@@ -24,26 +23,23 @@ function useClickOutside(ref, handler) {
 
 const Navbar = ({ userData, isLoadingUser, onLogout }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null); // Ref для контейнера дропдауну
+  const dropdownRef = useRef(null);
 
-  // Закриваємо дропдаун при кліку поза ним
   useClickOutside(dropdownRef, () => setIsDropdownOpen(false));
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  // Закриваємо дропдаун при кліку на пункт меню (крім Вийти)
   const handleLinkClick = () => {
     setIsDropdownOpen(false);
   };
 
-  // Обробник виходу
   const handleLogoutClick = () => {
-    setIsDropdownOpen(false); // Закриваємо дропдаун
+    setIsDropdownOpen(false);
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminUserData");
-    onLogout(); // Викликаємо функцію виходу
+    onLogout();
   };
 
   return (

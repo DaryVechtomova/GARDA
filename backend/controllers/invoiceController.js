@@ -1,6 +1,3 @@
-// import invoiceModel from "../models/invoiceModel.js";
-// import productModel from "../models/productModel.js";
-// import supplierModel from "../models/supplierModel.js";
 const invoiceModel = require("../models/invoiceModel.js");
 const productModel = require("../models/productModel.js");
 const supplierModel = require("../models/supplierModel.js");
@@ -316,4 +313,3 @@ const completeInvoice = async (req, res) => {
     }
 };
 module.exports = { addInvoice, fetchInvoices, editInvoice, getInvoiceById, completeInvoice };
-// export { addInvoice, fetchInvoices, editInvoice, getInvoiceById, completeInvoice };

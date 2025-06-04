@@ -1,4 +1,3 @@
-// import mongoose from "mongoose";
 const mongoose = require("mongoose");
 
 const reviewSchema = new mongoose.Schema({
@@ -12,4 +11,3 @@ const reviewSchema = new mongoose.Schema({
 const reviewModel = mongoose.models.review || mongoose.model("review", reviewSchema);
 
 module.exports = reviewModel;
-// export default reviewModel;

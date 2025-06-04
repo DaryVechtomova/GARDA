@@ -151,10 +151,7 @@ const Edit = () => {
         `${url}/api/product/edit-product`,
         formData,
         {
-          headers: {
-            // Content-Type встановлюється автоматично браузером для FormData
-            // "Content-Type": "multipart/form-data" - зазвичай не потрібно вказувати з axios
-          },
+          headers: {},
         }
       );
 
@@ -191,23 +188,23 @@ const Edit = () => {
             src={Flower}
             alt=""
             className="
-                                                            h-12 w-12
-                                                            sm:h-14 sm:w-14
-                                                            md:h-16 md:w-16
-                                                            object-contain
-                                                            mr-2 sm:mr-3 md:mr-4
-                                                            transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
-                                                        "
+              h-12 w-12
+              sm:h-14 sm:w-14
+              md:h-16 md:w-16
+              object-contain
+              mr-2 sm:mr-3 md:mr-4
+              transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
+          "
           />
           <h2
             style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }}
             className="
-                                                            text-xl
-                                                            sm:text-2xl
-                                                            md:text-3xl
-                                                            text-center
-                                                            text-black
-                                                        "
+              text-xl
+              sm:text-2xl
+              md:text-3xl
+              text-center
+              text-black
+          "
           >
             Редагування товару (ID: {id})
           </h2>
@@ -215,13 +212,13 @@ const Edit = () => {
             src={Flower}
             alt=""
             className="
-                                                            h-12 w-12
-                                                            sm:h-14 sm:w-14
-                                                            md:h-16 md:w-16
-                                                            object-contain
-                                                            ml-2 sm:ml-3 md:ml-4
-                                                            transform translate-y-[10px] {/* АБО translate-y-2.5 */}
-                                                        "
+              h-12 w-12
+              sm:h-14 sm:w-14
+              md:h-16 md:w-16
+              object-contain
+              ml-2 sm:ml-3 md:ml-4
+              transform translate-y-[10px] {/* АБО translate-y-2.5 */}
+          "
           />
         </div>
         {/* <h4 className="text-xl font-semibold pb-2 uppercase border-b border-gray-300 text-gray-800 mb-4">

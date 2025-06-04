@@ -1,7 +1,3 @@
-// import express from "express"
-// import { addToFavourite, removeFromFavourite, getFavourite } from "../controllers/favouriteController.js"
-// import { authMiddleware } from "../middleware/auth.js";
-
 const express = require("express");
 const {
     addToFavourite,
@@ -18,4 +14,3 @@ favouriteRouter.post("/get", authMiddleware, getFavourite)
 
 
 module.exports = favouriteRouter;
-// export default favouriteRouter;

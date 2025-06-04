@@ -1,21 +1,6 @@
-// import 'dotenv/config.js'
-// import express from "express"
-// import cors from "cors"
-// import { connectDB } from "./config/db.js";
-// import productRouter from "./routes/productRoute.js";
-// import userRouter from "./routes/userRoute.js";
-// import cartRouter from './routes/cartRoute.js';
-// import orderRouter from './routes/orderRoute.js';
-// import supplierRouter from './routes/supplierRoute.js';
-// import invoiceRouter from './routes/invoiceRoute.js';
-// import { authMiddleware, adminMiddleware } from "./middleware/auth.js"; // Імпорт middleware
-// import reviewRouter from './routes/reviewRoute.js';
-// import favouriteRouter from './routes/favouriteRoute.js'
-
-// Завантажувати dotenv тільки якщо середовище НЕ production
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv/config.js');
-    console.log("!!! Завантажено .env файл (режим розробки) !!!"); // Додаємо лог для ясності
+    console.log("!!! Завантажено .env файл (режим розробки) !!!");
 }
 const express = require('express');
 const cors = require('cors');
@@ -73,7 +58,6 @@ app.get("/", (req, res) => {
 //     console.log(`Server started on http://localhost:${port}`)
 // })
 
-// export { app }
 module.exports = { app };
 
 // Запускаємо сервер тільки якщо це не тестовий режим

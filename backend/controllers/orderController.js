@@ -1,7 +1,3 @@
-// import orderModel from "../models/orderModel.js";
-// import userModel from "../models/userModel.js";
-// import productModel from "../models/productModel.js";
-// import Stripe from "stripe"
 const orderModel = require("../models/orderModel.js");
 const userModel = require("../models/userModel.js");
 const productModel = require("../models/productModel.js");
@@ -94,7 +90,6 @@ const placeOrder = async (req, res) => {
             deliveryMethod,
             deliveryDetails,
             orderNumber,
-            // comment: deliveryDetails.comment || "" // Якщо коментар передається в deliveryDetails, або окремо
         };
         // Якщо коментар передається окремо в req.body, а не в deliveryDetails:
         if (req.body.comment) { // Або deliveryDetails.comment, якщо він там
@@ -204,22 +199,6 @@ const placeOrder = async (req, res) => {
 };
 
 //verify order
-// const verifyOrder = async (req, res) => {
-//     const { orderId, success } = req.body;
-//     try {
-//         if (success == "true") {
-//             await orderModel.findByIdAndUpdate(orderId, { payment: true });
-//             res.json({ success: true, message: "Оплачено" })
-//         } else {
-//             await orderModel.findByIdAndDelete(orderId);
-//             res.json({ success: false, message: "Оплата не пройшла" })
-//         }
-//     } catch (error) {
-//         console.log(error)
-//         res.json({ success: false, message: "Помилка" })
-//     }
-// }
-// orderController.js
 const verifyOrder = async (req, res) => {
     const { orderId, success } = req.body;
     console.log("VerifyOrder: отримано orderId:", orderId, "success:", success);
@@ -230,7 +209,7 @@ const verifyOrder = async (req, res) => {
         }
 
         if (success === "true" || success === true) { // Обробка і рядка, і булевого значення
-            const updatedOrder = await orderModel.findByIdAndUpdate(orderId, { payment: true, status: "Нове замовлення" }, { new: true }); // <--- ОСЬ ТУТ PAYMENT МАЄ СТАТИ TRUE
+            const updatedOrder = await orderModel.findByIdAndUpdate(orderId, { payment: true, status: "Нове замовлення" }, { new: true });
             if (!updatedOrder) {
                 console.error("VerifyOrder: Замовлення з ID", orderId, "не знайдено для оновлення.");
                 return res.status(404).json({ success: false, message: "Замовлення не знайдено." });
@@ -255,7 +234,6 @@ const verifyOrder = async (req, res) => {
 //user orders for frontend
 const userOrders = async (req, res) => {
     try {
-        // Краще отримувати userId з токена (якщо ви використовуєте JWT аутентифікацію)
         const userId = req.user?._id || req.body.userId;
 
         console.log("User ID:", userId); // Для дебагінга
@@ -717,9 +695,4 @@ module.exports = {
     getOrderDetails
 };
 
-// For default export, you can use module.exports directly:
 module.exports.getOrderStatus = getOrderStatus;
-
-// export default getOrderStatus;
-
-// export { placeOrder, verifyOrder, userOrders, listOrders, updateOrderStatus, cancelOrder, updateOrder, cancelOrderForUser, getOrderStatus }

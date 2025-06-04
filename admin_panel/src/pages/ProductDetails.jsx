@@ -173,23 +173,23 @@ const ProductDetails = () => {
             src={Flower}
             alt=""
             className="
-                                                            h-12 w-12
-                                                            sm:h-14 sm:w-14
-                                                            md:h-16 md:w-16
-                                                            object-contain
-                                                            mr-2 sm:mr-3 md:mr-4
-                                                            transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
-                                                        "
+              h-12 w-12
+              sm:h-14 sm:w-14
+              md:h-16 md:w-16
+              object-contain
+              mr-2 sm:mr-3 md:mr-4
+              transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
+          "
           />
           <h2
             style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }}
             className="
-                                                            text-xl
-                                                            sm:text-2xl
-                                                            md:text-3xl
-                                                            text-center
-                                                            text-black
-                                                        "
+              text-xl
+              sm:text-2xl
+              md:text-3xl
+              text-center
+              text-black
+          "
           >
             Деталі товару
           </h2>
@@ -197,13 +197,13 @@ const ProductDetails = () => {
             src={Flower}
             alt=""
             className="
-                                                            h-12 w-12
-                                                            sm:h-14 sm:w-14
-                                                            md:h-16 md:w-16
-                                                            object-contain
-                                                            ml-2 sm:ml-3 md:ml-4
-                                                            transform translate-y-[10px] {/* АБО translate-y-2.5 */}
-                                                        "
+              h-12 w-12
+              sm:h-14 sm:w-14
+              md:h-16 md:w-16
+              object-contain
+              ml-2 sm:ml-3 md:ml-4
+              transform translate-y-[10px] {/* АБО translate-y-2.5 */}
+          "
           />
         </div>
         {/* <h4 className="text-2xl font-bold text-black border-b pb-3 mb-4 uppercase">Деталі товару</h4> */}

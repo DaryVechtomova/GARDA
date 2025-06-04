@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useParams, useNavigate } from "react-router-dom";
-import { FaSave, FaArrowLeft, FaSpinner } from "react-icons/fa"; // Оновив іконки
+import { FaSave, FaArrowLeft, FaSpinner } from "react-icons/fa";
 import { IMaskInput } from "react-imask";
 import Flower from "../assets/design/flower.png";
 
@@ -49,7 +49,6 @@ const EditEmployee = () => {
       }
       setLoading(true);
       try {
-        // Використовуємо GET-запит для отримання даних
         const response = await axios.get(`${url}/api/user/edit-employee/${id}`);
 
         if (response.data.success) {
@@ -161,23 +160,23 @@ const EditEmployee = () => {
               src={Flower}
               alt=""
               className="
-                                h-12 w-12
-                                sm:h-14 sm:w-14
-                                md:h-16 md:w-16
-                                object-contain
-                                mr-2 sm:mr-3 md:mr-4
-                                transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
-                                "
+                h-12 w-12
+                sm:h-14 sm:w-14
+                md:h-16 md:w-16
+                object-contain
+                mr-2 sm:mr-3 md:mr-4
+                transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
+                "
             />
             <h2
               style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }}
               className="
-                                text-xl
-                                sm:text-2xl
-                                md:text-3xl
-                                text-center
-                              text-black
-                                "
+                text-xl
+                sm:text-2xl
+                md:text-3xl
+                text-center
+              text-black
+                "
             >
               Редагування співробітника: {data.secondName} {data.firstName}
             </h2>
@@ -185,13 +184,13 @@ const EditEmployee = () => {
               src={Flower}
               alt=""
               className="
-                                h-12 w-12
-                                sm:h-14 sm:w-14
-                                md:h-16 md:w-16
-                                object-contain
-                                ml-2 sm:ml-3 md:ml-4
-                                transform translate-y-[10px] {/* АБО translate-y-2.5 */}
-                                "
+                h-12 w-12
+                sm:h-14 sm:w-14
+                md:h-16 md:w-16
+                object-contain
+                ml-2 sm:ml-3 md:ml-4
+                transform translate-y-[10px] {/* АБО translate-y-2.5 */}
+                "
             />
           </div>
           {/* <h4 className="text-xl font-semibold pb-4 mb-6 uppercase border-b text-gray-800">

@@ -21,7 +21,7 @@ const AddInvoice = () => {
   const [selectedProducts, setSelectedProducts] = useState([]);
 
   // Стани для секції форми "Додати один товар"
-  const [selectedProductOption, setSelectedProductOption] = useState(null); // Об'єкт { value: 'id', label: '...' } з react-select
+  const [selectedProductOption, setSelectedProductOption] = useState(null);
   const [selectedSize, setSelectedSize] = useState(""); // Вибраний розмір для одного додавання
   const [selectedQuantity, setSelectedQuantity] = useState(""); // Кількість для одного додавання
   const [pricePerUnit, setPricePerUnit] = useState(0); // Розрахована ціна для вибраного товару
@@ -213,7 +213,7 @@ const AddInvoice = () => {
     }
 
     const productId = selectedProductOption.value;
-    const allSizes = getAvailableSizes(); // Отримуємо масив об'єктів розмірів { size: 'S', quantity: 10 }
+    const allSizes = getAvailableSizes();
 
     if (allSizes.length === 0) {
       toast.info("У вибраного товару немає визначених розмірів.");
@@ -223,7 +223,7 @@ const AddInvoice = () => {
     // Створюємо масив нових записів товарів, по одному для кожного розміру
     const newProductsToAdd = allSizes.map((sizeInfo) => ({
       product: productId,
-      size: sizeInfo.size, // Беремо рядок розміру ('S', 'M', тощо)
+      size: sizeInfo.size,
       quantity: quantityNum, // Використовуємо кількість, вказану для всіх розмірів
       pricePerUnit: pricePerUnit,
     }));
@@ -329,29 +329,28 @@ const AddInvoice = () => {
         className="flex flex-col gap-y-6 max-w-7xl mx-auto bg-white p-6 rounded-lg shadow-md"
       >
         {" "}
-        {/* Додано контейнер */}
         <div className="flex items-center justify-center mb-2 border-b">
           <img
             src={Flower}
             alt=""
             className="
-                                                                                            h-12 w-12
-                                                                                            sm:h-14 sm:w-14
-                                                                                            md:h-16 md:w-16
-                                                                                            object-contain
-                                                                                            mr-2 sm:mr-3 md:mr-4
-                                                                                            transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
-                                                                                        "
+              h-12 w-12
+              sm:h-14 sm:w-14
+              md:h-16 md:w-16
+              object-contain
+              mr-2 sm:mr-3 md:mr-4
+              transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
+              "
           />
           <h2
             style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }}
             className="
-                                                                                            text-xl
-                                                                                            sm:text-2xl
-                                                                                            md:text-3xl
-                                                                                            text-center
-                                                                                            text-black
-                                                                                        "
+            text-xl
+            sm:text-2xl
+            md:text-3xl
+            text-center
+            text-black
+            "
           >
             Додавання прибуткової накладної
           </h2>
@@ -359,13 +358,13 @@ const AddInvoice = () => {
             src={Flower}
             alt=""
             className="
-                                                                                            h-12 w-12
-                                                                                            sm:h-14 sm:w-14
-                                                                                            md:h-16 md:w-16
-                                                                                            object-contain
-                                                                                            ml-2 sm:ml-3 md:ml-4
-                                                                                            transform translate-y-[10px] {/* АБО translate-y-2.5 */}
-                                                                                        "
+            h-12 w-12
+            sm:h-14 sm:w-14
+            md:h-16 md:w-16
+            object-contain
+            ml-2 sm:ml-3 md:ml-4
+            transform translate-y-[10px] {/* АБО translate-y-2.5 */}
+            "
           />
         </div>
         {/* <h4 className="text-xl font-semibold pb-2 uppercase border-b border-gray-300 text-gray-800">Додавання прибуткової накладної</h4> */}
@@ -381,8 +380,8 @@ const AddInvoice = () => {
             id="supplier-select"
             onChange={handleSupplierChange}
             value={data.supplier}
-            name="supplier" // Важливо для handleSupplierChange
-            className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out" // Покращені стилі
+            name="supplier"
+            className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 h-[38px] transition duration-150 ease-in-out"
           >
             <option value="" disabled>
               -- Оберіть постачальника --
@@ -390,7 +389,6 @@ const AddInvoice = () => {
             {suppliers.map((supplier) => (
               <option key={supplier._id} value={supplier._id}>
                 {supplier.companyName} ({supplier.productType}){" "}
-                {/* Показуємо тип для ясності */}
               </option>
             ))}
           </select>
@@ -409,12 +407,12 @@ const AddInvoice = () => {
               Товар
             </label>
             <Select
-              inputId="product-select" // Для зв'язку з label
+              inputId="product-select"
               options={productOptions}
               value={selectedProductOption}
               onChange={handleProductSelectChange}
               placeholder="Пошук за назвою або ID..."
-              isClearable // Дозволяє очистити вибір
+              isClearable
               isDisabled={!data.supplier} // Блокуємо, якщо постачальника не вибрано
               noOptionsMessage={() =>
                 filteredProducts.length === 0 && data.supplier
@@ -433,11 +431,10 @@ const AddInvoice = () => {
                 input: (base) => ({ ...base, margin: "0px", padding: "0px" }),
                 valueContainer: (base) => ({ ...base, padding: "0 8px" }),
                 indicatorsContainer: (base) => ({ ...base, padding: "1px" }),
-                placeholder: (base) => ({ ...base, color: "#6b7280" }), // Сірий-500 для плейсхолдера
-                menu: (base) => ({ ...base, zIndex: 20 }), // Переконуємося, що випадаючий список зверху
+                placeholder: (base) => ({ ...base, color: "#6b7280" }),
+                menu: (base) => ({ ...base, zIndex: 20 }),
               }}
               theme={(theme) => ({
-                // Опціонально: Налаштування кольорів теми
                 ...theme,
                 borderRadius: 6,
                 colors: {
@@ -452,7 +449,6 @@ const AddInvoice = () => {
           {/* Ряд 2: Розмір, Кількість, Ціна, Кнопки додавання */}
           <div className="flex flex-wrap gap-x-4 gap-y-3 items-end">
             {" "}
-            {/* Додано gap-y */}
             {/* Вибір розміру */}
             <div className="flex flex-col gap-y-1">
               <label
@@ -472,7 +468,6 @@ const AddInvoice = () => {
                   -- Розмір --
                 </option>
                 {getAvailableSizes().map((sizeInfo, index) => (
-                  // Тепер sizeInfo - це об'єкт { size: '...', quantity: ... }
                   <option key={index} value={sizeInfo.size}>
                     {sizeInfo.size}
                   </option>
@@ -491,7 +486,7 @@ const AddInvoice = () => {
                 id="quantity-input"
                 type="number"
                 placeholder="0"
-                min="1" // Мінімальна кількість - 1
+                min="1"
                 className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 w-20 h-[38px] transition duration-150 ease-in-out"
                 value={selectedQuantity}
                 onChange={(e) => setSelectedQuantity(e.target.value)}
@@ -511,7 +506,7 @@ const AddInvoice = () => {
                 type="number"
                 // Показуємо порожнє поле, якщо ціна 0 або не встановлена
                 value={pricePerUnit > 0 ? pricePerUnit.toFixed(2) : ""}
-                readOnly // Ціна розраховується автоматично
+                readOnly
                 className="border border-gray-300 rounded-md py-1.5 px-3 outline-none bg-gray-100 w-28 h-[38px] cursor-not-allowed"
                 placeholder="0.00"
               />
@@ -523,14 +518,18 @@ const AddInvoice = () => {
               className="px-4 py-2 bg-[#fbb42c] text-black font-medium rounded-lg shadow-sm hover:bg-[#e4a426] focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#fbb42c] transition h-[38px] disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={addProductToList}
               // Кнопка неактивна, якщо не вибрано товар, розмір, або кількість не є позитивним числом
-              //disabled={!selectedProductOption || !selectedSize || !selectedQuantity || parseInt(selectedQuantity) <= 0}
+              disabled={
+                !selectedProductOption ||
+                !selectedSize ||
+                !selectedQuantity ||
+                parseInt(selectedQuantity) <= 0
+              }
             >
               Додати
             </button>
             {/* Роздільник та секція "Додати всі" */}
             <div className="flex items-end gap-2 border-l border-gray-300 pl-4 ml-auto">
               {" "}
-              {/* Використовуємо ml-auto для притискання вправо */}
               {/* Кількість для всіх */}
               <div className="flex flex-col gap-y-1">
                 <label
@@ -647,8 +646,8 @@ const AddInvoice = () => {
             value={data.notes}
             name="notes" // Важливо для onChangeHandler
             placeholder="Додаткова інформація по накладній..."
-            rows={3} // Зменшено рядки за замовчуванням
-            className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 resize-y min-h-[60px] transition duration-150 ease-in-out" // Дозволяємо змінювати висоту
+            rows={3}
+            className="border border-gray-300 rounded-md py-1.5 px-3 outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 focus:border-blue-500 resize-y min-h-[60px] transition duration-150 ease-in-out"
           ></textarea>
         </div>
         {/* Кнопка додавання накладної */}
@@ -663,8 +662,6 @@ const AddInvoice = () => {
           <button
             type="submit"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-x-2 px-5 py-2 bg-[#fbb42c] text-black font-medium rounded-lg shadow-sm hover:bg-[#e4a426] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#fbb42c] transition text-sm disabled:opacity-50"
-            // Неактивна, якщо немає товарів або не вибрано постачальника
-            //disabled={selectedProducts.length === 0 || !data.supplier}
           >
             <FaPlus />
             Додати накладну

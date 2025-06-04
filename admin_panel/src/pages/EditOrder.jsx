@@ -413,15 +413,12 @@ const EditOrder = () => {
       if (newQuantity <= 0) {
         newQuantity = 1; // Мінімальна кількість - 1
         isValid = false; // Позначка, що значення було змінено
-        // toast.warn(`Мінімальна кількість для "${item.name}" - 1`);
       }
 
       // Перевірка залишків
       const availableQty = getAvailableQuantity(item.productId, item.size);
       if (newQuantity > availableQty) {
         errorMsg = `На складі: ${availableQty}`;
-        // Можна показати toast одразу, або почекати blur/submit
-        // toast.error(`Недостатньо "${item.name}" (${item.size}). Доступно: ${availableQty}`);
       }
 
       // Оновлюємо помилки
@@ -443,12 +440,6 @@ const EditOrder = () => {
         items: updatedItems,
         amount: calculateTotal(updatedItems), // Використовуємо вже існуючу функцію calculateTotal
       }));
-
-      // Якщо значення було некоректним і виправлено на 1, оновлюємо поле вводу
-      // Це відбувається асинхронно, тому може не спрацювати ідеально без додаткових ефектів
-      // if (!isValid) {
-      //     handleQuantityChangeInList(index, '1');
-      // }
     },
     [order?.items, getAvailableQuantity, calculateTotal, setOrder]
   ); // Додав залежності
@@ -506,7 +497,6 @@ const EditOrder = () => {
             `Недостатньо "${item.name}" (${item.size}). На складі: ${itemAvailableQty}, у замовленні: ${item.quantity}.`
           );
           canSubmit = false;
-          // Можна додати підсвітку проблемного рядка
         }
       }
     }
@@ -519,19 +509,14 @@ const EditOrder = () => {
 
     setIsSaving(true);
     try {
-      // Готуємо дані: тільки активні товари, перерахована сума, причина
-      const finalAmount = calculateTotal(order.items); // Перераховуємо точно перед відправкою
+      const finalAmount = calculateTotal(order.items);
       const orderDataToSend = {
         items: order.items
           .filter((item) => !item.removed)
-          .map(({ discountedPrice, ...rest }) => rest), // Видаляємо тимчасове поле discountedPrice
+          .map(({ discountedPrice, ...rest }) => rest),
         amount: finalAmount,
         editReason: finalReason,
-        // Передаємо також інші важливі поля, якщо вони є і не мають змінюватись
-        // наприклад: status, payment, address, userId, deliveryDetails etc.
         ...(order.status && { status: order.status }),
-        // ...(order.payment !== undefined && { payment: order.payment }), // Якщо payment може бути false
-
         ...(order.paymentMethod && { paymentMethod: order.paymentMethod }),
         ...(order.address && { address: order.address }),
         ...(order.deliveryDetails && {
@@ -604,23 +589,23 @@ const EditOrder = () => {
             src={Flower}
             alt=""
             className="
-                                                                            h-12 w-12
-                                                                            sm:h-14 sm:w-14
-                                                                            md:h-16 md:w-16
-                                                                            object-contain
-                                                                            mr-2 sm:mr-3 md:mr-4
-                                                                            transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
-                                                                        "
+              h-12 w-12
+              sm:h-14 sm:w-14
+              md:h-16 md:w-16
+              object-contain
+              mr-2 sm:mr-3 md:mr-4
+              transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
+          "
           />
           <h2
             style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }}
             className="
-                                                                            text-xl
-                                                                            sm:text-2xl
-                                                                            md:text-3xl
-                                                                            text-center
-                                                                            text-black
-                                                                        "
+              text-xl
+              sm:text-2xl
+              md:text-3xl
+              text-center
+              text-black
+          "
           >
             Редагування замовлення № {order.orderNumber}
           </h2>
@@ -628,13 +613,13 @@ const EditOrder = () => {
             src={Flower}
             alt=""
             className="
-                                                                            h-12 w-12
-                                                                            sm:h-14 sm:w-14
-                                                                            md:h-16 md:w-16
-                                                                            object-contain
-                                                                            ml-2 sm:ml-3 md:ml-4
-                                                                            transform translate-y-[10px] {/* АБО translate-y-2.5 */}
-                                                                        "
+              h-12 w-12
+              sm:h-14 sm:w-14
+              md:h-16 md:w-16
+              object-contain
+              ml-2 sm:ml-3 md:ml-4
+              transform translate-y-[10px] {/* АБО translate-y-2.5 */}
+          "
           />
         </div>
         {/* <h4 className="text-xl font-semibold pb-4 mb-6 uppercase border-b text-gray-800">

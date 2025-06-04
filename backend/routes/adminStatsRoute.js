@@ -1,4 +1,3 @@
-// routes/adminStatsRoute.js
 const express = require('express');
 const router = express.Router();
 const { getDashboardStats, getPopularProducts } = require('../controllers/adminStatsController.js');

@@ -1,8 +1,3 @@
-// import express from "express"
-// import { addSupplier, fetchSuppliers, removeSupplier, editSupplier } from "../controllers/supplierController.js"
-// import supplierModel from "../models/supplierModel.js"
-// import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
-
 const express = require("express");
 const {
     addSupplier,
@@ -48,4 +43,3 @@ supplierRouter.get("/details/:id", authMiddleware, adminMiddleware, async (req, 
 });
 
 module.exports = supplierRouter;
-// export default supplierRouter;

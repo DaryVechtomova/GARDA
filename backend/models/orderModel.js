@@ -1,4 +1,3 @@
-// import mongoose from "mongoose";
 const mongoose = require("mongoose");
 
 const editHistoryItemSchema = new mongoose.Schema({
@@ -91,4 +90,3 @@ orderSchema.path('editHistory').discriminator('status_change', statusChangeSchem
 
 const orderModel = mongoose.models.order || mongoose.model("order", orderSchema);
 module.exports = orderModel;
-// export default orderModel;

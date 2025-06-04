@@ -1,9 +1,3 @@
-// import mongoose from 'mongoose';
-// import express from "express"
-// import { loginUser, registerUser, listEmployees, registerEmployee, editEmployee, fireEmployee, getCurrentEmployee, checkUserRole, updateAdminProfile, changePassword, getCurrentUser, updateClientProfile } from "../controllers/userController.js"
-// import { authMiddleware, adminMiddleware, strictAdminMiddleware } from "../middleware/auth.js";
-// import userModel from "../models/userModel.js";
-
 const express = require("express");
 const mongoose = require("mongoose");
 const {
@@ -73,5 +67,4 @@ userRouter.put("/update-profile", authMiddleware, updateAdminProfile);
 userRouter.post("/change-password", authMiddleware, changePassword);
 userRouter.put("/update-client-profile", authMiddleware, updateClientProfile);
 
-// export default userRouter;
 module.exports = userRouter;

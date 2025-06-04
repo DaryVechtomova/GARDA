@@ -8,11 +8,11 @@ import {
   FaSpinner,
   FaEye,
   FaEyeSlash,
-} from "react-icons/fa"; // Оновив іконки
+} from "react-icons/fa";
 import Flower from "../assets/design/flower.png";
 
 const ChangePasswordPage = () => {
-  const url = "http://localhost:4000"; // Ваш URL
+  const url = "http://localhost:4000";
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
   const [passwords, setPasswords] = useState({
@@ -80,7 +80,6 @@ const ChangePasswordPage = () => {
 
     setIsSaving(true);
     try {
-      // Використовуємо ендпоінт з попереднього кроку
       const response = await axios.post(`${url}/api/user/change-password`, {
         oldPassword: passwords.oldPassword,
         newPassword: passwords.newPassword,
@@ -133,23 +132,23 @@ const ChangePasswordPage = () => {
               src={Flower}
               alt=""
               className="
-                                                    h-12 w-12
-                                                    sm:h-14 sm:w-14
-                                                    md:h-16 md:w-16
-                                                    object-contain
-                                                    mr-2 sm:mr-3 md:mr-4
-                                                    transform translate-y-[10px]  {/* АБО translate-y-2.5 якщо ви налаштували такі кроки */}
-                                                    "
+                h-12 w-12
+                sm:h-14 sm:w-14
+                md:h-16 md:w-16
+                object-contain
+                mr-2 sm:mr-3 md:mr-4
+                transform translate-y-[10px]
+                "
             />
             <h2
               style={{ fontFamily: "Montserrat Alternates", fontWeight: 600 }}
               className="
-                                                    text-xl
-                                                    sm:text-2xl
-                                                    md:text-2xl
-                                                    text-center
-                                                  text-black
-                                                    "
+                text-xl
+                sm:text-2xl
+                md:text-2xl
+                text-center
+                text-black
+                "
             >
               Зміна пароля
             </h2>
@@ -157,13 +156,13 @@ const ChangePasswordPage = () => {
               src={Flower}
               alt=""
               className="
-                                                    h-12 w-12
-                                                    sm:h-14 sm:w-14
-                                                    md:h-16 md:w-16
-                                                    object-contain
-                                                    ml-2 sm:ml-3 md:ml-4
-                                                    transform translate-y-[10px] {/* АБО translate-y-2.5 */}
-                                                    "
+                h-12 w-12
+                sm:h-14 sm:w-14
+                md:h-16 md:w-16
+                object-contain
+                ml-2 sm:ml-3 md:ml-4
+                transform translate-y-[10px] {/* АБО translate-y-2.5 */}
+                "
             />
           </div>
           {/* <h4 className="text-xl font-semibold pb-4 mb-6 uppercase border-b text-gray-800">
@@ -190,11 +189,12 @@ const ChangePasswordPage = () => {
                       ? "border-red-500 focus:ring-red-500 focus:border-red-500"
                       : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                   }`}
-                  autoComplete="current-password" // Допомагає менеджерам паролів
+                  autoComplete="current-password"
+                  ї
                 />
                 <button
                   type="button"
-                  onClick={() => togglePasswordVisibility("old")} // Перемикаємо видимість для 'old'
+                  onClick={() => togglePasswordVisibility("old")}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
                   aria-label={
                     showPassword.old ? "Сховати пароль" : "Показати пароль"
@@ -239,7 +239,7 @@ const ChangePasswordPage = () => {
                 />
                 <button
                   type="button"
-                  onClick={() => togglePasswordVisibility("new")} // Перемикаємо видимість для 'new'
+                  onClick={() => togglePasswordVisibility("new")}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
                   aria-label={
                     showPassword.new ? "Сховати пароль" : "Показати пароль"

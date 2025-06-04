@@ -1,5 +1,3 @@
-// import jwt from 'jsonwebtoken';
-// import userModel from '../models/userModel.js'; // Переконайся, що шлях правильний
 const jwt = require('jsonwebtoken');
 const userModel = require('../models/userModel.js')
 
@@ -8,11 +6,9 @@ const authMiddleware = async (req, res, next) => {
     const authorizationHeader = req.headers.authorization;
 
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-        // 401 Unauthorized - стандартний код для відсутності автентифікації
         return res.status(401).json({ success: false, message: 'Для виконання цієї дії необхідно авторизуватися' });
     }
 
-    // Витягуємо сам токен
     const token = authorizationHeader.split(' ')[1];
 
     if (!token) {
@@ -27,34 +23,30 @@ const authMiddleware = async (req, res, next) => {
         const user = await userModel.findById(decoded.id).select('-password'); // Виключаємо пароль
 
         if (!user) {
-            // Якщо користувача з таким ID вже немає в базі
             return res.status(401).json({ success: false, message: 'Авторизація недійсна (користувача не знайдено)' });
         }
 
         // 4. Перевірка активності (якщо це співробітник)
         if (user.role !== 'користувач' && !user.isActive) {
-            // 403 Forbidden - доступ заборонено, хоча автентифікація пройшла
             return res.status(403).json({ success: false, message: 'Ваш акаунт співробітника неактивний' });
         }
 
         // 5. Додаємо об'єкт користувача до запиту
-        req.user = user; // Тепер req.user буде доступний далі (в adminMiddleware, контролерах)
-        next(); // Переходимо до наступного middleware або контролера
+        req.user = user;
+        next();
 
     } catch (error) {
         console.error('Помилка верифікації токена:', error.name, error.message);
         let message = "Помилка авторизації";
-        let statusCode = 401; // За замовчуванням Unauthorized
+        let statusCode = 401;
 
         if (error.name === 'TokenExpiredError') {
             message = 'Термін дії сесії закінчився. Будь ласка, увійдіть знову.';
         } else if (error.name === 'JsonWebTokenError') {
             message = 'Недійсний токен авторизації.';
         } else {
-            // Інші можливі помилки (наприклад, проблеми з БД під час пошуку user)
             message = 'Внутрішня помилка сервера під час авторизації.';
-            statusCode = 500; // Internal Server Error
-            // Логуємо повну помилку для діагностики
+            statusCode = 500;
             console.error(error);
         }
 
@@ -62,8 +54,6 @@ const authMiddleware = async (req, res, next) => {
     }
 };
 
-// Middleware для перевірки ролі (адміністратор або комірник)
-// Цей middleware тепер працюватиме, бо authMiddleware встановлює req.user
 const adminMiddleware = (req, res, next) => {
     const allowedRoles = ["адміністратор", "комірник", "менеджер з продажу"];
 
@@ -93,4 +83,3 @@ const strictAdminMiddleware = (req, res, next) => {
 };
 
 module.exports = { authMiddleware, adminMiddleware, strictAdminMiddleware };
-//export { authMiddleware, adminMiddleware, strictAdminMiddleware }; // Експортуємо оновлене middleware
