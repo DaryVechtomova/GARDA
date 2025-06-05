@@ -6,6 +6,9 @@ import { NavLink } from "react-router-dom";
 import Flower from "../assets/design/flower.png";
 
 function Orders() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const url = "http://localhost:4000";
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
@@ -108,7 +111,7 @@ function Orders() {
     filtered = [...filtered].sort((a, b) => {
       const dateA = new Date(a.date);
       const dateB = new Date(b.date);
-      return sortOrder === "DESC" ? dateA - dateB : dateB - dateA;
+      return sortOrder === "desc" ? dateA - dateB : dateB - dateA;
     });
 
     setFilteredOrders(filtered);

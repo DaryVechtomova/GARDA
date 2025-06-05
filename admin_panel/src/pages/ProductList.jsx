@@ -7,6 +7,9 @@ import { FaPlus } from "react-icons/fa6";
 import Flower from "../assets/design/flower.png";
 
 function List() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const url = "http://localhost:4000";
   const [list, setList] = useState([]);
   const [sortOrder, setSortOrder] = useState("asc");

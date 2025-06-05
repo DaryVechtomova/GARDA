@@ -7,6 +7,9 @@ import { FaPlus } from "react-icons/fa6";
 import Flower from "../assets/design/flower.png";
 
 function InvoiceList() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const url = "http://localhost:4000";
   const [invoices, setInvoices] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");

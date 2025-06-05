@@ -6,6 +6,9 @@ import { FaArrowLeft, FaEdit, FaSpinner } from "react-icons/fa"; // Додав �
 import Flower from "../assets/design/flower.png";
 
 const SupplierDetails = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const url = "http://localhost:4000";
   const { id } = useParams();
   const navigate = useNavigate();

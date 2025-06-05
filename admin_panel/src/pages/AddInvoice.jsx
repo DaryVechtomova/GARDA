@@ -8,6 +8,9 @@ import Flower from "../assets/design/flower.png";
 
 // Визначаємо компонент
 const AddInvoice = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const url = "http://localhost:4000";
   const navigate = useNavigate();
   const [data, setData] = useState({

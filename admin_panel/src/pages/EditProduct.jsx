@@ -6,6 +6,9 @@ import { FaSave, FaTrash, FaUpload, FaArrowLeft } from "react-icons/fa"; // До
 import Flower from "../assets/design/flower.png";
 
 const Edit = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const url = "http://localhost:4000"; // URL вашого бекенду
   const { id } = useParams();
   const navigate = useNavigate();

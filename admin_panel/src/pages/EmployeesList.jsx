@@ -7,6 +7,9 @@ import { FaPlus } from "react-icons/fa6";
 import Flower from "../assets/design/flower.png";
 
 function EmployeesList() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const url = "http://localhost:4000";
   const [employees, setEmployees] = useState([]);
   const [showFireConfirmation, setShowFireConfirmation] = useState(false);

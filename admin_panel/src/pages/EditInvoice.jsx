@@ -15,6 +15,9 @@ import Select from "react-select"; // Використовуємо react-select
 import Flower from "../assets/design/flower.png";
 
 const EditInvoice = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const url = "http://localhost:4000";
   const { id } = useParams();
   const navigate = useNavigate();

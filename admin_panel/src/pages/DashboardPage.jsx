@@ -35,6 +35,9 @@ const StatCard = ({ title, value, bgColor = "bg-blue-500", icon }) => {
 };
 
 const DashboardPage = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const [stats, setStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(true);
   const [popularProducts, setPopularProducts] = useState([]);

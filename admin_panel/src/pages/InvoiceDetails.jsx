@@ -13,6 +13,9 @@ import {
 import Flower from "../assets/design/flower.png";
 
 function InvoiceDetails() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const url = "http://localhost:4000";
   const { id } = useParams();
   const [invoice, setInvoice] = useState(null);

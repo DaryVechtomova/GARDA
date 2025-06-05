@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +12,9 @@ import {
 import Flower from "../assets/design/flower.png";
 
 const ChangePasswordPage = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const url = "http://localhost:4000";
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);

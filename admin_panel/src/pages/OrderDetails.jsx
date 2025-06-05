@@ -14,6 +14,9 @@ import {
 } from "react-icons/fa";
 
 const OrderDetails = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const url = "http://localhost:4000";
   const { id } = useParams();
   const navigate = useNavigate();

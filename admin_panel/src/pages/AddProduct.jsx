@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 // import upload_area from "../assets/upload_area1.svg"; // Можна видалити, якщо не використовується плейсхолдер-зображення
 import { FaPlus, FaTrash, FaUpload, FaArrowLeft } from "react-icons/fa"; // Додав FaUpload, FaTrash
 import axios from "axios";
@@ -7,6 +7,9 @@ import { useNavigate } from "react-router-dom";
 import Flower from "../assets/design/flower.png";
 
 const Add = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const url = "http://localhost:4000"; // URL вашого бекенду
   const [images, setImages] = useState([]); // Стан для зберігання об'єктів File
   const navigate = useNavigate();

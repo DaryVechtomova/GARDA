@@ -7,6 +7,9 @@ import { FaSpinner, FaSave, FaKey, FaTimes } from "react-icons/fa";
 import Flower from "../assets/design/flower.png";
 
 const ProfilePage = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const url = "http://localhost:4000"; // Ваш URL
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);

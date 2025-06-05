@@ -6,6 +6,9 @@ import { FaArrowLeft } from "react-icons/fa";
 import Flower from "../assets/design/flower.png";
 
 const ProductDetails = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const url = "http://localhost:4000";
   const { id } = useParams();
   const navigate = useNavigate();
